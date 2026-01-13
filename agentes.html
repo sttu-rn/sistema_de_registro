@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Frota e Agentes - STTU</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .page-header { background-color: #36454f; color: white; padding: 10px 0; display: flex; align-items: center; margin-bottom: 20px; }
+        .title-container { flex-grow: 1; text-align: center; font-size: 24px; font-weight: bold; }
+        
+        table { border-collapse: collapse; width: 100%; border: 1px solid #ddd; margin-bottom: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 11px; vertical-align: top; }
+        .date-header-row { background-color: #36454f; color: white; text-align: center; font-weight: bold; }
+        .data-header { background-color: #f2f2f2; text-align: center; font-weight: bold; }
+        
+        .agentes-container { display: flex; flex-direction: column; gap: 4px; min-width: 250px; }
+        .agente-row { display: flex; align-items: center; gap: 5px; transition: opacity 0.3s; }
+        
+        .input-multiplo { margin-bottom: 2px; display: block; width: 98%; }
+
+        input, select, textarea { 
+            width: 98%; padding: 4px; box-sizing: border-box; border: 1px solid #ccc; 
+            font-family: inherit; font-size: 11px; text-transform: uppercase; 
+        }
+        textarea { resize: vertical; min-height: 40px; }
+        
+        .condutor-radio { width: auto; cursor: pointer; }
+        .obrigatorio { border-left: 4px solid #dc3545; }
+        .campo-numerico { background-color: #fff9e6; font-weight: bold; }
+
+        .section-title { background-color: #55606b; color: white; padding: 10px; margin-top: 30px; border-radius: 5px 5px 0 0; font-weight: bold; }
+        
+        #tabelaAtivos th { background-color: #ffc107; color: #212529; }
+        #relatorioFinal th { background-color: #6a7c8b; color: white; }
+        
+        .hora-fim-celula { color: #d9534f; font-weight: bold; }
+        .status-encaminhado { color: #e67e22; font-weight: bold; }
+        .status-encerrado { color: #28a745; font-weight: bold; }
+        .condutor-destaque { color: #007bff; font-weight: bold; }
+
+        .btn { padding: 8px 12px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; transition: 0.3s; margin: 2px; }
+        .btn-salvar { background-color: #007bff; color: white; }
+        .btn-devolver { background-color: #dc3545; color: white; font-size: 10px; }
+        .btn-encaminhar { background-color: #17a2b8; color: white; font-size: 10px; }
+        .btn-confirmar { background-color: #28a745; color: white; font-size: 10px; }
+        .btn-download { background-color: #28a745; color: white; }
+        .btn-home { background-color: #55606b; color: white; text-decoration: none; display: inline-block; }
+        
+        input:disabled { background-color: #e9ecef; cursor: not-allowed; }
+        .editando-celula { background-color: #fff3cd !important; border: 2px solid #ffc107 !important; padding: 4px !important; }
+        
+        .edit-row-container { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+        .edit-agente-input { width: 100% !important; font-size: 10px !important; background-color: white; }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <div class="title-container">CONTROLE DE AGENTES E VEÍCULOS</div>
+</div>
+
+<div style="padding: 0 20px;">
+    <form id="registroForm">
+        <table>
+            <thead>
+                <tr>
+                    <th class="date-header-row" colspan="7">INFORMAÇÕES GERAIS</th>
+                    <th class="date-header-row" colspan="2">TURNO</th>
+                </tr>
+                <tr>
+                    <td class="date-header-row" colspan="3" id="diaSemana">---</td>
+                    <td class="date-header-row" colspan="4"><input type="text" id="dataRelatorio" style="background:transparent; color:white; text-align:center; border:none;" readonly></td>
+                    <td class="date-header-row" colspan="2">
+                        <select id="turno" style="background:transparent; color:white; border:none; text-align-last:center;">
+                            <option value="MANHÃ" style="color:black">MANHÃ</option>
+                            <option value="TARDE" style="color:black">TARDE</option>
+                            <option value="NOITE" style="color:black">NOITE</option>
+                            <option value="MADRUGADA" style="color:black">MADRUGADA</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr id="headerOriginalRow">
+                    <th class="data-header">VEÍCULO E LOCAL</th>
+                    <th class="data-header">AGENTES E CONDUTOR (⦿)</th>
+                    <th class="data-header">HT (Nº)</th>
+                    <th class="data-header">ASE (Nº)</th>
+                    <th class="data-header">FUNÇÃO EQUIPE</th>
+                    <th class="data-header">MALETAS (Nº)</th>
+                    <th class="data-header">REGIÃO ATUAL</th>
+                    <th class="data-header">HORA INÍCIO (CICLO)</th>
+                    <th class="data-header">PONTO BASE ATUAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><select id="veiculo"><option value="">Carregando...</option></select></td>
+                    <td>
+                        <div class="agentes-container">
+                            <div class="agente-row"><input type="radio" name="condutor" value="0" class="condutor-radio"><input type="text" class="agente-input" list="listaAgentes" placeholder="AGENTE 1"></div>
+                            <div class="agente-row"><input type="radio" name="condutor" value="1" class="condutor-radio"><input type="text" class="agente-input" list="listaAgentes" placeholder="AGENTE 2"></div>
+                            <div class="agente-row"><input type="radio" name="condutor" value="2" class="condutor-radio"><input type="text" class="agente-input" list="listaAgentes" placeholder="AGENTE 3"></div>
+                            <div class="agente-row"><input type="radio" name="condutor" value="3" class="condutor-radio"><input type="text" class="agente-input" list="listaAgentes" placeholder="AGENTE 4"></div>
+                            <div class="agente-row"><input type="radio" name="condutor" value="4" class="condutor-radio"><input type="text" class="agente-input" list="listaAgentes" placeholder="AGENTE 5"></div>
+                        </div>
+                        <datalist id="listaAgentes"></datalist>
+                    </td>
+                    
+                    <td id="container-ht" style="min-width: 80px;"></td>
+                    <td id="container-ase" style="min-width: 80px;"></td>
+
+                    <td>
+                        <select id="situacao">
+                            <option value="ATENDIMENTO">ATENDIMENTO</option>
+                            <option value="DESPACHO">DESPACHO</option>
+                            <option value="INSPEÇÃO">INSPEÇÃO</option>
+                            <option value="FISCALIZAÇÃO">FISCALIZAÇÃO</option>
+                            <option value="ATENDIMENTO A OCORRENCIAS DE SINISTRO">ATENDIMENTO A OCORRENCIAS DE SINISTRO</option>
+                        </select>
+                    </td>
+                    
+                    <td><input type="text" id="maletas" class="campo-numerico" placeholder="Nº MALETA" oninput="this.value = this.value.replace(/[^0-9]/g, '')"></td>
+
+                    <td>
+                        <select id="zona">
+                            <option value="">SELECIONE...</option>
+                            <option value="REGIÃO 1">REGIÃO 1</option>
+                            <option value="REGIÃO 2">REGIÃO 2</option>
+                            <option value="REGIÃO 3">REGIÃO 3</option>
+                            <option value="REGIÃO 4">REGIÃO 4</option>
+                            <option value="REGIÃO 5">REGIÃO 5</option>
+                            <option value="GERAL">GERAL</option>
+                        </select>
+                    </td>
+                    <td><input type="time" id="horaInicio"></td>
+                    <td><textarea id="pontoBase" class="obrigatorio" placeholder="CAMPO OBRIGATÓRIO"></textarea></td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align: center;"><button type="submit" class="btn btn-salvar">Registrar Equipe</button></div>
+    </form>
+
+    <div style="text-align: center; margin-top: 20px; gap: 10px; display: flex; justify-content: center;">
+        <button id="btnCSV" class="btn btn-download">Baixar Relatório Completo (Histórico + Ativos)</button>
+        <a href="index.html" class="btn btn-home">Página Inicial</a>
+        <a href="ocorrencias.html" class="btn btn-home">Ocorrências</a>
+        <a href="observacoes.html" class="btn btn-home">Observações</a>
+    </div>
+
+    <div class="section-title">⚠️ Veículos em Operação (Sincronizado)</div>
+    <table id="tabelaAtivos">
+        <tbody></tbody>
+    </table>
+
+    <div class="section-title">✅ Histórico de Atividades Encerradas</div>
+    <table id="relatorioFinal">
+        <thead>
+            <tr>
+                <th>VEÍCULO</th>
+                <th>AGENTE</th>
+                <th>HT</th>
+                <th>ASE</th>
+                <th>FUNÇÃO</th>
+                <th>MALETAS</th>
+                <th>REGIÃO</th>
+                <th>HORA INÍCIO</th>
+                <th>HORA FIM</th>
+                <th>TIPO REGISTRO</th>
+                <th>PONTO BASE</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFupijB29MN2XKQmGRr6BKsJW5VlpdLlA",
+        authDomain: "sttudatabase.firebaseapp.com",
+        projectId: "sttudatabase",
+        storageBucket: "sttudatabase.firebasestorage.app",
+        messagingSenderId: "926992433848",
+        appId: "1:926992433848:web:038926366bd761c003aa4d",
+        measurementId: "G-DFH2VG54Q9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const agentesDB = ["ADRIANA GOMES DA SILVA - 43.071-4", "ADRIANO ANDRÉ GUEDES COSTA - 43.079-0", "ADRIANO NASCIMENTO DA FONSECA - 49.991-9", "AFRÂNIO MEDEIROS DA COSTA - 43.151-6", "AGRICIO BELCHIOR BANDEIRA NETO - 43.127-3", "AILTON ANDRADE - 62.095-5", "ALBERTO ANTÔNIO DE ANDRADE - 00.372-7", "ALCINEIDE JUSTO SIQUEIRA - 62.100-5", "ALDO ANTÔNIO DO NASCIMENTO - 00.670-0", "ALDOBERTO FELIPE DO NASCIMENTO - 05.694-4", "ALDREY LUIZ MORAIS DA SILVA - 62.549-3", "ALDRIN MAGNO DANTAS SIQUEIRA - 43.080-3", "ALESSANDRA DORA DA SILVA COSTA - 43.199-1", "ALEX SERAFIM DA SILVA - 15.231-5", "ALEXANDRA BARROS DO NASCIMENTO - 49.953-6", "ALEXANDRE DE SOUZA - 13.174-1", "ALEXANDRE MAGNO FREITAS COSMO - 61.947-7", "ALEXSANDRO NASCIMENTO BARBOSA - 43.072-2", "ALYENE PATRICIA CRUZ BRITO ALVES - 64.545-0", "ALISSON EMANOEL DE OLIVEIRA FAGUNDES - 49.995-1", "ALLAN ARAÚJO DE MEDEIROS - 43.073-1", "ANA MARIA DA SILVA ALVES - 13.141-5", "ANA SUELY PEREIRA LOPES - 00.460-0", "ANA SUELY CAVALCANTE SILVA DE QUEIROZ - 09.596-6", "ANDERSON RODRIGO DO NASCIMENTO - 63.802-1", "ANDRE CORCINO DE LIMA FILHO - 00.387-5", "ANDREA CASTRO GALVÃO - 62.097-1", "ANDREIA CARLA SILVA FONSECA E SOUZA - 14.071-6", "ANDREZA CABRAL CÂMARA NUNES - 61.710-5", "ANGELA CRISTINA FREIRE TARGINO - 07.964-2", "ANNE CAROLINE MACEDO DE ARAÚJO - 60.233-7", "ANTÃO LOPES DE ARAÚJO FILHO - 43.100-1", "ANTONIO CLEMENTINO DA ROCHA - 13.632-8", "ANTONIO DE SOUZA SALES - 00.673-4", "ANTONIO DIAS FURTADO - 08.803-0", "ANTONIO GUILHERME DOS SANTOS - 14.206-9", "ANTONIO SARMENTO RODRIGUES FILHO - 13.634-4", "ANTONIO SERGIO COSTA ALMEIDA - 08.786-6", "AROLDO ALVES DA SILVA - 00.141-4", "BARBARA KALYANA DOS SANTOS GOMES - 43.102-8", "CARLOS ANTÔNIO FERREIRA - 00.433-2", "CARLOS EUBER DE FREITAS NEVES - 43.077-3", "CARLOS EUGÊNIO BARBOSA DE OLIVEIRA - 00.282-8", "CARLOS VALENTIM ALVES - 13.140-7", "CARLYLE CÂMARA DOS SANTOS - 43.150-8", "CARMOZINA REGIA DE MELO DANTAS - 43.084-6", "CAROLINA DE CÁSSIA DEFENTE - 43.101-0", "CASSIO CLAY PEREIRA - 14.190-9", "CASTRICIANO BRAZ DOS SANTOS - 13.593-3", "CÉLIA MARIA FERREIRA FERREIRA CARVALHO - 00.461-8", "CHIARA LUCIA DE GUMÃO GONÇALVES COSTA - 43.096-0", "CLAUDIA JACQUELINE GALVÃO SOUZA - 14.937-3", "CLEIDE MARIA DOS SANTOS SILVA - 13.614-0", "CLEONEIDE CORREIA RAMALHO RIBEIRO - 13.609-3", "CLODOALDO CABRAL DA TRINDADE JÚNIOR - 00.020-5", "CRISTIANE DE MACEDO E SILVA - 62.873-5", "DANIEL ALBURQUERQUE EMERENCIANO GONÇALVES - 43.090-1", "DANIELLE PEREIRA DE OLIVEIRA - 60.072-5", "DANILSON BENTES MARINHO - 13.116-4", "DAVI FIRMINO DE LIMA - 14.953-5", "DENÍLSON ARAÚJO DA COSTA - 60.090-3", "DILMA APARECIDA PEREIRA - 13.159-8", "DIONISIO CARDOSO DA COSTA - 13.659-0", "DIZENIR BARBOSA DE MOURA DE CORCINO LIMA - 09.419-6", "DANILO CLAUDIO LIRA DOS SANTOS - 72.245-7", "EDÍLSON FERREIRA DOS SANTOS - 00.417-1", "EDILSON OLIVEIRA DA SILVA - 13.147-4", "EDINALVA DUARTE LEAL DE MEDEIROS - 00.463-4", "EDINÁSIO COSTA SOARES - 49.986-2", "EDJA DE PAULA MAIA - 45.570-9", "EDMILSON CARNEIRO DA SILVA - 00.678-5", "EDSON RAIMUNDO DA SILVA - 13.463-5", "EDUARDO SANTOS CORREIA - 26.931-0", "EDVALDO MANOEL DA SILVA - 00.465-1", "EDVALDO SOARES DA SILVA - 09.325-4", "ELIAS SILVA TRINDADE JÚNIOR - 05.630-8", "ELIZABETE RANYELA MORAIS DE MOURA - 43.198-2", "ERIVAN PEREIRA DA SILVA - 00.471-5", "ERNESTO MORAIS VIANA - 14.930-6", "EVALDO FELIX FERREIRA - 00.518-5", "EVERALDO ALEXANDRE FREIRE - 14.043-1", "FERNANDA FREITAS DE HOLANDA - 60.066-1", "FRANCISCO ALVES MENDES - 26.880-1", "FRANCISCO BARBOSA DE LIMA - 05.949-8", "FRANCISCO CANINDÉ DA SILVA - 05.526-3", "FRANCISCO CAVALCANTE DE CARVALHO - 08.626-6", "FRANCISCO DE ASSIS HENRIQUE DOS SANTOS - 02.967-0", "FRANCISCO DE ASSIS PAULINO BANDEIRA - 08.948-6", "FRANCISCO DE ASSIS DE MELO - 09.415-3", "FRANCISCO GILSON LEONIDAS DA SILVA - 13.679-4", "FRANCISCO JOSEMAR BEZERRA - 05.308-2", "FRANZ BIAGGIO FULCO GAAG - 65.247-4", "FREDSON EUGENIO SILVA - 13.670-1", "GELIADE MEDEIROS TEIXEIRA DOS SANTOS - 09.482-0", "GENALDO AZEVEDO TRINDADE - 43.086-2", "GERALDO MARCELINO DA SILVA - 27.155-1", "GIL XAVIER FILHO - 00.409-0", "GILBERTO CARNEIRO TIMÓTEO - 07.944-8", "GILDIBERTO DE SOUZA ALVES - 08.646-1", "GILMAR GOMES DO NASCIMENTO - 06.726-1", "GLÓRIA MARIA DE LIMA - 00.452-9", "GUSTAVO DIAS SILVA FILHO - 00.100-7", "GUTEMBERG PEREIRA - 08.015-2", "HAILSON CABRAL DO NASCIMENTO - 00.375-1", "HARLLEY CAMPOS MARQUES - 65.420-5", "HEITOR RODRIGUES DE LIMA - 43.097-8", "HEMERSON MELO DA SILVA - 49.952-8", "HERANDY DE ARAÚJO CABRAL - 49.950-1", "HERQUILES LIMA DOS SANTOS - 43.149-4", "HEWERTON MOURA DA SILVA - 43.098-6", "HILDA TEONACIO DOS SANTOS - 13.490-2", "IONES ZUZA DE OLIVEIRA - 05.509-3", "IRAKITAN DANTAS SOARES - 27.079-2", "IRENILDO ANTÔNIO DA SILVA - 26.192-1", "ISABELA SILVA NICÁCIO DE BRITO - 60.234-5", "ISRAEL FERREIRA PEREIRA - 13.110-5", "IVAN DE CARVALHO MEDEIROS - 00.431-6", "IVANALDO DUARTE DE AZEVEDO - 08.719-0", "IVES SILVA DE SOUZA - 62.151-0", "IZONAIDE DE OLIVEIRA COSTA - 00.531-2", "JAIR JEFFERSON DE CARVALHO - 13.896-7", "JARBAS GOMES DA SILVA - 07.599-0", "JARDEL BEZERRA DE ANDRADE - 62.189-7", "JARDS MEDEIROS DE OLIVEIRA - 62.826-3", "JATSON FRANCISCO DA SILVA BANDEIRA - 13.727-8", "JEFFERSON STANLEY DA SILVA - 62.919-7", "JOÃO BATISTA DA SILVA - 08.883-8", "JOÃO BATISTA MONTEIRO DE AQUINO - 00.482-1", "JOÃO BATISTA ROCHA FILHO - 49.994-3", "JOÃO BATISTA VARELA BARCA - 15.710-4", "JOÃO CLAUDIO OLIVEIRA DE FARIAS - 00.383-2", "JOÃO FERREIRA - 06.644-3", "JOÃO MARIA ALMEIDA DE MOURA - 43.070-6", "JOÃO MARIA CAVALCANTE BEZERRA - 00.696-3", "JOÃO MARIA DO ARAÚJO NOGUEIRA - 13.152-1", "JOÃO MARIA DE FREITAS DE LIRA - 00.247-0", "JOÃO MARIA MACEDO ROCHA - 43.201-6", "JOÃO MARQUES DE LIMA - 06.727-0", "JOÃO PAULO DE OLIVEIRA - 43.082-0", "JOÃO WILLAMS DA SILVA - 62.253-2", "JONAS CRISTINO DA SILVA - 14.931-4", "JORGE LUIZ BARROS DO NASCIMENTO - 62.431-4", "JORGE LUIZ SIQUEIRA DE OLIVEIRA - 62.191-9", "JOSÉ EUDES BEZERRA - 49.985-4", "JOSÉ ALBERTO FREIRE DA COSTA - 42.766-7", "JOSE ALVES DE SOUZA NETO - 00.544-4", "JOSE AUTEMAR RICARDO - 00.475-8", "JOSÉ CARLOS GOMES - 16.092-0", "JOSE DINIZ RAMOS - 00.575-4", "JOSE EBER DA SILVA - 13.105-9", "JOSÉ FERREIRA NETO - 00.390-5", "JOSÉ GONÇALVES MANGABEIRA DE MEDEIROS - 43.083-8", "JOSÉ MARIA DA SILVA - 00.122-8", "JOSÉ MARINHO DE SOUZA - 00.007-8", "JOSÉ SILVA DOS SANTOS - 00.484-7", "JOSÉ RICARDO GOMES CAVALCANTE - 13.102-4", "JOSE ROBERTO DA SILVA DE OLIVEIRA - 14.922-5", "JOSÉ ROGÉRIO DA SILVA LEITE - 00.105-8", "JOSÉ ROOSEVELT MEDEIROS JÚNIOR - 62.416-1", "JOSÉ WELLINGTON DE OLIVEIRA - 00.034-5", "JOSEMAR DA SILVA DAMASCENO - 60.068-7", "JOSEMAR TAVARES CÂMARA JUNIOR - 43.152-4", "JOSENILSON TEIXEIRA DE SOUZA - 00.386-7", "KASTEEN CARLOS DE AQUINO E SILVA - 43.076-5", "KATHERINO GHRISTI DANTAS JALES - 45.253-0", "KATIA MONTEIRO OLIVEIRA - 07.766-6", "KÁTIA REGINA DO NASCIMENTO SILVA - 00.572-0", "KLEBER SILVESTRE LUSTOSA - 49.825-4", "LAILTON RIBEIRO DA COSTA - 43.078-1", "LAURI CAVALCANTE MAIA - 02.990-4", "LEONARDO BATISTA DE SOUZA SILVA - 64.542-7", "LEONARDO DA SILVEIRA LUCENA - 43.122-2", "LIDIELMA BEZERRA - 00.568-1", "LUCIANO PEDRO DANTAS - 06.490-4", "LUCILENE APARECIDA DE OLIVEIRA - 00.560-6", "LUCINALDO PEREIRA DUARTE - 00.485-5", "LÚCIO BATISTA DE MEDEIROS - 27.072-5", "LUIZ ANTONIO RAMOS FREIRE - 00.293-3", "LUIZ CARLOS SILVA DO NASCIMENTO - 04.957-3", "LUIZ RICARDO DE LIMA SOARES - 62.918-9", "LUSINALDO CÂMARA DE MORAIS - 00.316-6", "LUZINETE SILVA DE MELO - 09.556-7", "MADSON LIMA CAVALCANTI DE OLIVEIRA - 49.989-7", "MANASSÉS DA FONSECA COSTA - 07.593-1", "MANOEL BARRETO DA SILVA NETO - 00.275-5", "MANOEL NOBREGA DE OLIVEIRA - 13.758-8", "MARA LUCIA BARROS DE SOUZA - 70.665-5", "MARCELO BATISTA DE ANDRADE - 61.952-3", "MARCELO FIRMINO DA SILVA - 00.691-2", "MARCELO FRANÇA DA SILVA - 60.073-3", "MARCELO LUSTOSA DE SOUZA - 00.257-7", "MARCELO ZAERDSON LINS MEDEIROS - 62.184-6", "MARCELLUS DE BRITO COELHO - 68.271-3", "MARCILIO DE OLIVEIRA RODRIGUES - 49.951-0", "MÁRCIO JOSÉ DA SILVA - 68.159-8", "MARCO TÚLIO DAMASCENO DA ROCHA - 49.993-5", "MARCOS ANTONIO DE OLIVEIRA - 07.326-1", "MARCOS BATISTA ESPINOLA - 13.907-6", "MARGARETH DA SILVA TELES - 08.713-1", "MARIA ADEILZE DE ARAÚJO SOUZA NASCIMENTO - 00.493-6", "MARIA AUXILIADORA SOUZA DA SILVA - 09.553-2", "MARIA BERNADETE MACIEL - 08.306-2", "MARIA CELIDA DA SILVA - 14.921-7", "MARIA DA CONCEIÇÃO BARBOSA DE SOUZA - 07.748-8", "MARIA DA CONCEIÇÃO DE SOUZA - 00.488-0", "MARIA DAS DORES DA SILVA - 26.901-8", "MARIA DAS DORES CONSTANTINO SILVESTRE - 13.783-9", "MARIA DE FÁTIMA OLIVEIRA - 00.126-1", "MARIA DE LOURDES DA SILVA FILHA - 43.200-8", "MARIA DE LOURDES LIMA MACIEL - 08.454-9", "MARIA DO CARMO DA SILVA - 00.571-1", "MARIA DO SOCORRO LIMA MARTINS - 14.070-8", "MARIA DO SOCORRO SILVA DE ANDRADE - 14.114-3", "MARIA ELZA DOS SANTOS - 00.586-0", "MARIA GORETE BEZERRA - 00.271-2", "MARIA GORETE DUTRA DE OLIVEIRA - 13.988-2", "MARIA JANEIDE BEZERRA DA SILVA - 00.536-3", "MARIA LUCIA DE ARAUJO - 00.593-2", "MARIA SANTANA BORGES DA SILVA - 00.561-4", "MÁRIO GENÁRIO DA SILVA - 00.135-0", "MARIO JOSE DA SILVA LEMOS - 14.944-6", "MARISA GILVANEIDE BERTO - 00.538-0", "MARYANE CRISTINA LOPES PEREIRA - 43.112-5", "MAXIMIANO CAPIM DE MIRANDA - 13.462-7", "MAXWELL FERNANDES DA SILVA - 13.136-9", "MICHELLE MATTE LEMOS - 60.276-1", "MIGUEL ÂNGELO DA SILVA - 27.123-3", "MIGUEL ÂNGELO DE SANTANA - 62.092-1", "MOISES PEREIRA DE ARAUJO - 08.229-5", "NADJANIA MARIA DAMASCENO VALLE - 62.368-7", "NAIRTON DA SILVA - 05.687-1", "NAOMI SUASSUNA DOS SANTOS - 60.237-0", "NEUZELIDES PRISCILA SILVA ANDRADE - 49.949-8", "NEWDENBERG FERREIRA GALVÃO - 43.081-1", "NEWTON DE SOUZA PEREIRA FILHO - 60.064-4", "NUBIA SILENE DA SILVA COSTA - 14.109-7", "OTTO LEITE NETO - 61.704-1", "PATRÍCIA CRISTINA CAVALCANTE - 45.990-9", "PAULO EDUARDO BARROS - 27.181-1", "PAULO FERNANDO GONÇALVES DE MELO - 00.050-7", "PEDRO NUNES DE SILVA - 00.601-7", "RAIMUNDO NONATO DE MEDEIROS NETO - 00.249-6", "RAPHAELLE CAVALCANTE R. DE ARAUJO - 62.149-8", "RECIO RONALDO ANDRADE DE PAIVA - 09.532-0", "REGINA VICÊNCIA CRISPIM - 62.250-8", "RICARDO SERGIO GOMES DA SILVA - 13.477-5", "RITA DE CÁSSIA SILVA - 49.992-7", "ROBSON LUIZ DE AZEVEDO - 00.184-8", "RODRIGO COSTA - 43.087-1", "ROGELIO FERNANDES DE MELO - 13.095-8", "RONALDO CÉSAR DA COSTA LIMA - 06.073-9", "RONALDO JORGE DA SILVA - 13.096-6", "RONALDO MARINHO DE SOUZA - 62.825-5", "RONALDO TEIXEIRA DE ARAÚJO - 62.257-5", "ROSEMBERG PEREIRA - 00.137-6", "ROSILDO BATISTA DA SILVA - 00.400-6", "RUBENS TRINDADE DE MELO - 00.674-2", "RUTERCIO DE SIQUEIRA COSTA - 00.253-4", "SANDRA DA SILVA BEZERRIL BACELAR - 61.712-1", "SARAH POLYANA DIAS DOS SANTOS - 43.154-1", "SERGIO ALMEIDA DOS SANTOS - 13.742-1", "SÉRGIO BATISTA FERREIRA - 00.064-7", "SEVERINA SOARES NETA CARNEIRO - 00.327-1", "SEVERINO FERNANDES MAIA - 00.192-9", "SEVERINO MOREIRA DE MEDEIROS NETO - 12.650-1", "SEVERINO SOLANO DA SILVA - 00.486-3", "SILVIA MORAIS DA COSTA - 00.542-8", "SIVANIRA ANTUNES FRANÇA FURTADO SEGUNDO - 00.500-2", "SOLANO LOPES DANTAS - 00.663-7", "SYBELLE DE ARAÚJO DANTAS - 63.386-1", "TALITHA LOUISE FORTUNATO BEZERRA - 49.990-1", "TANIA MARIA DE SOUZA SERAFIM DA SILVA - 07.763-1", "THALES GALVÃO DE ARAUJO - 63.803-0", "THALLES THIAGO MEDEIROS DE SOUZA - 49.988-9", "THIAGO DE LIRA BEZERRA - 43.075-7", "THIAGO HENRIQUE FERREIRA DA SILVA - 60.275-2", "VALDELICE FERREIRA DE OLIVEIRA - 00.507-0", "VANESSA GALDINO DA SILVA - 61.955-8", "VERÔNICA MARIA LOPES MILITÃO - 00.453-7", "WALDICK GUERRA DE MEDEIROS - 13.281-1", "WALFRAN PEREIRA CÂMARA - 62.871-9", "WALTER NÓBREGA BEZERRA - 00.082-5", "WALTER PEDRO DA SILVA - 00.358-1", "WANDERCLEY SILVA NEVES - 70.563-2", "WANDRÉ WAGNER DA SILVA - 62.367-9", "YARA ARIADNE GONÇALVES - 13.367-1", "ZELIO CUNHA - 13.400-7", "ZULEIDE RODRIGUES DE SOUZA - 08.080-2"];
+    
+    let veiculosEmUso = new Set();
+    const form = document.getElementById('registroForm');
+    // ATENÇÃO: Referência CORRETA ao TBODY para evitar conflito com cabeçalho
+    const tabelaAtivos = document.getElementById('tabelaAtivos').getElementsByTagName('tbody')[0];
+    const relatorioFinalTbody = document.getElementById('relatorioFinal').getElementsByTagName('tbody')[0];
+
+    function atualizarDataEHora() {
+        const dataAtual = new Date();
+        const diasSemana = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+        const dia = String(dataAtual.getDate()).padStart(2, '0');
+        const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+        const ano = dataAtual.getFullYear();
+        document.getElementById('diaSemana').textContent = diasSemana[dataAtual.getDay()];
+        document.getElementById('dataRelatorio').value = `${dia}/${mes}/${ano}`;
+        return `${dia}/${mes}/${ano}`;
+    }
+
+    function carregarAgentes(agentesParaExcluir = []) {
+        const dl = document.getElementById('listaAgentes');
+        dl.innerHTML = "";
+        const agentesFiltrados = agentesDB.filter(agente => !agentesParaExcluir.includes(agente));
+        agentesFiltrados.sort().forEach(agente => {
+            const opt = document.createElement('option');
+            opt.value = agente;
+            dl.appendChild(opt);
+        });
+    }
+
+    // MUDANÇA: Adicionado oninput para remover letras em HT e ASE
+    function gerarCamposDinamicos() {
+        const veiculo = document.getElementById('veiculo').value;
+        const containerHT = document.getElementById('container-ht');
+        const containerASE = document.getElementById('container-ase');
+
+        let qtd = 1;
+        if (veiculo.startsWith('VT') || veiculo === 'GUINCHO') {
+            qtd = 5;
+        }
+
+        containerHT.innerHTML = "";
+        containerASE.innerHTML = "";
+
+        for (let i = 0; i < qtd; i++) {
+            let inputHT = document.createElement('input');
+            inputHT.type = 'text'; // Usar text para permitir leading zeros se precisar
+            inputHT.className = 'campo-numerico only-numbers input-multiplo input-dinamico-ht';
+            inputHT.placeholder = qtd > 1 ? `HT ${i+1}` : 'Nº HT';
+            // Adiciona restrição
+            inputHT.oninput = function() { this.value = this.value.replace(/[^0-9]/g, ''); };
+            containerHT.appendChild(inputHT);
+
+            let inputASE = document.createElement('input');
+            inputASE.type = 'text'; 
+            inputASE.className = 'campo-numerico only-numbers input-multiplo input-dinamico-ase';
+            inputASE.placeholder = qtd > 1 ? `ASE ${i+1}` : 'Nº ASE';
+            // Adiciona restrição
+            inputASE.oninput = function() { this.value = this.value.replace(/[^0-9]/g, ''); };
+            containerASE.appendChild(inputASE);
+        }
+    }
+
+    function atualizarOpcoesDisponiveis() {
+        const inputs = document.querySelectorAll('.agente-input');
+        const selecionados = [];
+        inputs.forEach(input => {
+            const val = input.value.trim().toUpperCase();
+            if (val !== "") selecionados.push(val);
+        });
+        carregarAgentes(selecionados);
+    }
+
+    function verificarLimiteAgentes() {
+        const veiculo = document.getElementById('veiculo').value;
+        const rows = document.querySelectorAll('.agente-row');
+        const locaisFixos = ["PONTO FIXO", "COTT", "CIOSP", "BASE MIDWAY", "GUINCHO"];
+        const apenasUmAgente = veiculo.startsWith("MT") || locaisFixos.includes(veiculo);
+        const semCondutorNecessario = ["PONTO FIXO", "COTT", "CIOSP", "BASE MIDWAY"].includes(veiculo);
+
+        rows.forEach((row, index) => {
+            const input = row.querySelector('.agente-input');
+            const radio = row.querySelector('.condutor-radio');
+            if (index > 0) {
+                if (apenasUmAgente) {
+                    input.value = ""; input.disabled = true;
+                    radio.disabled = true; radio.checked = false;
+                    row.style.opacity = "0.3";
+                } else {
+                    input.disabled = false; radio.disabled = false;
+                    row.style.opacity = "1";
+                }
+            } else {
+                if (semCondutorNecessario) {
+                    radio.checked = false; radio.disabled = true;
+                } else if (apenasUmAgente) {
+                    radio.checked = true; radio.disabled = false;
+                } else {
+                    radio.disabled = false;
+                }
+            }
+        });
+        atualizarOpcoesDisponiveis();
+        gerarCamposDinamicos();
+    }
+
+    function gerarListaVeiculos() {
+        const select = document.getElementById('veiculo');
+        select.innerHTML = '<option value="">Selecione...</option>';
+        const grupoMT = document.createElement('optgroup'); grupoMT.label = "MOTOS (MT)";
+        for (let i = 1; i <= 80; i++) {
+            let n = i < 10 ? '0' + i : i;
+            grupoMT.appendChild(new Option('MT ' + n, 'MT ' + n));
+        }
+        select.appendChild(grupoMT);
+        const grupoVT = document.createElement('optgroup'); grupoVT.label = "VIATURAS (VT)";
+        for (let i = 1; i <= 16; i++) {
+            let n = i < 10 ? '0' + i : i;
+            grupoVT.appendChild(new Option('VT ' + n, 'VT ' + n));
+        }
+        select.appendChild(grupoVT);
+        const gO = document.createElement('optgroup'); gO.label = "OUTROS";
+        gO.appendChild(new Option('GUINCHO', 'GUINCHO'));
+        gO.appendChild(new Option('PONTO FIXO', 'PONTO FIXO'));
+        gO.appendChild(new Option('COTT', 'COTT'));
+        gO.appendChild(new Option('CIOSP', 'CIOSP'));
+        gO.appendChild(new Option('BASE MIDWAY', 'BASE MIDWAY'));
+        select.appendChild(gO);
+    }
+
+    // --- FIREBASE OPS ---
+    const qAtivos = query(collection(db, "ativos_agentes"), orderBy("timestamp", "asc"));
+    onSnapshot(qAtivos, (snapshot) => {
+        tabelaAtivos.innerHTML = ""; 
+        veiculosEmUso.clear(); 
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            data.id = docSnap.id; 
+            adicionarLinha(tabelaAtivos, data, true);
+            veiculosEmUso.add(data.veiculo); 
+        });
+    });
+
+    const dataHoje = atualizarDataEHora(); 
+    
+    const qHistorico = query(
+        collection(db, "historico_agentes"), 
+        where("dataRelatorio", "==", dataHoje)
+    );
+
+    onSnapshot(qHistorico, (snapshot) => {
+        relatorioFinalTbody.innerHTML = "";
+        
+        let historico = [];
+        snapshot.forEach((docSnap) => {
+            historico.push(docSnap.data());
+        });
+
+        historico.sort((a, b) => {
+            const tA = a.timestamp ? a.timestamp.seconds : 0;
+            const tB = b.timestamp ? b.timestamp.seconds : 0;
+            return tA - tB;
+        });
+
+        historico.forEach((data) => {
+            adicionarAoRelatorioVisual(data, data.horaFim, data.tipo);
+        });
+    });
+
+    async function salvarNoFirebase(colecao, dados) {
+        try {
+            await addDoc(collection(db, colecao), {
+                ...dados,
+                timestamp: serverTimestamp()
+            });
+        } catch (e) {
+            alert("Erro ao salvar no banco de dados.");
+            console.error(e);
+        }
+    }
+
+    async function devolverVeiculo(dados, horaFim) {
+        const dadosHistorico = {...dados, horaFim, tipo: 'ENCERRAMENTO'};
+        delete dadosHistorico.id; 
+        delete dadosHistorico.timestamp; 
+        try {
+            await addDoc(collection(db, "historico_agentes"), { ...dadosHistorico, timestamp: serverTimestamp() });
+            await deleteDoc(doc(db, "ativos_agentes", dados.id));
+        } catch (e) { alert("Erro ao devolver: " + e.message); }
+    }
+
+    function adicionarAoRelatorioVisual(dados, horaFim, tipoRegistro) {
+        const row = relatorioFinalTbody.insertRow();
+        const chaves = ['veiculo', 'agente', 'ht', 'ase', 'situacao', 'maletas', 'zona', 'horaInicio', 'horaFim', 'tipo', 'pontoBase'];
+        let dadosDisplay = {...dados};
+        if(horaFim) dadosDisplay.horaFim = horaFim;
+        if(tipoRegistro) dadosDisplay.tipo = tipoRegistro;
+        
+        chaves.forEach(key => {
+            const cell = row.insertCell();
+            let conteudo = (String(dadosDisplay[key]) || "").replace(/\n/g, '<br>');
+            if (key === 'agente') conteudo = conteudo.replace(/\(C\)/g, '<b class="condutor-destaque"> [CONDUTOR]</b>');
+            if (key === 'horaFim') cell.className = 'hora-fim-celula';
+            if (key === 'tipo') cell.className = dadosDisplay.tipo === 'ENCAMINHAMENTO' ? 'status-encaminhado' : 'status-encerrado';
+            cell.innerHTML = conteudo;
+        });
+    }
+
+    function adicionarLinha(tabela, dados, ativo) {
+        const row = tabela.insertRow();
+        const chaves = ['veiculo', 'agente', 'ht', 'ase', 'situacao', 'maletas', 'zona', 'horaInicio', 'pontoBase'];
+        const cellsMap = {};
+
+        chaves.forEach(key => {
+            const cell = row.insertCell();
+            cellsMap[key] = cell;
+            let conteudo = (String(dados[key]) || "").replace(/\n/g, '<br>');
+            if(key === 'agente') conteudo = conteudo.replace(/\(C\)/g, '<b class="condutor-destaque"> [CONDUTOR]</b>');
+            cell.innerHTML = conteudo;
+        });
+
+        if (ativo) {
+            const actionCell = row.insertCell();
+            
+            const btnDevolver = document.createElement('button');
+            btnDevolver.innerHTML = 'DEVOLVER'; 
+            btnDevolver.className = 'btn btn-devolver';
+            btnDevolver.onclick = function() {
+                if(confirm(`Devolver ${dados.veiculo}?`)) {
+                    const agora = new Date();
+                    const horaFim = String(agora.getHours()).padStart(2,'0') + ":" + String(agora.getMinutes()).padStart(2,'0');
+                    devolverVeiculo(dados, horaFim);
+                }
+            };
+            actionCell.appendChild(btnDevolver);
+
+            if (dados.veiculo.startsWith('MT') || dados.veiculo.startsWith('VT')) {
+                const btnEncaminhar = document.createElement('button');
+                btnEncaminhar.innerHTML = 'ENCAMINHAR';
+                btnEncaminhar.className = 'btn btn-encaminhar';
+                btnEncaminhar.onclick = async function() {
+                    const editaveis = ['situacao', 'maletas', 'pontoBase'];
+                    
+                    if (btnEncaminhar.innerHTML === 'ENCAMINHAR') {
+                        editaveis.forEach(key => { cellsMap[key].contentEditable = "true"; cellsMap[key].classList.add('editando-celula'); });
+                        
+                        const zonaAtual = cellsMap['zona'].innerText.trim();
+                        cellsMap['zona'].innerHTML = `<select class="edit-zona">
+                            <option value="REGIÃO 1" ${zonaAtual==='REGIÃO 1'?'selected':''}>REGIÃO 1</option>
+                            <option value="REGIÃO 2" ${zonaAtual==='REGIÃO 2'?'selected':''}>REGIÃO 2</option>
+                            <option value="REGIÃO 3" ${zonaAtual==='REGIÃO 3'?'selected':''}>REGIÃO 3</option>
+                            <option value="REGIÃO 4" ${zonaAtual==='REGIÃO 4'?'selected':''}>REGIÃO 4</option>
+                            <option value="REGIÃO 5" ${zonaAtual==='REGIÃO 5'?'selected':''}>REGIÃO 5</option>
+                            <option value="GERAL" ${zonaAtual==='GERAL'?'selected':''}>GERAL</option>
+                        </select>`;
+
+                        const agentesAtuaisRaw = cellsMap['agente'].innerText.split('\n');
+                        cellsMap['agente'].innerHTML = '';
+                        cellsMap['agente'].classList.add('editando-celula');
+                        
+                        for(let i=0; i<5; i++) {
+                            const linha = agentesAtuaisRaw[i] || "";
+                            const isCond = linha.includes('[CONDUTOR]');
+                            const nome = linha.replace(' [CONDUTOR]', '').trim();
+                            
+                            const div = document.createElement('div');
+                            div.className = 'edit-row-container';
+                            div.innerHTML = `
+                                <input type="radio" name="editCondutor_${dados.id}" class="condutor-radio" ${isCond?'checked':''}>
+                                <input type="text" class="edit-agente-input" list="listaAgentes" value="${nome}">
+                            `;
+                            cellsMap['agente'].appendChild(div);
+                        }
+
+                        btnEncaminhar.innerHTML = 'SALVAR';
+                        btnEncaminhar.className = 'btn btn-confirmar';
+
+                    } else {
+                        const inputsEdit = cellsMap['agente'].querySelectorAll('.edit-agente-input');
+                        const radiosEdit = cellsMap['agente'].querySelectorAll(`input[name="editCondutor_${dados.id}"]`);
+                        
+                        let novaLista = [];
+                        let condutorSelecionado = false;
+
+                        inputsEdit.forEach((inp, idx) => {
+                            let nome = inp.value.trim().toUpperCase();
+                            if(nome !== "") {
+                                if(radiosEdit[idx].checked) {
+                                    nome += " (C)";
+                                    condutorSelecionado = true;
+                                }
+                                novaLista.push(nome);
+                            }
+                        });
+
+                        if(novaLista.length === 0) { alert("A equipe não pode ficar vazia."); return; }
+                        if(!condutorSelecionado) { alert("Selecione quem é o CONDUTOR (⦿) da equipe antes de salvar."); return; }
+
+                        const agora = new Date();
+                        const horaCorte = String(agora.getHours()).padStart(2,'0') + ":" + String(agora.getMinutes()).padStart(2,'0');
+
+                        const histEnc = {...dados};
+                        delete histEnc.id; delete histEnc.timestamp;
+                        histEnc.horaFim = horaCorte;
+                        histEnc.tipo = 'ENCAMINHAMENTO';
+                        await addDoc(collection(db, "historico_agentes"), { ...histEnc, timestamp: serverTimestamp() });
+
+                        const novaZona = cellsMap['zona'].querySelector('select').value;
+                        await updateDoc(doc(db, "ativos_agentes", dados.id), {
+                            zona: novaZona,
+                            horaInicio: horaCorte,
+                            agente: novaLista.join('\n'),
+                            situacao: cellsMap['situacao'].innerText.trim().toUpperCase(),
+                            maletas: cellsMap['maletas'].innerText.trim().toUpperCase(),
+                            pontoBase: cellsMap['pontoBase'].innerText.trim().toUpperCase()
+                        });
+                    }
+                };
+                actionCell.appendChild(btnEncaminhar);
+            }
+        }
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const v = document.getElementById('veiculo').value;
+        const z = document.getElementById('zona').value;
+        const pb = document.getElementById('pontoBase').value.trim();
+        const maletasVal = document.getElementById('maletas').value.trim();
+        const condutorIndex = document.querySelector('input[name="condutor"]:checked')?.value;
+        const inputsAgentes = document.querySelectorAll('.agente-input');
+        
+        let listaSelecionada = [];
+        inputsAgentes.forEach((input, index) => {
+            if (input.disabled) return;
+            const val = input.value.trim().toUpperCase();
+            if(val !== "") {
+                listaSelecionada.push(condutorIndex !== undefined && index == condutorIndex ? `${val} (C)` : val);
+            }
+        });
+
+        const inputsHT = document.querySelectorAll('.input-dinamico-ht');
+        const valoresHT = Array.from(inputsHT).map(i => i.value).filter(v => v).join('\n');
+
+        const inputsASE = document.querySelectorAll('.input-dinamico-ase');
+        const valoresASE = Array.from(inputsASE).map(i => i.value).filter(v => v).join('\n');
+
+        if (!v || listaSelecionada.length === 0 || !z || !pb) { alert("Preencha campos obrigatórios."); return; }
+        if (!["PONTO FIXO", "COTT", "CIOSP", "BASE MIDWAY"].includes(v) && veiculosEmUso.has(v)) { alert("Veículo em uso."); return; }
+        if (!["PONTO FIXO", "COTT", "CIOSP", "BASE MIDWAY"].includes(v) && condutorIndex === undefined) { alert("Selecione o condutor (⦿)."); return; }
+
+        const dados = {
+            veiculo: v,
+            agente: listaSelecionada.join('\n'),
+            situacao: document.getElementById('situacao').value,
+            ht: valoresHT,
+            zona: z,
+            horaInicio: document.getElementById('horaInicio').value,
+            ase: valoresASE,
+            maletas: maletasVal.toUpperCase(),
+            pontoBase: pb.toUpperCase(),
+            turno: document.getElementById('turno').value,
+            dataRelatorio: document.getElementById('dataRelatorio').value
+        };
+
+        salvarNoFirebase("ativos_agentes", dados); 
+        document.getElementById('veiculo').value = "";
+        document.querySelectorAll('.agente-input').forEach(i => i.value = "");
+        document.getElementById('pontoBase').value = "";
+        document.getElementById('maletas').value = "";
+        verificarLimiteAgentes();
+    });
+
+    document.getElementById('btnCSV').onclick = () => {
+        let csv = ["\ufeffVEÍCULO,AGENTE,HT,ASE,FUNÇÃO,MALETAS,REGIÃO,HORA INÍCIO,HORA FIM,TIPO,PONTO BASE"];
+        
+        const tableHistorico = document.getElementById('relatorioFinal');
+        for (let i = 1; i < tableHistorico.rows.length; i++) {
+            let row = [];
+            const cells = tableHistorico.rows[i].cells;
+            for (let j = 0; j < cells.length; j++) {
+                let data = cells[j].innerText.replace(/"/g, '""').replace(/\n/g, ' ');
+                row.push(`"${data}"`);
+            }
+            csv.push(row.join(","));
+        }
+
+        const rowsAtivos = tabelaAtivos.rows; 
+        
+        for (let i = 0; i < rowsAtivos.length; i++) {
+             const cells = rowsAtivos[i].cells;
+             if(cells.length < 9) continue; 
+
+             let veiculo = cells[0].innerText;
+             let agente = cells[1].innerText;
+             let ht = cells[2].innerText;
+             let ase = cells[3].innerText;
+             let funcao = cells[4].innerText;
+             let maletas = cells[5].innerText;
+             let zona = cells[6].innerText;
+             let inicio = cells[7].innerText;
+             let fim = "EM ANDAMENTO"; 
+             let tipo = "ATIVO";       
+             let base = cells[8].innerText;
+
+             let row = [
+                 `"${veiculo.replace(/\n/g, ' ')}"`,
+                 `"${agente.replace(/\n/g, ' ')}"`,
+                 `"${ht.replace(/\n/g, ' ')}"`,
+                 `"${ase.replace(/\n/g, ' ')}"`,
+                 `"${funcao}"`,
+                 `"${maletas.replace(/\n/g, ' ')}"`,
+                 `"${zona}"`,
+                 `"${inicio}"`,
+                 `"${fim}"`,
+                 `"${tipo}"`,
+                 `"${base.replace(/\n/g, ' ')}"`
+             ];
+             csv.push(row.join(","));
+        }
+
+        const blob = new Blob([csv.join("\n")], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `relatorio_geral_${document.getElementById('dataRelatorio').value.replace(/\//g, '-')}.csv`;
+        link.click();
+    };
+
+    window.onload = () => {
+        atualizarDataEHora();
+        gerarListaVeiculos();
+        carregarAgentes();
+        const tableHead = document.getElementById('tabelaAtivos').createTHead();
+        const headerOriginalRow = document.getElementById('headerOriginalRow');
+        const newHeaderRow = document.createElement('tr');
+        Array.from(headerOriginalRow.children).forEach(th => {
+            const newTh = document.createElement('th');
+            newTh.innerHTML = th.innerHTML;
+            newTh.className = th.className;
+            newHeaderRow.appendChild(newTh);
+        });
+        const thAcao = document.createElement('th');
+        thAcao.className = 'data-header';
+        thAcao.innerText = 'AÇÃO';
+        newHeaderRow.appendChild(thAcao);
+        tableHead.appendChild(newHeaderRow);
+        document.getElementById('veiculo').onchange = verificarLimiteAgentes;
+        document.querySelectorAll('.agente-input').forEach(i => { i.oninput = atualizarOpcoesDisponiveis; });
+        
+        gerarCamposDinamicos();
+    };
+</script>
+</body>
+</html>

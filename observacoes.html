@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STTU - Observações</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header-box { background-color: #2c3e50; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .registros-container { border: 1px solid #ddd; padding: 15px; height: 350px; overflow-y: auto; background-color: #fafafa; margin-bottom: 30px; font-size: 13px; line-height: 1.6; color: #333; }
+        .registro-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: flex-start; } 
+        .timestamp { font-weight: bold; color: #7f8c8d; min-width: 130px; } 
+        .texto-registro { flex-grow: 1; margin-right: 10px; white-space: pre-wrap; } 
+        .status-devolvido { color: #d35400; font-weight: bold; display: block; margin-top: 5px; border-left: 3px solid #d35400; padding-left: 5px; }
+
+        .config-turno { background: #2c3e50; color: white; padding: 10px; border-radius: 5px 5px 0 0; display: flex; align-items: center; justify-content: space-between; margin-top: 15px; }
+        .grid-equipamentos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; border: 2px solid #2c3e50; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 5px; background: #fff; }
+        .item-conferencia { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: bold; color: #2c3e50; }
+        .item-conferencia input { width: 45px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+
+        /* ESTILOS NOVOS PARA LINHAS TELEFÔNICAS */
+        .grid-linhas { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #ecf0f1; border-left: 2px solid #2c3e50; border-right: 2px solid #2c3e50; margin-bottom: 0; }
+        .btn-linha { flex: 1; min-width: 100px; padding: 8px; border: 1px solid #bdc3c7; background-color: #fff; color: #7f8c8d; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; transition: all 0.2s; text-align: center; }
+        .btn-linha:hover { opacity: 0.9; }
+        .btn-linha.ok { background-color: #27ae60; color: white; border-color: #219150; } /* Verde - OK */
+        .btn-linha.nok { background-color: #c0392b; color: white; border-color: #a93226; } /* Vermelho - Erro */
+
+        .outras-obs, .tentante-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-top: 10px; box-sizing: border-box; font-family: inherit; }
+        .tentante-input { min-height: 80px; resize: vertical; }
+
+        .selecao-maleta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        .btn-maleta { padding: 8px 12px; border: 1px solid #2c3e50; background-color: #ecf0f1; color: #2c3e50; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; transition: all 0.2s; }
+        .btn-maleta.selecionada { background-color: #1ae045; color: white; border-color: #1ae045; }
+
+        .btn-group { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
+        .btn { border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: background 0.3s; color: white; }
+        .btn-registrar { background-color: #27ae60; }
+        .btn-entrega { background-color: #3498db; }
+        
+        .btn-baixa { background-color: #e67e22; font-size: 10px; padding: 4px 8px; white-space: nowrap; }
+        .btn-baixa-falta { background-color: #c0392b; font-size: 10px; padding: 4px 8px; white-space: nowrap; }
+        
+        .btn-tentante { background-color: #2c3e50; margin-top: 10px; }
+        .btn-remocao { background-color: #c0392b; }
+        .btn-inspetor { background-color: #34495e; }
+        .btn-geral { background-color: #7f8c8d; }
+        .btn-cones { background-color: #d35400; }
+        
+        /* ESTILOS DO NOVO FOOTER */
+        .footer-menu { display: flex; gap: 10px; justify-content: center; width: 100%; max-width: 900px; margin-top: 30px; flex-wrap: wrap; }
+        .btn-nav { 
+            background-color: #34495e; /* Mesma cor do Inspetor */
+            color: white; 
+            padding: 12px 20px; 
+            text-decoration: none; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: background 0.3s;
+            text-align: center;
+            flex: 1; /* Distribui o espaço igualmente */
+            min-width: 150px;
+        }
+        .btn-nav:hover { background-color: #2c3e50; }
+
+        /* ESTILOS DO MODAL */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #c0392b; }
+        .modal-footer { margin-top: 15px; text-align: right; display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-cancelar { background-color: #95a5a6; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-box">
+            <h1 style="margin:0;">Observações - STTU</h1>
+        </div>
+
+        <div class="registros-container" id="lista-registros">
+            <em>Carregando histórico do banco de dados...</em>
+        </div>
+
+        <div class="input-section">
+            
+            <div class="config-turno">
+                <strong>SERVIÇO INICIADO NA CENTRAL TURNO:</strong>
+                <select id="turno-select">
+                    <option value="SELECIONE">SELECIONE</option>
+                    <option value="MATUTINO">MATUTINO</option>
+                    <option value="VESPERTINO">VESPERTINO</option>
+                    <option value="NOTURNO">NOTURNO</option>
+                    <option value="MADRUGADA">MADRUGADA</option>
+                </select>
+            </div>
+            <div style="background: #fff; padding: 10px; border: 2px solid #2c3e50; border-top: none; display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="agente-turno-nome" placeholder="NOME COMPLETO DO AGENTE" style="flex: 3; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
+                <input type="text" id="agente-turno-matricula" placeholder="MATRÍCULA" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
+            </div>
+            
+            <div style="background: #2c3e50; color: #bdc3c7; font-size: 11px; padding: 0 10px; text-align: center; margin-top: 5px;">
+                CLIQUE NOS NÚMEROS: VERDE = FUNCIONANDO | VERMELHO = INOPERANTE
+            </div>
+            <div class="grid-linhas">
+                <button class="btn-linha" data-num="3232-1003">3232-1003</button>
+                <button class="btn-linha" data-num="156">156</button>
+                <button class="btn-linha" data-num="0800-281-4050">0800-281-4050</button>
+                <button class="btn-linha" data-num="3232-4979">3232-4979</button>
+                <button class="btn-linha" data-num="3232-9105">3232-9105</button>
+                <button class="btn-linha" data-num="3232-9107">3232-9107</button>
+                <button class="btn-linha" data-num="98870-3862">98870-3862</button>
+            </div>
+
+            <div class="grid-equipamentos" style="border-top: none; border-radius: 0 0 5px 5px;">
+                <div class="item-conferencia">CEL. ATENDIMENTO: <input type="number" id="qtd-cel-atend" value="1"></div>
+                <div class="item-conferencia">FONTE CELULAR: <input type="number" id="qtd-fonte-cel" value="1"></div>
+                <div class="item-conferencia">CABO CELULAR: <input type="number" id="qtd-cabo-cel" value="1"></div>
+                <div class="item-conferencia">CEL. WHATS INST.: <input type="number" id="qtd-zap" value="1"></div>
+                <div class="item-conferencia">RÁDIO MÓVEL: <input type="number" id="qtd-radio-movel" value="1"></div>
+                <div class="item-conferencia">IMPRESSORA: <input type="number" id="qtd-impressora" value="1"></div>
+                <div class="item-conferencia">CONTROLE AR: <input type="number" id="qtd-ar" value="1"></div>
+                
+                <div class="item-conferencia">MALETA 4744: <input type="number" id="qtd-m4744" value="1"></div>
+                <div class="item-conferencia">MALETA 4746: <input type="number" id="qtd-m4746" value="1"></div>
+                <div class="item-conferencia">MALETA 4750: <input type="number" id="qtd-m4750" value="1"></div>
+                <div class="item-conferencia">MALETA 4751: <input type="number" id="qtd-m4751" value="1"></div>
+                <div class="item-conferencia">MALETA 4756: <input type="number" id="qtd-m4756" value="1"></div>
+                
+                <div class="item-conferencia">RÁDIO FIXO: <input type="number" id="qtd-radio-fixo" value="1"></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-registrar" id="btn-registrar-inicio">REGISTRAR INÍCIO DE TURNO</button>
+            </div>
+            
+            <div class="config-turno"><strong>EQUIPAMENTOS POR MALETA / OUTROS:</strong></div>
+            <div class="grid-equipamentos">
+                <div class="selecao-maleta" id="container-botoes-maleta">
+                    <span>SELECIONAR MALETA:</span>
+                    <button class="btn-maleta" data-id="4744">MALETA Nº 4744</button>
+                    <button class="btn-maleta" data-id="4746">MALETA Nº 4746</button>
+                    <button class="btn-maleta" data-id="4750">MALETA Nº 4750</button>
+                    <button class="btn-maleta" data-id="4751">MALETA Nº 4751</button>
+                    <button class="btn-maleta" data-id="4756">MALETA Nº 4756</button>
+                    <input type="hidden" id="maleta-selecionada" value="">
+                </div>
+                <div class="item-conferencia">ETILÔMETRO: <input type="number" id="qtd-etil" value="1"></div>
+                <div class="item-conferencia">PITEIRA: <input type="number" id="qtd-ch-arm" value="2"></div>
+                <div class="item-conferencia">IMPRESSORA: <input type="number" id="qtd-ctrl" value="1"></div>
+                <div class="item-conferencia">CARREGADORES: <input type="number" id="qtd-cracha" value="5"></div>
+                <div class="item-conferencia">BOBINA: <input type="number" id="qtd-dif-t2" value="1"></div>
+                <div class="item-conferencia">BOAT: <input type="number" id="qtd-cabos-t2" value="2"></div>
+                <div class="item-conferencia">CERTIFICADO: <input type="number" id="qtd-cabos-t2" value="2"></div>
+                <div class="item-conferencia">TC: <input type="number" id="qtd-cabos-t2" value="2"></div>
+                <div class="item-conferencia">MANUAL: <input type="number" id="qtd-cabos-t2" value="2"></div>
+                <div style="grid-column: 1 / -1;">
+                    <input type="text" id="obs-extras" class="outras-obs" placeholder="Outras observações...">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-entrega" id="btn-registrar-maleta">REGISTRAR ENTREGA DE MALETA</button>
+            </div>
+
+            <div class="config-turno"><strong>REGISTRO DE TENTANTES:</strong></div>
+            <div style="border: 2px solid #2c3e50; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
+                <textarea id="texto-tentante" class="tentante-input" placeholder="Digite aqui o registo do tentante..."></textarea>
+                <div class="btn-group">
+                    <button class="btn btn-tentante" id="btn-registrar-tentante">REGISTRAR TENTANTE</button>
+                </div>
+            </div>
+
+            <div class="config-turno" style="background-color: #8e44ad;"><strong>AFASTAMENTOS / ATESTADOS:</strong></div>
+            <div style="border: 2px solid #8e44ad; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 12px; color: #555;">
+                    <div style="flex: 2;">NOME DO AGENTE</div>
+                    <div style="flex: 1;">LOCAL ESCALA</div>
+                    <div style="flex: 1;">ATESTADO?</div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="afast-nome" placeholder="Nome..." style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="text" id="afast-local" placeholder="Local..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <select id="afast-status" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="SEM ATESTADO">NÃO</option>
+                        <option value="COM ATESTADO">SIM</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" id="btn-registrar-afastamento" style="background-color: #8e44ad;">REGISTRAR AFASTAMENTO</button>
+                </div>
+            </div>
+
+            <div class="config-turno" style="background-color: #c0392b;"><strong>VEÍCULOS REMOVIDOS:</strong></div>
+            <div style="border: 2px solid #c0392b; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 11px; color: #555;">
+                    <div style="flex: 1; min-width: 80px;">PLACA</div>
+                    <div style="flex: 1; min-width: 80px;">EQUIPE</div>
+                    <div style="flex: 2; min-width: 120px;">LOCAL / HORÁRIO</div>
+                    <div style="flex: 2; min-width: 120px;">MOTIVO</div>
+                    <div style="flex: 1; min-width: 60px;">AIT</div>
+                    <div style="flex: 1; min-width: 60px;">TRV</div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <input type="text" id="rem-placa" placeholder="ABC-1234" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
+                    <input type="text" id="rem-equipe" placeholder="VTR..." style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
+                    <input type="text" id="rem-local" placeholder="Ex: Av. Rio Branco, 14h" style="flex: 2; min-width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="text" id="rem-motivo" placeholder="Ex: Estac. Calçada" style="flex: 2; min-width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="text" id="rem-ait" placeholder="Nº AIT" style="flex: 1; min-width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="text" id="rem-trv" placeholder="Nº TRV" style="flex: 1; min-width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-remocao" id="btn-registrar-remocao">REGISTRAR REMOÇÃO</button>
+                </div>
+            </div>
+
+            <div class="config-turno" style="background-color: #34495e;"><strong>RELATO DO INSPETOR:</strong></div>
+            <div style="border: 2px solid #34495e; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
+                <textarea id="texto-inspetor" class="tentante-input" placeholder="Digite aqui o relato do inspetor..." style="margin-top: 0;"></textarea>
+                <div class="btn-group" style="margin-top: 10px;">
+                    <button class="btn btn-inspetor" id="btn-registrar-inspetor">REGISTRAR RELATO</button>
+                </div>
+            </div>
+
+            <div class="config-turno" style="background-color: #7f8c8d;"><strong>OBSERVAÇÕES GERAIS:</strong></div>
+            <div style="border: 2px solid #7f8c8d; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
+                <textarea id="texto-obs-geral" class="tentante-input" placeholder="Relate aqui as ocorrências gerais do dia..."></textarea>
+                <div class="btn-group">
+                    <button class="btn btn-geral" id="btn-registrar-obs-geral">REGISTRAR OBSERVAÇÃO</button>
+                </div>
+            </div>
+
+            <div class="config-turno" style="background-color: #d35400;">
+                <strong>CONTROLE DE CONES:</strong>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span style="font-size: 11px;">TOTAL NO VIATURA/BASE:</span>
+                    <input type="number" id="total-cones-geral" value="0" style="width: 60px; padding: 4px; border-radius: 4px; border: none; text-align: center; font-weight: bold; color: #d35400;">
+                </div>
+            </div>
+            <div style="border: 2px solid #d35400; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 11px; color: #555;">
+                    <div style="flex: 1;">EQUIPE</div>
+                    <div style="flex: 2;">LOCAL/HORA</div>
+                    <div style="flex: 1; color: #c0392b;">QTD. COLOCADO (-)</div>
+                    <div style="flex: 1; color: #27ae60;">QTD. RECOLHIDO (+)</div>
+                    <div style="flex: 1;">HORA FINAL</div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                    <select id="cone-equipe" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <option value="">EQUIPE...</option>
+                        <option value="VT 01">VT 01</option>
+                        <option value="VT 02">VT 02</option>
+                        <option value="VT 03">VT 03</option>
+                        <option value="VT 04">VT 04</option>
+                        <option value="VT 05">VT 05</option>
+                        <option value="VT 06">VT 06</option>
+                        <option value="VT 07">VT 07</option>
+                        <option value="VT 08">VT 08</option>
+                        <option value="VT 09">VT 09</option>
+                        <option value="VT 10">VT 10</option>
+                        <option value="VT 11">VT 11</option>
+                        <option value="VT 12">VT 12</option>
+                        <option value="VT 13">VT 13</option>
+                        <option value="VT 14">VT 14</option>
+                        <option value="VT 15">VT 15</option>
+                        <option value="VT 16">VT 16</option>
+                        <option value="GUINCHO">GUINCHO</option>
+                        <option value="SEMAFÓRICA">SEMAFÓRICA</option>
+                    </select>
+                    
+                    <input type="text" id="cone-local" placeholder="Local..." style="flex: 2; min-width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="number" id="cone-colocado" placeholder="0" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; border-color: #c0392b;">
+                    <input type="number" id="cone-recolhido" placeholder="0" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; border-color: #27ae60;">
+                    <input type="time" id="cone-hora-fim" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <input type="text" id="cone-obs" class="outras-obs" placeholder="Observações sobre os cones..." style="margin-top: 0; margin-bottom: 15px;">
+                
+                <div class="btn-group">
+                    <button class="btn btn-cones" id="btn-registrar-cones">REGISTRAR MOVIMENTAÇÃO DE CONES</button>
+                </div>
+            </div>
+
+        </div> </div> <div class="footer-menu">
+        <a href="index.html" class="btn-nav">PÁGINA INICIAL</a>
+        <a href="agentes.html" class="btn-nav">AGENTES</a>
+        <a href="ocorrencias.html" class="btn-nav">OCORRÊNCIAS</a>
+        <button id="btn-exportar-word" class="btn-nav">BAIXAR RELATÓRIO (WORD)</button>
+    </div>
+
+    <div id="modalDevolucao" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">DEVOLUÇÃO DE ITENS (INFORMAR QTD EXISTENTE)</div>
+            <input type="hidden" id="id-devolucao-atual">
+            <div class="grid-equipamentos" style="border:none; padding:0;">
+                <div class="item-conferencia">ETILÔMETRO: <input type="number" id="dev-etil" value="1"></div>
+                <div class="item-conferencia">CHAVES: <input type="number" id="dev-chaves" value="2"></div>
+                <div class="item-conferencia">CONTROLE: <input type="number" id="dev-ctrl" value="1"></div>
+                <div class="item-conferencia">CRACHÁS: <input type="number" id="dev-cracha" value="5"></div>
+                <div class="item-conferencia">CARR. DIF: <input type="number" id="dev-dif" value="1"></div>
+                <div class="item-conferencia">CABOS USB: <input type="number" id="dev-usb" value="2"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancelar" onclick="fecharModal()">CANCELAR</button>
+                <button class="btn btn-baixa-falta" onclick="confirmarBaixaComFalta()">CONFIRMAR DEVOLUÇÃO</button>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, doc, serverTimestamp, getDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFupijB29MN2XKQmGRr6BKsJW5VlpdLlA",
+        authDomain: "sttudatabase.firebaseapp.com",
+        projectId: "sttudatabase",
+        storageBucket: "sttudatabase.firebasestorage.app",
+        messagingSenderId: "926992433848",
+        appId: "1:926992433848:web:038926366bd761c003aa4d",
+        measurementId: "G-DFH2VG54Q9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- CARREGAMENTO EM TEMPO REAL ---
+    const q = query(collection(db, "observacoes_sttu"), orderBy("timestamp", "desc"));
+    onSnapshot(q, (snapshot) => {
+        const lista = document.getElementById('lista-registros');
+        lista.innerHTML = "";
+        
+        if (snapshot.empty) {
+            lista.innerHTML = "<em>Nenhum registro encontrado.</em>";
+            return;
+        }
+
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+            const horaFormatada = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString('pt-BR') : "Processando...";
+            
+            const item = document.createElement('div');
+            item.className = 'registro-item';
+            
+            let html = `
+                <div class="timestamp">[${horaFormatada}]</div>
+                <div class="texto-registro">
+                    <span>${data.texto}</span>
+                    ${data.baixa ? `<span class="status-devolvido">| DEVOLVIDO ÀS ${data.baixa}</span>` : ""}
+                </div>
+            `;
+
+            if (data.requerBaixa && !data.baixa) {
+                const btnContainer = document.createElement('div');
+                btnContainer.style.display = 'flex';
+                btnContainer.style.flexDirection = 'column';
+                btnContainer.style.gap = '5px';
+                
+                const btnBaixa = document.createElement('button');
+                btnBaixa.className = 'btn btn-baixa';
+                btnBaixa.innerText = 'DAR BAIXA / DEVOLVER';
+                btnBaixa.onclick = () => darBaixaNoFirebase(id);
+                
+                const btnBaixaFalta = document.createElement('button');
+                btnBaixaFalta.className = 'btn btn-baixa-falta';
+                btnBaixaFalta.innerText = 'DEVOLVER C/ MATERIAIS EM FALTA';
+                btnBaixaFalta.onclick = () => abrirModalFalta(id);
+
+                btnContainer.appendChild(btnBaixa);
+                btnContainer.appendChild(btnBaixaFalta);
+                
+                item.innerHTML = html;
+                item.appendChild(btnContainer);
+            } else {
+                item.innerHTML = html;
+            }
+            
+            lista.appendChild(item);
+        });
+    });
+
+    // --- FUNÇÕES DE GRAVAÇÃO ---
+    async function salvarObservacao(texto, requerBaixa = false, extras = {}) {
+        try {
+            const dados = {
+                texto: texto.toUpperCase(),
+                requerBaixa: requerBaixa,
+                baixa: null,
+                timestamp: serverTimestamp(),
+                ...extras
+            };
+
+            await addDoc(collection(db, "observacoes_sttu"), dados);
+        } catch (e) {
+            console.error("Erro ao salvar: ", e);
+            alert("Erro ao conectar com o banco de dados.");
+        }
+    }
+
+    async function darBaixaNoFirebase(idDoc) {
+        const agora = new Date().toLocaleTimeString('pt-BR');
+        const docRef = doc(db, "observacoes_sttu", idDoc);
+        await updateDoc(docRef, { baixa: agora });
+    }
+
+    // --- LÓGICA DO MODAL DE FALTA ---
+    window.abrirModalFalta = (id) => {
+        document.getElementById('id-devolucao-atual').value = id;
+        document.getElementById('modalDevolucao').style.display = 'flex';
+    };
+
+    window.fecharModal = () => {
+        document.getElementById('modalDevolucao').style.display = 'none';
+    };
+
+    window.confirmarBaixaComFalta = async () => {
+        const idDoc = document.getElementById('id-devolucao-atual').value;
+        const agora = new Date().toLocaleTimeString('pt-BR');
+        const docRef = doc(db, "observacoes_sttu", idDoc);
+
+        const etil = document.getElementById('dev-etil').value;
+        const chaves = document.getElementById('dev-chaves').value;
+        const ctrl = document.getElementById('dev-ctrl').value;
+        const cracha = document.getElementById('dev-cracha').value;
+        const dif = document.getElementById('dev-dif').value;
+        const usb = document.getElementById('dev-usb').value;
+
+        const docSnap = await getDoc(docRef);
+        let textoAtual = docSnap.data().texto;
+        const obsFalta = `\n[DEVOLUÇÃO COM PENDÊNCIA DE MATERIAIS: ETIL:${etil}, CHV:${chaves}, CTRL:${ctrl}, CRACHA:${cracha}, DIF:${dif}, USB:${usb}]`;
+
+        await updateDoc(docRef, { 
+            baixa: agora,
+            texto: textoAtual + obsFalta
+        });
+        fecharModal();
+    };
+
+    // --- LÓGICA DAS LINHAS ---
+    document.querySelectorAll('.btn-linha').forEach(btn => {
+        btn.onclick = () => {
+            if (btn.classList.contains('ok')) {
+                btn.classList.remove('ok');
+                btn.classList.add('nok');
+            } else if (btn.classList.contains('nok')) {
+                btn.classList.remove('nok');
+            } else {
+                btn.classList.add('ok');
+            }
+        };
+    });
+
+    // --- LÓGICA DOS BOTÕES ---
+    document.getElementById('btn-registrar-inicio').onclick = async () => {
+        const turno = document.getElementById('turno-select').value;
+        const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
+        const matAgente = document.getElementById('agente-turno-matricula').value.trim().toUpperCase();
+
+        if (!nomeAgente || !matAgente) {
+            alert("⚠️ É obrigatório informar o NOME COMPLETO e a MATRÍCULA do agente para iniciar o turno!");
+            return;
+        }
+
+        const hoje = new Date();
+        const dataString = hoje.getFullYear() + '-' + 
+                           String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(hoje.getDate()).padStart(2, '0');
+
+        const qVerificacao = query(
+            collection(db, "observacoes_sttu"), 
+            where("tipo_registro", "==", "INICIO_TURNO"),
+            where("data_controle", "==", dataString),
+            where("turno_controle", "==", turno)
+        );
+
+        try {
+            const snapshot = await getDocs(qVerificacao);
+            if (!snapshot.empty) {
+                alert(`⚠️ ATENÇÃO: O turno ${turno} já foi registrado hoje (${dataString})!`);
+                return;
+            }
+
+            let statusLinhas = [];
+            document.querySelectorAll('.btn-linha').forEach(btn => {
+                const numero = btn.getAttribute('data-num');
+                if (btn.classList.contains('ok')) {
+                    statusLinhas.push(`${numero}: OK`);
+                } else if (btn.classList.contains('nok')) {
+                    statusLinhas.push(`${numero}: INOPERANTE`);
+                }
+            });
+            const textoLinhas = statusLinhas.length > 0 ? ` | LINHAS: ${statusLinhas.join(', ')}` : "";
+
+            const detalhes = `SERVIÇO INICIADO TURNO ${turno} - AGENTE: ${nomeAgente} (MAT: ${matAgente})${textoLinhas}. CONFERÊNCIA: ` +
+                `CEL.ATEND:${document.getElementById('qtd-cel-atend').value}, ` +
+                `FONTE:${document.getElementById('qtd-fonte-cel').value}, ` +
+                `CABO:${document.getElementById('qtd-cabo-cel').value}, ` +
+                `ZAP:${document.getElementById('qtd-zap').value}, ` +
+                `RAD.MOV:${document.getElementById('qtd-radio-movel').value}, ` +
+                `IMP:${document.getElementById('qtd-impressora').value}, ` +
+                `AR:${document.getElementById('qtd-ar').value}, ` +
+                `M.4744:${document.getElementById('qtd-m4744').value}, ` +
+                `M.4746:${document.getElementById('qtd-m4746').value}, ` +
+                `M.4750:${document.getElementById('qtd-m4750').value}, ` +
+                `M.4751:${document.getElementById('qtd-m4751').value}, ` +
+                `M.4756:${document.getElementById('qtd-m4756').value}, ` +
+                `RAD.FIX:${document.getElementById('qtd-radio-fixo').value}`;
+            
+            await salvarObservacao(detalhes, false, {
+                tipo_registro: "INICIO_TURNO",
+                data_controle: dataString,
+                turno_controle: turno
+            });
+            alert("✅ Início de turno registrado com sucesso!");
+        } catch (e) {
+            console.error("Erro:", e);
+            alert("Erro: " + e.message);
+        }
+    };
+
+    // --- NOVA LÓGICA DE ENTREGA DE MALETA COM VALIDAÇÃO ---
+    document.getElementById('btn-registrar-maleta').onclick = async () => {
+        const maleta = document.getElementById('maleta-selecionada').value;
+        const obs = document.getElementById('obs-extras').value.trim();
+
+        // 1. Verifica se a maleta já está em uso
+        if (maleta) {
+            const qCheck = query(collection(db, "observacoes_sttu"), 
+                where("tipo_registro", "==", "ENTREGA_MALETA"),
+                where("numero_maleta", "==", maleta),
+                where("baixa", "==", null)
+            );
+
+            try {
+                const snapshot = await getDocs(qCheck);
+                if (!snapshot.empty) {
+                    alert(`⚠️ ERRO: A MALETA ${maleta} JÁ ESTÁ EM USO (NÃO FOI DEVOLVIDA)!\nPor favor, realize a baixa da entrega anterior antes de registrar novamente.`);
+                    return;
+                }
+            } catch (e) {
+                console.error("Erro ao verificar maleta:", e);
+                // Opcional: alert("Erro de conexão ao verificar maleta.");
+            }
+        }
+
+        const detalhes = `ENTREGA ${maleta ? 'DA MALETA '+maleta : 'DE EQUIPAMENTOS'}. ETIL:${document.getElementById('qtd-etil').value}, CHV:${document.getElementById('qtd-ch-arm').value}, CTRL:${document.getElementById('qtd-ctrl').value}, CRACHA:${document.getElementById('qtd-cracha').value}, DIF:${document.getElementById('qtd-dif-t2').value}, USB:${document.getElementById('qtd-cabos-t2').value} ${obs ? '| OBS: '+obs : ''}`;
+        
+        // 2. Salva com os metadados para controle
+        await salvarObservacao(detalhes, true, {
+            tipo_registro: "ENTREGA_MALETA",
+            numero_maleta: maleta || "OUTROS"
+        });
+
+        document.querySelectorAll('.btn-maleta').forEach(b => b.classList.remove('selecionada'));
+        document.getElementById('maleta-selecionada').value = "";
+        document.getElementById('obs-extras').value = "";
+    };
+
+    document.getElementById('btn-registrar-tentante').onclick = () => {
+        const campo = document.getElementById('texto-tentante');
+        if (!campo.value.trim()) return alert("Descreva o registro.");
+        salvarObservacao(`REGISTRO DE TENTANTE: ${campo.value.trim()}`);
+        campo.value = "";
+    };
+
+    document.getElementById('btn-registrar-afastamento').onclick = () => {
+        const nome = document.getElementById('afast-nome').value.trim();
+        const local = document.getElementById('afast-local').value.trim();
+        const status = document.getElementById('afast-status').value;
+        if (!nome) return alert("Digite o nome.");
+        salvarObservacao(`AFASTAMENTO: AGENTE ${nome.toUpperCase()} - LOCAL: ${local.toUpperCase()} - SITUAÇÃO: ${status}`);
+        document.getElementById('afast-nome').value = "";
+        document.getElementById('afast-local').value = "";
+    };
+
+    document.getElementById('btn-registrar-remocao').onclick = () => {
+        const placa = document.getElementById('rem-placa').value.trim().toUpperCase();
+        const equipe = document.getElementById('rem-equipe').value.trim().toUpperCase();
+        const local = document.getElementById('rem-local').value.trim().toUpperCase();
+        const motivo = document.getElementById('rem-motivo').value.trim().toUpperCase();
+        const ait = document.getElementById('rem-ait').value.trim().toUpperCase();
+        const trv = document.getElementById('rem-trv').value.trim().toUpperCase();
+        if (!placa || !motivo) return alert("Preencha Placa e Motivo.");
+        salvarObservacao(`VEÍCULO REMOVIDO: PLACA ${placa} - EQUIPE: ${equipe || 'N/I'} - LOCAL/HORA: ${local} - MOTIVO: ${motivo} - AIT: ${ait || 'N/I'} - TRV: ${trv || 'N/I'}`);
+        document.getElementById('rem-placa').value = "";
+        document.getElementById('rem-equipe').value = "";
+        document.getElementById('rem-local').value = "";
+        document.getElementById('rem-motivo').value = "";
+        document.getElementById('rem-ait').value = "";
+        document.getElementById('rem-trv').value = "";
+        document.getElementById('rem-placa').focus();
+    };
+
+    document.getElementById('btn-registrar-inspetor').onclick = () => {
+        const relato = document.getElementById('texto-inspetor').value.trim();
+        if (!relato) return alert("Digite o relato do inspetor.");
+        salvarObservacao(`RELATO DO INSPETOR: ${relato}`);
+        alert("Relato registrado!");
+        document.getElementById('texto-inspetor').value = "";
+    };
+
+    document.getElementById('btn-registrar-obs-geral').onclick = () => {
+        const obs = document.getElementById('texto-obs-geral').value.trim();
+        if (!obs) return alert("Digite alguma observação.");
+        salvarObservacao(`OBSERVAÇÃO GERAL: ${obs}`);
+        document.getElementById('texto-obs-geral').value = "";
+    };
+
+    // --- LÓGICA DE CONTROLE DE CONES ---
+    document.getElementById('btn-registrar-cones').onclick = () => {
+        const equipe = document.getElementById('cone-equipe').value.trim().toUpperCase();
+        const local = document.getElementById('cone-local').value.trim().toUpperCase();
+        let colocado = parseInt(document.getElementById('cone-colocado').value) || 0;
+        let recolhido = parseInt(document.getElementById('cone-recolhido').value) || 0;
+        const horaFim = document.getElementById('cone-hora-fim').value;
+        const obs = document.getElementById('cone-obs').value.trim().toUpperCase();
+        
+        let totalAtual = parseInt(document.getElementById('total-cones-geral').value) || 0;
+        const novoTotal = totalAtual - colocado + recolhido;
+        document.getElementById('total-cones-geral').value = novoTotal;
+        
+        const texto = `CONTROLE DE CONES: EQUIPE ${equipe} - LOCAL: ${local} - COLOCADOS: ${colocado} - RECOLHIDOS: ${recolhido} - HORA FINAL: ${horaFim} - OBS: ${obs || 'NENHUMA'} - SALDO ATUAL: ${novoTotal}`;
+        
+        salvarObservacao(texto);
+        
+        document.getElementById('cone-equipe').value = "";
+        document.getElementById('cone-local').value = "";
+        document.getElementById('cone-colocado').value = "";
+        document.getElementById('cone-recolhido').value = "";
+        document.getElementById('cone-hora-fim').value = "";
+        document.getElementById('cone-obs').value = "";
+    };
+
+    // --- LÓGICA DE EXPORTAÇÃO PARA WORD (NOVO) ---
+    document.getElementById('btn-exportar-word').onclick = () => {
+        // Pega o conteúdo da div de registros
+        const conteudo = document.getElementById('lista-registros').innerHTML;
+        
+        // Cabeçalho básico para o Word entender que é um HTML para interpretar
+        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
+                        "xmlns:w='urn:schemas-microsoft-com:office:word' "+
+                        "xmlns='http://www.w3.org/TR/REC-html40'>"+
+                        "<head><meta charset='utf-8'><title>Relatório STTU</title>"+
+                        "<style>body{font-family: Arial; font-size:12px;} .registro-item{border-bottom: 1px solid #ccc; padding: 5px; margin-bottom: 5px;} .timestamp{font-weight:bold; color: #555;} button {display: none;} </style></head><body>";
+        
+        const footer = "</body></html>";
+        
+        const sourceHTML = header + "<h1>RELATÓRIO DE OBSERVAÇÕES DIÁRIAS - STTU</h1><hr>" + conteudo + footer;
+        
+        const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+        
+        const fileDownload = document.createElement("a");
+        document.body.appendChild(fileDownload);
+        fileDownload.href = source;
+        
+        const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+        fileDownload.download = `Relatorio_STTU_${dataHoje}.doc`;
+        
+        fileDownload.click();
+        document.body.removeChild(fileDownload);
+    };
+
+    // --- SELEÇÃO DE MALETAS ---
+    document.querySelectorAll('.btn-maleta').forEach(botao => {
+        botao.onclick = () => {
+            const selecionada = botao.classList.contains('selecionada');
+            document.querySelectorAll('.btn-maleta').forEach(b => b.classList.remove('selecionada'));
+            if (!selecionada) {
+                botao.classList.add('selecionada');
+                document.getElementById('maleta-selecionada').value = botao.getAttribute('data-id');
+            } else {
+                document.getElementById('maleta-selecionada').value = "";
+            }
+        };
+    });
+</script>
+</body>
+</html>

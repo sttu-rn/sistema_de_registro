@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Ocorrências - STTU</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; color: #333; }
+        
+        /* HEADER */
+        .page-header { background-color: #2c3e50; color: white; padding: 15px 0; display: flex; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        .title-container { flex-grow: 1; text-align: center; font-size: 22px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* TABELA */
+        .table-container { width: 99%; margin: 0 auto; overflow-x: auto; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        table { border-collapse: collapse; width: 100%; min-width: 1600px; table-layout: fixed; }
+        th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: left; font-size: 11px; vertical-align: middle; word-wrap: break-word; }
+        .data-header { background-color: #eceff1; text-align: center; font-weight: bold; color: #455a64; text-transform: uppercase; font-size: 11px; }
+        
+        /* COLUNAS ESPECÍFICAS */
+        .col-hist { width: 250px; font-size: 10px; color: #444; background-color: #fffaf0; vertical-align: top; }
+        
+        /* INPUTS */
+        input[type="text"], select, textarea, input[type="time"] { 
+            width: 100%; padding: 6px; box-sizing: border-box; border: 1px solid #cfd8dc; 
+            border-radius: 5px; font-family: inherit; font-size: 12px; text-transform: uppercase; 
+        }
+        .campo-obrigatorio { border-left: 4px solid #dc3545 !important; background-color: #fff8f8; }
+        /* Classe para quando o campo deixa de ser obrigatório */
+        .campo-opcional { border-left: 4px solid #27ae60 !important; background-color: #f0fff4; }
+
+        .auto-number { background-color: #e3f2fd !important; font-weight: bold; color: #1565c0; text-align: center; }
+        
+        /* TITULOS E BOTÕES */
+        .section-title { background-color: #455a64; color: white; padding: 12px; margin-top: 30px; border-radius: 6px 6px 0 0; font-weight: bold; font-size: 14px; }
+        
+        .btn { padding: 6px 10px; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; font-size: 11px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; margin: 2px; }
+        .btn-salvar { background-color: #2980b9; color: white; font-size: 14px; padding: 10px 20px; }
+        .btn-concluir { background-color: #27ae60; color: white; }
+        .btn-encaminhar { background-color: #e67e22; color: white; } 
+        .btn-download { background-color: #16a085; color: white; text-decoration: none; padding: 10px; }
+        .btn-home { background-color: #7f8c8d; color: white; text-decoration: none; padding: 10px; }
+        .btn-reset { background-color: #e67e22; color: white; font-size: 10px; padding: 5px; margin-top: 5px; cursor: pointer; border-radius: 3px; border:none; }
+
+        /* STATUS */
+        .status-concluida { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; text-align: center; }
+        .status-pendente { background-color: #ffebee; color: #c62828; font-weight: bold; text-align: center; }
+        .status-encaminhada { background-color: #fff3e0; color: #e67e22; font-weight: bold; text-align: center; }
+        
+        /* EXTRAS */
+        .qtc-container { margin-top: 8px; display: none; }
+        .qtc-label { font-size: 10px; font-weight: bold; color: #c62828; display: block; }
+
+        /* NOVO: Subtipo Container */
+        .subtipo-container { margin-top: 5px; display: none; background: #e3f2fd; padding: 5px; border-radius: 4px; border: 1px dashed #2980b9; }
+        .subtipo-label { font-size: 9px; font-weight: bold; color: #2980b9; display: block; margin-bottom: 2px; }
+        
+        /* CHIPS (ETIQUETAS DE EQUIPE) */
+        .chip-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+        .chip { background: #2980b9; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .chip:hover { background: #c0392b; }
+
+        /* LISTA DE HISTÓRICO - ESTILO NOVO */
+        .hist-wrapper { max-height: 100px; overflow-y: auto; font-size: 10px; }
+        .lista-historico { margin: 0; padding-left: 0; list-style-type: none; }
+        .lista-historico li { margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        .hist-data { font-weight: bold; color: #2980b9; font-size: 9px; }
+        .hist-detalhe { display: block; margin-left: 5px; color: #555; }
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+        .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2c3e50; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 3px; color: #555; }
+        .btn-close-modal { background: #95a5a6; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="page-header"><div class="title-container">SISTEMA DE GESTÃO DE OCORRÊNCIAS</div></div>
+
+<div style="padding: 20px;">
+    <form id="registroForm">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="data-header col-reg">Nº REG.</th>
+                        <th class="data-header">SOLICITANTE</th>
+                        <th class="data-header">CONTATO</th>
+                        <th class="data-header">OCORRÊNCIA</th>
+                        <th class="data-header">LOCAL</th>
+                        <th class="data-header">DETALHE</th>
+                        <th class="data-header">REGIÃO</th>
+                        <th class="data-header">EQUIPE(S)</th>
+                        <th class="data-header">H. ENVIO</th>
+                        <th class="data-header">SITUAÇÃO</th>
+                        <th class="data-header">H. FINAL</th>
+                        <th class="data-header">RESULTADO FINAL</th>
+                        <th class="data-header">AÇÃO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <input type="text" id="numRegistro" class="auto-number" readonly>
+                            <button type="button" class="btn-reset" id="btnResetContador">Reiniciar Nº</button>
+                        </td>
+                        <td><input type="text" id="solicitante" class="campo-obrigatorio" required></td>
+                        <td><input type="text" id="contato" class="campo-obrigatorio" required></td>
+                        <td>
+                            <select id="ocorrencia" class="campo-obrigatorio" required onchange="verificarRegrasObrigatoriedade()">
+                                <option value="">SELECIONE...</option>
+                                <option value="ESTACIONAMENTO IRREGULAR">ESTACIONAMENTO IRREGULAR</option>
+                                <option value="SINISTRO SEM VÍTIMA">SINISTRO SEM VÍTIMA</option>
+                                <option value="FISCALIZAÇÃO EM TRANSPORTE">FISCALIZAÇÃO EM TRANSPORTE</option>
+                                <option value="SINISTRO COM VÍTIMA">SINISTRO COM VÍTIMA</option>
+                                <option value="SINISTRO COM VÍTIMA E/OU CRIME">SINISTRO COM VÍTIMA E/OU CRIME</option>
+                                <option value="INTERVENÇÃO VIÁRIA">INTERVENÇÃO VIÁRIA</option>
+                                <option value="INTERVENÇÃO EM VIA">INTERVENÇÃO EM VIA PÚBLICA</option>
+                                <option value="PANE SEMAFÓRICA">PANE SEMAFÓRICA</option>
+                                <option value="VEÍCULO ABANDONADO">VEÍCULO ABANDONADO</option>
+                                <option value="APOIO AO AGENTE">APOIO AO AGENTE</option>
+                                <option value="OUTROS">OUTROS</option>
+                            </select>
+                            
+                            <div id="subtipoContainer" class="subtipo-container">
+                                <span class="subtipo-label">ESPECIFICAR TIPO:</span>
+                                <select id="subtipoSelect">
+                                    </select>
+                            </div>
+                        </td>
+                        <td><textarea id="local" class="campo-obrigatorio" placeholder="RUA / Nº / REF" required></textarea></td>
+                        <td><textarea id="detalhamento" class="campo-obrigatorio" required></textarea></td>
+                        <td>
+                            <select id="zona" class="campo-obrigatorio" required>
+                                <option value="">SELECIONE...</option>
+                                <option value="REGIÃO 1">REGIÃO 1</option>
+                                <option value="REGIÃO 2">REGIÃO 2</option>
+                                <option value="REGIÃO 3">REGIÃO 3</option>
+                                <option value="REGIÃO 4">REGIÃO 4</option>
+                                <option value="REGIÃO 5">REGIÃO 5</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select id="equipeSelect" class="campo-obrigatorio"></select>
+                            <div id="containerEquipes" class="chip-container"></div>
+                        </td>
+                        <td><input type="time" id="horaEnvio" class="campo-obrigatorio" required></td>
+                        <td>
+                            <select id="situacao" class="campo-obrigatorio" required onchange="verificarRegrasObrigatoriedade()">
+                                <option value="">SELECIONE...</option>
+                                <option value="ENCAMINHADA">ENCAMINHADA</option>
+                                <option value="CONCLUÍDA">CONCLUÍDA</option>
+                                <option value="NÃO ATENDIDA">NÃO ATENDIDA</option>
+                                <option value="PARA O PRÓXIMO TURNO">PARA O PRÓXIMO TURNO</option>
+                            </select>
+                            <div id="qtcContainer" class="qtc-container">
+                                <span class="qtc-label">MOTIVO QTC:</span>
+                                <textarea id="qtcTexto" placeholder="DESCREVA O MOTIVO"></textarea>
+                            </div>
+                        </td>
+                        <td><input type="time" id="horaFinal"></td>
+                        <td><textarea id="resultadoFinal" placeholder="Obrigatório ao concluir"></textarea></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="text-align: center; margin-top: 15px;">
+            <button type="submit" class="btn btn-salvar">💾 REGISTRAR OCORRÊNCIA</button>
+        </div>
+    </form>
+
+    <div style="text-align: center; margin-top: 25px; gap: 12px; display: flex; justify-content: center;">
+        <button id="btnDownloadCSV" class="btn btn-download">📥 BAIXAR RELATÓRIO CSV</button>
+        <a href="index.html" class="btn btn-home">🏠 VOLTAR AO INÍCIO</a>
+        <a href="agentes.html" class="btn btn-home">AGENTES</a>
+        <a href="observacoes.html" class="btn btn-home">OBSERVAÇÕES</a>
+    </div>
+
+    <div class="section-title">⏳ OCORRÊNCIAS PENDENTES / EM ANDAMENTO</div>
+    <div class="table-container">
+        <table id="tabelaPendentes">
+            <thead>
+                <tr>
+                    <th class="data-header col-reg">Nº REG.</th>
+                    <th class="data-header">SOLICITANTE</th>
+                    <th class="data-header">CONTATO</th>
+                    <th class="data-header">OCORRÊNCIA</th>
+                    <th class="data-header">LOCAL</th>
+                    <th class="data-header">DETALHE</th>
+                    <th class="data-header">REGIÃO</th>
+                    <th class="data-header">EQUIPE(S)</th>
+                    <th class="data-header">H. ENVIO</th>
+                    <th class="data-header">SITUAÇÃO</th>
+                    <th class="data-header">H. FINAL</th>
+                    <th class="data-header">RESULTADO</th>
+                    <th class="data-header col-hist">HISTÓRICO</th>
+                    <th class="data-header">AÇÃO</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="section-title">✅ HISTÓRICO DE OCORRÊNCIAS CONCLUÍDAS</div>
+    <div class="table-container">
+        <table id="relatorioTable">
+            <thead>
+                <tr>
+                    <th class="data-header col-reg">Nº REG.</th>
+                    <th class="data-header">SOLICITANTE</th>
+                    <th class="data-header">CONTATO</th>
+                    <th class="data-header">OCORRÊNCIA</th>
+                    <th class="data-header">LOCAL</th>
+                    <th class="data-header">DETALHE</th>
+                    <th class="data-header">REGIÃO</th>
+                    <th class="data-header">EQUIPE(S)</th>
+                    <th class="data-header">H. ENVIO</th>
+                    <th class="data-header">SITUAÇÃO</th>
+                    <th class="data-header">H. FINAL</th>
+                    <th class="data-header">RESULTADO</th>
+                    <th class="data-header col-hist">HISTÓRICO</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modalEncaminhar" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">EDITAR E ENCAMINHAR OCORRÊNCIA</div>
+        <input type="hidden" id="editId">
+        
+        <div class="form-group">
+            <label>SOLICITANTE:</label>
+            <input type="text" id="editSolicitante">
+        </div>
+        
+        <div class="form-group">
+            <label>CONTATO:</label>
+            <input type="text" id="editContato">
+        </div>
+
+        <div class="form-group">
+            <label>OCORRÊNCIA:</label>
+            <select id="editOcorrencia">
+                <option value="ESTACIONAMENTO IRREGULAR">ESTACIONAMENTO IRREGULAR</option>
+                <option value="SINISTRO SEM VÍTIMA">SINISTRO SEM VÍTIMA</option>
+                <option value="FISCALIZAÇÃO EM TRANSPORTE">FISCALIZAÇÃO EM TRANSPORTE</option>
+                <option value="SINISTRO COM VÍTIMA">SINISTRO COM VÍTIMA</option>
+                <option value="SINISTRO COM VÍTIMA E/OU CRIME">SINISTRO COM VÍTIMA E/OU CRIME</option>
+                <option value="INTERVENÇÃO VIÁRIA">INTERVENÇÃO VIÁRIA</option>
+                <option value="INTERVENÇÃO EM VIA">INTERVENÇÃO EM VIA PÚBLICA</option>
+                <option value="PANE SEMAFÓRICA">PANE SEMAFÓRICA</option>
+                <option value="VEÍCULO ABANDONADO">VEÍCULO ABANDONADO</option>
+                <option value="APOIO AO AGENTE">APOIO AO AGENTE</option>
+                <option value="OUTROS">OUTROS</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>LOCAL:</label>
+            <textarea id="editLocal"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>DETALHE:</label>
+            <textarea id="editDetalhamento"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>REGIÃO:</label>
+            <select id="editZona">
+                <option value="REGIÃO 1">REGIÃO 1</option>
+                <option value="REGIÃO 2">REGIÃO 2</option>
+                <option value="REGIÃO 3">REGIÃO 3</option>
+                <option value="REGIÃO 4">REGIÃO 4</option>
+                <option value="REGIÃO 5">REGIÃO 5</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>EQUIPE(S):</label>
+            <select id="editEquipeSelect"></select>
+            <div id="editContainerEquipes" class="chip-container"></div>
+        </div>
+
+        <div class="form-group">
+            <label>SITUAÇÃO:</label>
+            <select id="editSituacao">
+                <option value="ENCAMINHADA">ENCAMINHADA</option>
+            </select>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: right;">
+            <button class="btn btn-close-modal" onclick="fecharModal()">CANCELAR</button>
+            <button class="btn btn-salvar" onclick="confirmarEncaminhamento()">SALVAR E ENCAMINHAR</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, doc, serverTimestamp, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFupijB29MN2XKQmGRr6BKsJW5VlpdLlA",
+        authDomain: "sttudatabase.firebaseapp.com",
+        projectId: "sttudatabase",
+        storageBucket: "sttudatabase.firebasestorage.app",
+        messagingSenderId: "926992433848",
+        appId: "1:926992433848:web:038926366bd761c003aa4d",
+        measurementId: "G-DFH2VG54Q9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let equipesSelecionadas = [];
+    let equipesModal = [];
+
+    // --- VALIDAÇÃO DE INPUTS ---
+    ['solicitante', 'editSolicitante'].forEach(id => {
+        const input = document.getElementById(id);
+        if(input) {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[0-9]/g, '');
+            });
+        }
+    });
+
+    ['contato', 'editContato'].forEach(id => {
+        const input = document.getElementById(id);
+        if(input) {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[a-zA-Z]/g, '');
+            });
+        }
+    });
+
+    // --- FUNÇÕES DE LÓGICA DE NEGÓCIO ---
+    window.verificarRegrasObrigatoriedade = function() {
+        const ocorrencia = document.getElementById('ocorrencia').value;
+        const situacao = document.getElementById('situacao').value;
+        const inputHoraEnvio = document.getElementById('horaEnvio');
+        const equipeSelect = document.getElementById('equipeSelect');
+        const qtcContainer = document.getElementById('qtcContainer');
+        
+        // Novos elementos para submenu
+        const divSub = document.getElementById('subtipoContainer');
+        const selSub = document.getElementById('subtipoSelect');
+
+        // Lógica para submenus
+        selSub.innerHTML = ""; // Limpa opções anteriores
+        if (ocorrencia === "INTERVENÇÃO VIÁRIA") {
+            divSub.style.display = "block";
+            ["CORRIDA", "PROCISSÃO", "EVENTO"].forEach(op => {
+                selSub.add(new Option(op, op));
+            });
+        } else if (ocorrencia === "INTERVENÇÃO EM VIA") {
+            divSub.style.display = "block";
+            ["ALAGAMENTO", "OBRAS", "CRATERAS", "TOMBAMENTO"].forEach(op => {
+                selSub.add(new Option(op, op));
+            });
+        } else {
+            divSub.style.display = "none";
+        }
+
+        const isExcecao = (ocorrencia === "VEÍCULO ABANDONADO" || situacao === "NÃO ATENDIDA");
+
+        if (isExcecao) {
+            inputHoraEnvio.required = false;
+            inputHoraEnvio.classList.remove('campo-obrigatorio');
+            inputHoraEnvio.classList.add('campo-opcional');
+            
+            equipeSelect.classList.remove('campo-obrigatorio');
+            equipeSelect.classList.add('campo-opcional');
+        } else {
+            inputHoraEnvio.required = true;
+            inputHoraEnvio.classList.add('campo-obrigatorio');
+            inputHoraEnvio.classList.remove('campo-opcional');
+            
+            equipeSelect.classList.add('campo-obrigatorio');
+            equipeSelect.classList.remove('campo-opcional');
+        }
+
+        qtcContainer.style.display = (situacao === 'NÃO ATENDIDA') ? 'block' : 'none';
+    };
+
+    window.resetContador = () => {
+        if(confirm("Reiniciar para 001?")) {
+            localStorage.setItem('contadorOcorrencia', 0);
+            atualizarNumeroOcorrencia();
+        }
+    };
+
+    function atualizarNumeroOcorrencia() {
+        let ultimo = localStorage.getItem('contadorOcorrencia') || 0;
+        document.getElementById('numRegistro').value = String(parseInt(ultimo) + 1).padStart(3, '0');
+    }
+
+    function popularEquipes(selectId) {
+        const sel = document.getElementById(selectId);
+        sel.innerHTML = '<option value="">+ ADICIONAR...</option>';
+        for(let i=1; i<=80; i++) {
+            let n = i < 10 ? '0'+i : i;
+            sel.add(new Option('MT '+n, 'MT '+n));
+        }
+        for(let i=1; i<=20; i++) {
+            let n = i < 10 ? '0'+i : i;
+            sel.add(new Option('VT '+n, 'VT '+n));
+        }
+        ["EQUIPE SEMAFÓRICA", "SINAL VIDA", "UMT", "SERTELL"].forEach(nome => sel.add(new Option(nome, nome)));
+    }
+
+    function renderizarEquipes(targetContainer, lista, removeCallback) {
+        const container = document.getElementById(targetContainer);
+        container.innerHTML = "";
+        lista.forEach(eq => {
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.innerHTML = `${eq} <span>&times;</span>`;
+            chip.onclick = () => removeCallback(eq);
+            container.appendChild(chip);
+        });
+    }
+
+    document.getElementById('equipeSelect').onchange = (e) => {
+        const val = e.target.value;
+        if (val && !equipesSelecionadas.includes(val)) {
+            equipesSelecionadas.push(val);
+            renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => {
+                equipesSelecionadas = equipesSelecionadas.filter(i => i !== r);
+                renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => equipesSelecionadas = equipesSelecionadas.filter(i => i !== r));
+            });
+        }
+        e.target.value = "";
+    };
+
+    document.getElementById('editEquipeSelect').onchange = (e) => {
+        const val = e.target.value;
+        if (val && !equipesModal.includes(val)) {
+            equipesModal.push(val);
+            renderizarEquipes('editContainerEquipes', equipesModal, (r) => {
+                equipesModal = equipesModal.filter(i => i !== r);
+                renderizarEquipes('editContainerEquipes', equipesModal, (r) => equipesModal = equipesModal.filter(i => i !== r));
+            });
+        }
+        e.target.value = "";
+    };
+
+    const q = query(collection(db, "ocorrencias_sttu"), orderBy("timestamp", "desc"));
+    onSnapshot(q, (snapshot) => {
+        const tPendentes = document.getElementById('tabelaPendentes').getElementsByTagName('tbody')[0];
+        const tConcluidas = document.getElementById('relatorioTable').getElementsByTagName('tbody')[0];
+        tPendentes.innerHTML = ""; tConcluidas.innerHTML = "";
+
+        snapshot.forEach((docSnap) => {
+            const d = docSnap.data();
+            const id = docSnap.id;
+            const row = (d.situacao === 'CONCLUÍDA' || d.situacao === 'NÃO ATENDIDA') ? tConcluidas.insertRow() : tPendentes.insertRow();
+            
+            const campos = [d.numRegistro, d.solicitante, d.contato, d.ocorrencia, d.local, d.detalhamento, d.zona, d.equipe, d.horaEnvio, d.situacao, d.horaFinal, d.resultadoFinal];
+            
+            campos.forEach((txt, idx) => {
+                const cell = row.insertCell();
+                let conteudo = String(txt || "").replace(/\n/g, '<br>');
+                if(idx === 9) { 
+                    if (txt === 'CONCLUÍDA') cell.className = 'status-concluida';
+                    else if (txt === 'ENCAMINHADA') cell.className = 'status-encaminhada';
+                    else cell.className = 'status-pendente';
+                }
+                cell.innerHTML = conteudo;
+            });
+
+            const cellHist = row.insertCell();
+            cellHist.className = 'col-hist';
+
+            const divWrapper = document.createElement('div');
+            divWrapper.className = 'hist-wrapper';
+            const lista = document.createElement('ul');
+            lista.className = 'lista-historico';
+
+            // 1. Log de CRIAÇÃO (Novo)
+            let logCriacao = "Data pendente...";
+            if (d.timestamp) {
+                // Tenta usar .toDate() do Firestore, se não der, usa new Date()
+                const dataObj = d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp);
+                
+                const dia = String(dataObj.getDate()).padStart(2, '0');
+                const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+                const hora = String(dataObj.getHours()).padStart(2, '0');
+                const min = String(dataObj.getMinutes()).padStart(2, '0');
+                
+                logCriacao = `[${dia}/${mes} - ${hora}:${min}] Registro recebido`;
+            }
+
+            // 2. Junta os logs de edição com o de criação
+            // Logs de edição primeiro (revertidos para mais recente em cima)
+            const logsParaExibir = d.historicoLogs ? [...d.historicoLogs] : [];
+            logsParaExibir.reverse(); 
+            
+            // Adiciona a criação no final da lista visual
+            logsParaExibir.push(logCriacao);
+
+            logsParaExibir.forEach(log => {
+                const item = document.createElement('li');
+                const parts = log.match(/^\[(.*?)\] (.*)/);
+                if(parts) {
+                    item.innerHTML = `<span class="hist-data">${parts[1]}</span><span class="hist-detalhe">${parts[2]}</span>`;
+                } else {
+                    item.innerText = log;
+                }
+                lista.appendChild(item);
+            });
+
+            divWrapper.appendChild(lista);
+            cellHist.appendChild(divWrapper);
+
+            if (d.situacao !== 'CONCLUÍDA' && d.situacao !== 'NÃO ATENDIDA') {
+                const acCell = row.insertCell();
+                acCell.style.display = 'flex';
+                acCell.style.gap = '5px';
+                acCell.style.justifyContent = 'center';
+
+                const btnEnc = document.createElement('button');
+                btnEnc.className = 'btn btn-encaminhar'; btnEnc.innerText = 'ENCAMINHAR';
+                btnEnc.onclick = () => abrirModalEncaminhar(id, d);
+                acCell.appendChild(btnEnc);
+
+                const btnCon = document.createElement('button');
+                btnCon.className = 'btn btn-concluir'; btnCon.innerText = 'CONCLUIR';
+                btnCon.onclick = () => concluirOcorrencia(id, d);
+                acCell.appendChild(btnCon);
+            }
+        });
+    });
+
+    window.abrirModalEncaminhar = (id, dados) => {
+        document.getElementById('editId').value = id;
+        document.getElementById('editSolicitante').value = dados.solicitante;
+        document.getElementById('editContato').value = dados.contato;
+        document.getElementById('editOcorrencia').value = dados.ocorrencia.split(" (")[0]; // Tenta pegar só o principal caso tenha parenteses
+        document.getElementById('editLocal').value = dados.local;
+        document.getElementById('editDetalhamento').value = dados.detalhamento;
+        document.getElementById('editZona').value = dados.zona;
+        
+        document.getElementById('editSituacao').value = 'ENCAMINHADA';
+        
+        equipesModal = dados.equipe ? dados.equipe.split(", ") : [];
+        renderizarEquipes('editContainerEquipes', equipesModal, (r) => {
+            equipesModal = equipesModal.filter(i => i !== r);
+            renderizarEquipes('editContainerEquipes', equipesModal, (r) => equipesModal = equipesModal.filter(i => i !== r));
+        });
+
+        document.getElementById('modalEncaminhar').style.display = 'flex';
+    };
+
+    window.fecharModal = () => {
+        document.getElementById('modalEncaminhar').style.display = 'none';
+    };
+
+    window.confirmarEncaminhamento = async () => {
+        const id = document.getElementById('editId').value;
+        const novaHora = String(new Date().getHours()).padStart(2,'0') + ":" + String(new Date().getMinutes()).padStart(2,'0');
+        
+        const docRef = doc(db, "ocorrencias_sttu", id);
+        const docSnap = await getDoc(docRef);
+        const antigos = docSnap.data();
+
+        const novos = {
+            solicitante: document.getElementById('editSolicitante').value.toUpperCase().trim(),
+            contato: document.getElementById('editContato').value.toUpperCase().trim(),
+            ocorrencia: document.getElementById('editOcorrencia').value,
+            local: document.getElementById('editLocal').value.toUpperCase().trim(),
+            detalhamento: document.getElementById('editDetalhamento').value.toUpperCase().trim(),
+            zona: document.getElementById('editZona').value,
+            equipe: equipesModal.join(", "),
+            situacao: document.getElementById('editSituacao').value
+        };
+
+        let mudancas = [];
+        
+        if (antigos.equipe !== novos.equipe) mudancas.push(`Equipe: ${antigos.equipe || 'SEM EQUIPE'} ➔ ${novos.equipe}`);
+        if (antigos.zona !== novos.zona) mudancas.push(`Zona: ${antigos.zona} ➔ ${novos.zona}`);
+        if (antigos.local !== novos.local) mudancas.push(`Local alterado`);
+        if (antigos.ocorrencia !== novos.ocorrencia) mudancas.push(`Tipo: ${antigos.ocorrencia} ➔ ${novos.ocorrencia}`);
+        if (antigos.detalhamento !== novos.detalhamento) mudancas.push(`Detalhe atualizado`);
+        if (antigos.solicitante !== novos.solicitante) mudancas.push(`Solicitante alterado`);
+        if (antigos.contato !== novos.contato) mudancas.push(`Contato alterado`);
+
+        if (mudancas.length === 0) mudancas.push("Reencaminhado sem alterações");
+
+        const logMsg = `[${novaHora}] ${mudancas.join(" | ")}`;
+
+        await updateDoc(docRef, {
+            ...novos, 
+            horaEnvio: novaHora, 
+            historicoLogs: arrayUnion(logMsg)
+        });
+
+        alert("✅ Atualizado com sucesso!");
+        fecharModal();
+    };
+
+    // --- NOVA FUNÇÃO DE CONCLUSÃO COM VALIDAÇÃO ---
+    async function concluirOcorrencia(id, dadosAntigos) {
+        let res = prompt("RESULTADO FINAL / MOTIVO QTC (OBRIGATÓRIO PARA CONCLUIR):", dadosAntigos.resultadoFinal || "");
+
+        // Se o usuário clicou em cancelar, res é null -> para tudo
+        if (res === null) return;
+
+        // Se o usuário deixou em branco ou só espaços -> alerta e para
+        if (res.trim() === "") {
+            alert("⚠️ ERRO: Para concluir a ocorrência, é OBRIGATÓRIO escrever o Resultado Final.");
+            return;
+        }
+
+        const hF = String(new Date().getHours()).padStart(2,'0') + ":" + String(new Date().getMinutes()).padStart(2,'0');
+        await updateDoc(doc(db, "ocorrencias_sttu", id), {
+            situacao: 'CONCLUÍDA',
+            resultadoFinal: res.toUpperCase(),
+            horaFinal: hF
+        });
+        alert("✅ Ocorrência concluída com sucesso!");
+    }
+
+    document.getElementById('registroForm').onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const solicitante = document.getElementById('solicitante').value.trim();
+        const contato = document.getElementById('contato').value.trim();
+        let ocorrencia = document.getElementById('ocorrencia').value;
+        const local = document.getElementById('local').value.trim();
+        const detalhamento = document.getElementById('detalhamento').value.trim();
+        const zona = document.getElementById('zona').value;
+        const horaEnvio = document.getElementById('horaEnvio').value;
+        const situacao = document.getElementById('situacao').value;
+        const resultadoFinal = document.getElementById('resultadoFinal').value.trim();
+        let horaFinalValor = document.getElementById('horaFinal').value;
+        
+        // Verifica se há subtipo selecionado
+        const divSub = document.getElementById('subtipoContainer');
+        if (divSub.style.display === 'block') {
+            const subtipo = document.getElementById('subtipoSelect').value;
+            if (subtipo) {
+                ocorrencia = `${ocorrencia} (${subtipo})`;
+            }
+        }
+
+        const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA");
+
+        if (!solicitante || !contato || !ocorrencia || !local || !detalhamento || !zona || !situacao) {
+            alert("⚠️ Preencha os campos básicos obrigatórios, incluindo a SITUAÇÃO!"); return;
+        }
+
+        if (!isExcecao) {
+            if (!horaEnvio) { alert("⚠️ Hora de Envio é obrigatória para esta ocorrência!"); return; }
+            if (equipesSelecionadas.length === 0) { alert("⚠️ Selecione pelo menos uma EQUIPE!"); return; }
+        }
+
+        // VALIDAÇÃO PARA REGISTRO DIRETO COMO CONCLUÍDA
+        if (situacao === 'CONCLUÍDA') {
+            if (!resultadoFinal) {
+                alert("⚠️ Para registrar como CONCLUÍDA, é OBRIGATÓRIO preencher o campo RESULTADO FINAL!");
+                return;
+            }
+            // LÓGICA DE HORA AUTOMÁTICA SE O CAMPO ESTIVER VAZIO
+            if (!horaFinalValor) {
+                const agora = new Date();
+                horaFinalValor = String(agora.getHours()).padStart(2, '0') + ":" + String(agora.getMinutes()).padStart(2, '0');
+            }
+        }
+
+        const dados = {
+            numRegistro: document.getElementById('numRegistro').value,
+            solicitante: solicitante.toUpperCase(),
+            contato: contato.toUpperCase(),
+            ocorrencia: ocorrencia,
+            local: local.toUpperCase(),
+            detalhamento: detalhamento.toUpperCase(),
+            zona: zona,
+            equipe: equipesSelecionadas.join(", "),
+            horaEnvio: horaEnvio || "--:--",
+            situacao: situacao,
+            horaFinal: horaFinalValor,
+            resultadoFinal: resultadoFinal.toUpperCase(),
+            timestamp: serverTimestamp(),
+            historicoLogs: [] 
+        };
+
+        await addDoc(collection(db, "ocorrencias_sttu"), dados);
+        localStorage.setItem('contadorOcorrencia', dados.numRegistro);
+        
+        document.getElementById('registroForm').reset();
+        equipesSelecionadas = [];
+        renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => {
+             equipesSelecionadas = equipesSelecionadas.filter(i => i !== r);
+             renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => equipesSelecionadas = equipesSelecionadas.filter(i => i !== r));
+        });
+        
+        atualizarNumeroOcorrencia();
+        popularEquipes('equipeSelect');
+        window.verificarRegrasObrigatoriedade();
+    };
+
+    atualizarNumeroOcorrencia();
+    popularEquipes('equipeSelect');
+    popularEquipes('editEquipeSelect'); 
+    
+    document.getElementById('btnResetContador').onclick = window.resetContador;
+    
+    document.getElementById('btnDownloadCSV').onclick = () => {
+        const table = document.getElementById('relatorioTable');
+        let csv = ["\ufeffNº,SOLICITANTE,CONTATO,OCORRENCIA,LOCAL,DETALHE,ZONA,EQUIPE,ENVIO,STATUS,FINAL,RESULTADO,HISTORICO"];
+        for(let i=0; i<table.rows.length; i++) {
+            let r = [];
+            const tr = table.rows[i];
+            for(let j=0; j<tr.cells.length; j++) {
+                let texto = tr.cells[j].innerText;
+                if (tr.cells[j].classList.contains('col-hist')) {
+                      texto = Array.from(tr.cells[j].querySelectorAll('li')).map(li => li.innerText).join(" | ");
+                }
+                r.push(`"${texto.replace(/"/g, '""').replace(/\n/g, ' ')}"`);
+            }
+            csv.push(r.join(","));
+        }
+        const b = new Blob([csv.join("\n")], {type: 'text/csv;charset=utf-8;'});
+        const l = document.createElement('a');
+        l.href = URL.createObjectURL(b);
+        l.download = `ocorrencias_sttu_completo_${new Date().getTime()}.csv`;
+        l.click();
+    };
+
+    window.fecharModal = fecharModal;
+    window.confirmarEncaminhamento = confirmarEncaminhamento;
+</script>
+</body>
+</html>
