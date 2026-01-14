@@ -12,6 +12,21 @@
         
         /* TABELA */
         .table-container { width: 99%; margin: 0 auto; overflow-x: auto; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        /* --- NOVA CLASSE PARA ROLAGEM INTELIGENTE --- */
+        .container-rolagem {
+            max-height: 60vh; /* Define altura máxima (60% da tela) */
+            overflow-y: auto; /* Cria rolagem vertical se passar da altura */
+        }
+        
+        /* FIXAR O CABEÇALHO NA ROLAGEM */
+        .container-rolagem th {
+            position: sticky;
+            top: 0;
+            z-index: 20; /* Garante que o cabeçalho fique por cima do conteúdo */
+            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2); /* Sombra para destacar o cabeçalho */
+        }
+
         table { border-collapse: collapse; width: 100%; min-width: 1600px; table-layout: fixed; }
         th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: left; font-size: 11px; vertical-align: middle; word-wrap: break-word; }
         .data-header { background-color: #eceff1; text-align: center; font-weight: bold; color: #455a64; text-transform: uppercase; font-size: 11px; }
@@ -25,7 +40,6 @@
             border-radius: 5px; font-family: inherit; font-size: 12px; text-transform: uppercase; 
         }
         .campo-obrigatorio { border-left: 4px solid #dc3545 !important; background-color: #fff8f8; }
-        /* Classe para quando o campo deixa de ser obrigatório */
         .campo-opcional { border-left: 4px solid #27ae60 !important; background-color: #f0fff4; }
 
         .auto-number { background-color: #e3f2fd !important; font-weight: bold; color: #1565c0; text-align: center; }
@@ -41,6 +55,15 @@
         .btn-home { background-color: #7f8c8d; color: white; text-decoration: none; padding: 10px; }
         .btn-reset { background-color: #e67e22; color: white; font-size: 10px; padding: 5px; margin-top: 5px; cursor: pointer; border-radius: 3px; border:none; }
 
+        /* BOTÕES DA TABELA (EMPILHADOS) */
+        .btn-acao-tabela {
+            width: 100%;       
+            margin: 2px 0;     
+            padding: 4px 0;    
+            font-size: 10px;   
+            text-align: center;
+        }
+
         /* STATUS */
         .status-concluida { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; text-align: center; }
         .status-pendente { background-color: #ffebee; color: #c62828; font-weight: bold; text-align: center; }
@@ -50,23 +73,19 @@
         .qtc-container { margin-top: 8px; display: none; }
         .qtc-label { font-size: 10px; font-weight: bold; color: #c62828; display: block; }
 
-        /* NOVO: Subtipo Container */
         .subtipo-container { margin-top: 5px; display: none; background: #e3f2fd; padding: 5px; border-radius: 4px; border: 1px dashed #2980b9; }
         .subtipo-label { font-size: 9px; font-weight: bold; color: #2980b9; display: block; margin-bottom: 2px; }
         
-        /* CHIPS (ETIQUETAS DE EQUIPE) */
         .chip-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
         .chip { background: #2980b9; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 5px; cursor: pointer; }
         .chip:hover { background: #c0392b; }
 
-        /* LISTA DE HISTÓRICO - ESTILO NOVO */
         .hist-wrapper { max-height: 100px; overflow-y: auto; font-size: 10px; }
         .lista-historico { margin: 0; padding-left: 0; list-style-type: none; }
         .lista-historico li { margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
         .hist-data { font-weight: bold; color: #2980b9; font-size: 9px; }
         .hist-detalhe { display: block; margin-left: 5px; color: #555; }
 
-        /* MODAL */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
         .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #2c3e50; }
@@ -74,12 +93,12 @@
         .form-group label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 3px; color: #555; }
         .btn-close-modal { background: #95a5a6; color: white; }
 
-        /* --- CORES DAS REGIÕES (ADICIONADO) --- */
-        .regiao-1 { background-color: #ff8c00 !important; color: white; text-align: center; font-weight: bold; } /* Laranja */
-        .regiao-2 { background-color: #28a745 !important; color: white; text-align: center; font-weight: bold; } /* Verde */
-        .regiao-3 { background-color: #003366 !important; color: white; text-align: center; font-weight: bold; } /* Azul Escuro */
-        .regiao-4 { background-color: #343a40 !important; color: white; text-align: center; font-weight: bold; } /* Cinza Escuro */
-        .regiao-5 { background-color: #d39e00 !important; color: black; text-align: center; font-weight: bold; } /* Amarelo Escuro */
+        /* CORES DAS REGIÕES */
+        .regiao-1 { background-color: #ff8c00 !important; color: white; text-align: center; font-weight: bold; } 
+        .regiao-2 { background-color: #28a745 !important; color: white; text-align: center; font-weight: bold; } 
+        .regiao-3 { background-color: #003366 !important; color: white; text-align: center; font-weight: bold; } 
+        .regiao-4 { background-color: #343a40 !important; color: white; text-align: center; font-weight: bold; } 
+        .regiao-5 { background-color: #d39e00 !important; color: black; text-align: center; font-weight: bold; } 
     </style>
 </head>
 <body>
@@ -187,7 +206,7 @@
     </div>
 
     <div class="section-title">⏳ OCORRÊNCIAS PENDENTES / EM ANDAMENTO</div>
-    <div class="table-container">
+    <div class="table-container container-rolagem">
         <table id="tabelaPendentes">
             <thead>
                 <tr>
@@ -212,7 +231,7 @@
     </div>
 
     <div class="section-title">✅ HISTÓRICO DE OCORRÊNCIAS CONCLUÍDAS</div>
-    <div class="table-container">
+    <div class="table-container container-rolagem">
         <table id="relatorioTable">
             <thead>
                 <tr>
@@ -329,7 +348,6 @@
     let equipesSelecionadas = [];
     let equipesModal = [];
 
-    // --- FUNÇÃO AUXILIAR DE CORES DE REGIÃO ---
     function obterClasseRegiao(zona) {
         if (!zona) return '';
         const z = zona.toUpperCase();
@@ -341,7 +359,6 @@
         return '';
     }
 
-    // --- VALIDAÇÃO DE INPUTS ---
     ['solicitante', 'editSolicitante'].forEach(id => {
         const input = document.getElementById(id);
         if(input) {
@@ -360,7 +377,6 @@
         }
     });
 
-    // --- FUNÇÕES DE LÓGICA DE NEGÓCIO ---
     window.verificarRegrasObrigatoriedade = function() {
         const ocorrencia = document.getElementById('ocorrencia').value;
         const situacao = document.getElementById('situacao').value;
@@ -480,14 +496,12 @@
             const id = docSnap.id;
             const row = (d.situacao === 'CONCLUÍDA' || d.situacao === 'NÃO ATENDIDA') ? tConcluidas.insertRow() : tPendentes.insertRow();
             
-            // Índice 6 é d.zona
             const campos = [d.numRegistro, d.solicitante, d.contato, d.ocorrencia, d.local, d.detalhamento, d.zona, d.equipe, d.horaEnvio, d.situacao, d.horaFinal, d.resultadoFinal];
             
             campos.forEach((txt, idx) => {
                 const cell = row.insertCell();
                 let conteudo = String(txt || "").replace(/\n/g, '<br>');
                 
-                // APLICAÇÃO DE CORES NA COLUNA ZONA (REGIÃO) - Índice 6
                 if (idx === 6) {
                     cell.className = obterClasseRegiao(txt);
                 }
@@ -508,7 +522,6 @@
             const lista = document.createElement('ul');
             lista.className = 'lista-historico';
 
-            // Log de CRIAÇÃO
             let logCriacao = "Data pendente...";
             if (d.timestamp) {
                 const dataObj = d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp);
@@ -540,16 +553,19 @@
             if (d.situacao !== 'CONCLUÍDA' && d.situacao !== 'NÃO ATENDIDA') {
                 const acCell = row.insertCell();
                 acCell.style.display = 'flex';
-                acCell.style.gap = '5px';
-                acCell.style.justifyContent = 'center';
+                acCell.style.flexDirection = 'column'; 
+                acCell.style.gap = '4px';
+                acCell.style.alignItems = 'stretch'; 
 
                 const btnEnc = document.createElement('button');
-                btnEnc.className = 'btn btn-encaminhar'; btnEnc.innerText = 'ENCAMINHAR';
+                btnEnc.className = 'btn btn-encaminhar btn-acao-tabela'; 
+                btnEnc.innerText = 'ENCAMINHAR';
                 btnEnc.onclick = () => abrirModalEncaminhar(id, d);
                 acCell.appendChild(btnEnc);
 
                 const btnCon = document.createElement('button');
-                btnCon.className = 'btn btn-concluir'; btnCon.innerText = 'CONCLUIR';
+                btnCon.className = 'btn btn-concluir btn-acao-tabela'; 
+                btnCon.innerText = 'CONCLUIR';
                 btnCon.onclick = () => concluirOcorrencia(id, d);
                 acCell.appendChild(btnCon);
             }
