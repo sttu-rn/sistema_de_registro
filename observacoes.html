@@ -149,14 +149,15 @@
                     <input type="hidden" id="maleta-selecionada" value="">
                 </div>
                 <div class="item-conferencia">ETILÔMETRO: <input type="number" id="qtd-etil" value="1"></div>
-                <div class="item-conferencia">PITEIRA: <input type="number" id="qtd-ch-arm" value="2"></div>
-                <div class="item-conferencia">IMPRESSORA: <input type="number" id="qtd-ctrl" value="1"></div>
-                <div class="item-conferencia">CARREGADORES: <input type="number" id="qtd-cracha" value="5"></div>
-                <div class="item-conferencia">BOBINA: <input type="number" id="qtd-dif-t2" value="1"></div>
-                <div class="item-conferencia">BOAT: <input type="number" id="qtd-cabos-t2" value="2"></div>
-                <div class="item-conferencia">CERTIFICADO: <input type="number" id="qtd-cabos-t2" value="2"></div>
-                <div class="item-conferencia">TC: <input type="number" id="qtd-cabos-t2" value="2"></div>
-                <div class="item-conferencia">MANUAL: <input type="number" id="qtd-cabos-t2" value="2"></div>
+                <div class="item-conferencia">PITEIRA: <input type="number" id="qtd-piteira" value="2"></div>
+                <div class="item-conferencia">IMPRESSORA: <input type="number" id="qtd-impressora-maleta" value="1"></div>
+                <div class="item-conferencia">CARREGADORES: <input type="number" id="qtd-carregadores" value="5"></div>
+                <div class="item-conferencia">BOBINA: <input type="number" id="qtd-bobina" value="1"></div>
+                <div class="item-conferencia">BOAT: <input type="number" id="qtd-boat" value="2"></div>
+                <div class="item-conferencia">CERTIFICADO: <input type="number" id="qtd-certificado" value="2"></div>
+                <div class="item-conferencia">TC: <input type="number" id="qtd-tc" value="2"></div>
+                <div class="item-conferencia">MANUAL: <input type="number" id="qtd-manual" value="2"></div>
+                
                 <div style="grid-column: 1 / -1;">
                     <input type="text" id="obs-extras" class="outras-obs" placeholder="Outras observações...">
                 </div>
@@ -176,12 +177,197 @@
             <div class="config-turno" style="background-color: #8e44ad;"><strong>AFASTAMENTOS / ATESTADOS:</strong></div>
             <div style="border: 2px solid #8e44ad; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
                 <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 12px; color: #555;">
-                    <div style="flex: 2;">NOME DO AGENTE</div>
+                    <div style="flex: 2;">SELECIONE O AGENTE:</div>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <select id="afast-lista-agentes" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;">
+                        <option value="">-- SELECIONE NA LISTA --</option>
+                        <option value="ADRIANA GOMES DA SILVA - 43.071-4">ADRIANA GOMES DA SILVA - 43.071-4</option>
+                        <option value="ADRIANO ANDRÉ GUEDES COSTA - 43.079-0">ADRIANO ANDRÉ GUEDES COSTA - 43.079-0</option>
+                        <option value="ADRIANO NASCIMENTO DA FONSECA - 49.991-9">ADRIANO NASCIMENTO DA FONSECA - 49.991-9</option>
+                        <option value="AFRÂNIO MEDEIROS DA COSTA - 43.151-6">AFRÂNIO MEDEIROS DA COSTA - 43.151-6</option>
+                        <option value="AGRICIO BELCHIOR BANDEIRA NETO - 43.127-3">AGRICIO BELCHIOR BANDEIRA NETO - 43.127-3</option>
+                        <option value="AILTON ANDRADE - 62.095-5">AILTON ANDRADE - 62.095-5</option>
+                        <option value="ALCINEIDE JUSTO SIQUEIRA - 62.100-5">ALCINEIDE JUSTO SIQUEIRA - 62.100-5</option>
+                        <option value="ALDREY LUIZ MORAIS DA SILVA - 62.549-3">ALDREY LUIZ MORAIS DA SILVA - 62.549-3</option>
+                        <option value="ALDRIN MAGNO DANTAS SIQUEIRA - 43.080-3">ALDRIN MAGNO DANTAS SIQUEIRA - 43.080-3</option>
+                        <option value="ALESSANDRA DORA DA SILVA COSTA - 43.199-1">ALESSANDRA DORA DA SILVA COSTA - 43.199-1</option>
+                        <option value="ALEX SERAFIM DA SILVA - 15.231-5">ALEX SERAFIM DA SILVA - 15.231-5</option>
+                        <option value="ALEXANDRA BARROS DO NASCIMENTO - 49.953-6">ALEXANDRA BARROS DO NASCIMENTO - 49.953-6</option>
+                        <option value="ALEXANDRE DE SOUZA - 13.174-1">ALEXANDRE DE SOUZA - 13.174-1</option>
+                        <option value="ALEXANDRE MAGNO FREITAS COSMO - 61.947-7">ALEXANDRE MAGNO FREITAS COSMO - 61.947-7</option>
+                        <option value="ALEXSANDRO NASCIMENTO BARBOSA - 43.072-2">ALEXSANDRO NASCIMENTO BARBOSA - 43.072-2</option>
+                        <option value="ALYENE PATRICIA CRUZ BRITO ALVES - 64.545-0">ALYENE PATRICIA CRUZ BRITO ALVES - 64.545-0</option>
+                        <option value="ALISSON EMANOEL DE OLIVEIRA FAGUNDES - 49.995-1">ALISSON EMANOEL DE OLIVEIRA FAGUNDES - 49.995-1</option>
+                        <option value="ALLAN ARAÚJO DE MEDEIROS - 43.073-1">ALLAN ARAÚJO DE MEDEIROS - 43.073-1</option>
+                        <option value="ANA MARIA DA SILVA ALVES - 13.141-5">ANA MARIA DA SILVA ALVES - 13.141-5</option>
+                        <option value="ANDERSON RODRIGO DO NASCIMENTO - 63.802-1">ANDERSON RODRIGO DO NASCIMENTO - 63.802-1</option>
+                        <option value="ANDRE CORCINO DE LIMA FILHO - 00.387-5">ANDRE CORCINO DE LIMA FILHO - 00.387-5</option>
+                        <option value="ANDREA CASTRO GALVÃO - 62.097-1">ANDREA CASTRO GALVÃO - 62.097-1</option>
+                        <option value="ANDREIA CARLA SILVA FONSECA E SOUZA - 14.071-6">ANDREIA CARLA SILVA FONSECA E SOUZA - 14.071-6</option>
+                        <option value="ANDREZA CABRAL CÂMARA NUNES - 61.710-5">ANDREZA CABRAL CÂMARA NUNES - 61.710-5</option>
+                        <option value="ANNE CAROLINE MACEDO DE ARAÚJO - 60.233-7">ANNE CAROLINE MACEDO DE ARAÚJO - 60.233-7</option>
+                        <option value="ANTÃO LOPES DE ARAÚJO FILHO - 43.100-1">ANTÃO LOPES DE ARAÚJO FILHO - 43.100-1</option>
+                        <option value="ANTONIO CLEMENTINO DA ROCHA - 13.632-8">ANTONIO CLEMENTINO DA ROCHA - 13.632-8</option>
+                        <option value="ANTONIO GUILHERME DOS SANTOS - 14.206-9">ANTONIO GUILHERME DOS SANTOS - 14.206-9</option>
+                        <option value="ANTONIO SARMENTO RODRIGUES FILHO - 13.634-4">ANTONIO SARMENTO RODRIGUES FILHO - 13.634-4</option>
+                        <option value="BARBARA KALYANA DOS SANTOS GOMES - 43.102-8">BARBARA KALYANA DOS SANTOS GOMES - 43.102-8</option>
+                        <option value="CARLOS EUBER DE FREITAS NEVES - 43.077-3">CARLOS EUBER DE FREITAS NEVES - 43.077-3</option>
+                        <option value="CARLOS EUGÊNIO BARBOSA DE OLIVEIRA - 00.282-8">CARLOS EUGÊNIO BARBOSA DE OLIVEIRA - 00.282-8</option>
+                        <option value="CARLOS VALENTIM ALVES - 13.140-7">CARLOS VALENTIM ALVES - 13.140-7</option>
+                        <option value="CARLYLE CÂMARA DOS SANTOS - 43.150-8">CARLYLE CÂMARA DOS SANTOS - 43.150-8</option>
+                        <option value="CARMOZINA REGIA DE MELO DANTAS - 43.084-6">CARMOZINA REGIA DE MELO DANTAS - 43.084-6</option>
+                        <option value="CAROLINA DE CÁSSIA DEFENTE - 43.101-0">CAROLINA DE CÁSSIA DEFENTE - 43.101-0</option>
+                        <option value="CASSIO CLAY PEREIRA - 14.190-9">CASSIO CLAY PEREIRA - 14.190-9</option>
+                        <option value="CASTRICIANO BRAZ DOS SANTOS - 13.593-3">CASTRICIANO BRAZ DOS SANTOS - 13.593-3</option>
+                        <option value="CHIARA LUCIA DE GUMÃO GONÇALVES COSTA - 43.096-0">CHIARA LUCIA DE GUMÃO GONÇALVES COSTA - 43.096-0</option>
+                        <option value="CLAUDIA JACQUELINE GALVÃO SOUZA - 14.937-3">CLAUDIA JACQUELINE GALVÃO SOUZA - 14.937-3</option>
+                        <option value="CLEIDE MARIA DOS SANTOS SILVA - 13.614-0">CLEIDE MARIA DOS SANTOS SILVA - 13.614-0</option>
+                        <option value="CLEONEIDE CORREIA RAMALHO RIBEIRO - 13.609-3">CLEONEIDE CORREIA RAMALHO RIBEIRO - 13.609-3</option>
+                        <option value="CRISTIANE DE MACEDO E SILVA - 62.873-5">CRISTIANE DE MACEDO E SILVA - 62.873-5</option>
+                        <option value="DANIEL ALBURQUERQUE EMERENCIANO GONÇALVES - 43.090-1">DANIEL ALBURQUERQUE EMERENCIANO GONÇALVES - 43.090-1</option>
+                        <option value="DANIELLE PEREIRA DE OLIVEIRA - 60.072-5">DANIELLE PEREIRA DE OLIVEIRA - 60.072-5</option>
+                        <option value="DANILSON BENTES MARINHO - 13.116-4">DANILSON BENTES MARINHO - 13.116-4</option>
+                        <option value="DAVI FIRMINO DE LIMA - 14.953-5">DAVI FIRMINO DE LIMA - 14.953-5</option>
+                        <option value="DENÍLSON ARAÚJO DA COSTA - 60.090-3">DENÍLSON ARAÚJO DA COSTA - 60.090-3</option>
+                        <option value="DIONISIO CARDOSO DA COSTA - 13.659-0">DIONISIO CARDOSO DA COSTA - 13.659-0</option>
+                        <option value="DANILO CLAUDIO LIRA DOS SANTOS - 72.245-7">DANILO CLAUDIO LIRA DOS SANTOS - 72.245-7</option>
+                        <option value="EDÍLSON FERREIRA DOS SANTOS - 00.417-1">EDÍLSON FERREIRA DOS SANTOS - 00.417-1</option>
+                        <option value="EDILSON OLIVEIRA DA SILVA - 13.147-4">EDILSON OLIVEIRA DA SILVA - 13.147-4</option>
+                        <option value="EDINALVA DUARTE LEAL DE MEDEIROS - 00.463-4">EDINALVA DUARTE LEAL DE MEDEIROS - 00.463-4</option>
+                        <option value="EDINÁSIO COSTA SOARES - 49.986-2">EDINÁSIO COSTA SOARES - 49.986-2</option>
+                        <option value="EDJA DE PAULA MAIA - 45.570-9">EDJA DE PAULA MAIA - 45.570-9</option>
+                        <option value="EDSON RAIMUNDO DA SILVA - 13.463-5">EDSON RAIMUNDO DA SILVA - 13.463-5</option>
+                        <option value="EDVALDO MANOEL DA SILVA - 00.465-1">EDVALDO MANOEL DA SILVA - 00.465-1</option>
+                        <option value="EDVALDO SOARES DA SILVA - 09.325-4">EDVALDO SOARES DA SILVA - 09.325-4</option>
+                        <option value="ELIZABETE RANYELA MORAIS DE MOURA - 43.198-2">ELIZABETE RANYELA MORAIS DE MOURA - 43.198-2</option>
+                        <option value="ERNESTO MORAIS VIANA - 14.930-6">ERNESTO MORAIS VIANA - 14.930-6</option>
+                        <option value="EVALDO FELIX FERREIRA - 00.518-5">EVALDO FELIX FERREIRA - 00.518-5</option>
+                        <option value="EVERALDO ALEXANDRE FREIRE - 14.043-1">EVERALDO ALEXANDRE FREIRE - 14.043-1</option>
+                        <option value="FERNANDA FREITAS DE HOLANDA - 60.066-1">FERNANDA FREITAS DE HOLANDA - 60.066-1</option>
+                        <option value="FRANCISCO GILSON LEONIDAS DA SILVA - 13.679-4">FRANCISCO GILSON LEONIDAS DA SILVA - 13.679-4</option>
+                        <option value="FRANZ BIAGGIO FULCO GAAG - 65.247-4">FRANZ BIAGGIO FULCO GAAG - 65.247-4</option>
+                        <option value="GENALDO AZEVEDO TRINDADE - 43.086-2">GENALDO AZEVEDO TRINDADE - 43.086-2</option>
+                        <option value="GILDIBERTO DE SOUZA ALVES - 08.646-1">GILDIBERTO DE SOUZA ALVES - 08.646-1</option>
+                        <option value="GILMAR GOMES DO NASCIMENTO - 06.726-1">GILMAR GOMES DO NASCIMENTO - 06.726-1</option>
+                        <option value="GUTEMBERG PEREIRA - 08.015-2">GUTEMBERG PEREIRA - 08.015-2</option>
+                        <option value="HAILSON CABRAL DO NASCIMENTO - 00.375-1">HAILSON CABRAL DO NASCIMENTO - 00.375-1</option>
+                        <option value="HARLLEY CAMPOS MARQUES - 65.420-5">HARLLEY CAMPOS MARQUES - 65.420-5</option>
+                        <option value="HEITOR RODRIGUES DE LIMA - 43.097-8">HEITOR RODRIGUES DE LIMA - 43.097-8</option>
+                        <option value="HEMERSON MELO DA SILVA - 49.952-8">HEMERSON MELO DA SILVA - 49.952-8</option>
+                        <option value="HERANDY DE ARAÚJO CABRAL - 49.950-1">HERANDY DE ARAÚJO CABRAL - 49.950-1</option>
+                        <option value="HERQUILES LIMA DOS SANTOS - 43.149-4">HERQUILES LIMA DOS SANTOS - 43.149-4</option>
+                        <option value="HEWERTON MOURA DA SILVA - 43.098-6">HEWERTON MOURA DA SILVA - 43.098-6</option>
+                        <option value="ISABELA SILVA NICÁCIO DE BRITO - 60.234-5">ISABELA SILVA NICÁCIO DE BRITO - 60.234-5</option>
+                        <option value="ISRAEL FERREIRA PEREIRA - 13.110-5">ISRAEL FERREIRA PEREIRA - 13.110-5</option>
+                        <option value="IVAN DE CARVALHO MEDEIROS - 00.431-6">IVAN DE CARVALHO MEDEIROS - 00.431-6</option>
+                        <option value="IVES SILVA DE SOUZA - 62.151-0">IVES SILVA DE SOUZA - 62.151-0</option>
+                        <option value="JAIR JEFFERSON DE CARVALHO - 13.896-7">JAIR JEFFERSON DE CARVALHO - 13.896-7</option>
+                        <option value="JARDEL BEZERRA DE ANDRADE - 62.189-7">JARDEL BEZERRA DE ANDRADE - 62.189-7</option>
+                        <option value="JARDS MEDEIROS DE OLIVEIRA - 62.826-3">JARDS MEDEIROS DE OLIVEIRA - 62.826-3</option>
+                        <option value="JATSON FRANCISCO DA SILVA BANDEIRA - 13.727-8">JATSON FRANCISCO DA SILVA BANDEIRA - 13.727-8</option>
+                        <option value="JEFFERSON STANLEY DA SILVA - 62.919-7">JEFFERSON STANLEY DA SILVA - 62.919-7</option>
+                        <option value="JOÃO BATISTA MONTEIRO DE AQUINO - 00.482-1">JOÃO BATISTA MONTEIRO DE AQUINO - 00.482-1</option>
+                        <option value="JOÃO BATISTA ROCHA FILHO - 49.994-3">JOÃO BATISTA ROCHA FILHO - 49.994-3</option>
+                        <option value="JOÃO BATISTA VARELA BARCA - 15.710-4">JOÃO BATISTA VARELA BARCA - 15.710-4</option>
+                        <option value="JOÃO CLAUDIO OLIVEIRA DE FARIAS - 00.383-2">JOÃO CLAUDIO OLIVEIRA DE FARIAS - 00.383-2</option>
+                        <option value="JOÃO FERREIRA - 06.644-3">JOÃO FERREIRA - 06.644-3</option>
+                        <option value="JOÃO MARIA ALMEIDA DE MOURA - 43.070-6">JOÃO MARIA ALMEIDA DE MOURA - 43.070-6</option>
+                        <option value="JOÃO MARIA MACEDO ROCHA - 43.201-6">JOÃO MARIA MACEDO ROCHA - 43.201-6</option>
+                        <option value="JOÃO PAULO DE OLIVEIRA - 43.082-0">JOÃO PAULO DE OLIVEIRA - 43.082-0</option>
+                        <option value="JOÃO WILLAMS DA SILVA - 62.253-2">JOÃO WILLAMS DA SILVA - 62.253-2</option>
+                        <option value="JONAS CRISTINO DA SILVA - 14.931-4">JONAS CRISTINO DA SILVA - 14.931-4</option>
+                        <option value="JORGE LUIZ BARROS DO NASCIMENTO - 62.431-4">JORGE LUIZ BARROS DO NASCIMENTO - 62.431-4</option>
+                        <option value="JORGE LUIZ SIQUEIRA DE OLIVEIRA - 62.191-9">JORGE LUIZ SIQUEIRA DE OLIVEIRA - 62.191-9</option>
+                        <option value="JOSÉ EUDES BEZERRA - 49.985-4">JOSÉ EUDES BEZERRA - 49.985-4</option>
+                        <option value="JOSÉ ALBERTO FREIRE DA COSTA - 42.766-7">JOSÉ ALBERTO FREIRE DA COSTA - 42.766-7</option>
+                        <option value="JOSE ALVES DE SOUZA NETO - 00.544-4">JOSE ALVES DE SOUZA NETO - 00.544-4</option>
+                        <option value="JOSE AUTEMAR RICARDO - 00.475-8">JOSE AUTEMAR RICARDO - 00.475-8</option>
+                        <option value="JOSE DINIZ RAMOS - 00.575-4">JOSE DINIZ RAMOS - 00.575-4</option>
+                        <option value="JOSE EBER DA SILVA - 13.105-9">JOSE EBER DA SILVA - 13.105-9</option>
+                        <option value="JOSÉ GONÇALVES MANGABEIRA DE MEDEIROS - 43.083-8">JOSÉ GONÇALVES MANGABEIRA DE MEDEIROS - 43.083-8</option>
+                        <option value="JOSÉ RICARDO GOMES CAVALCANTE - 13.102-4">JOSÉ RICARDO GOMES CAVALCANTE - 13.102-4</option>
+                        <option value="JOSE ROBERTO DA SILVA DE OLIVEIRA - 14.922-5">JOSE ROBERTO DA SILVA DE OLIVEIRA - 14.922-5</option>
+                        <option value="JOSÉ ROOSEVELT MEDEIROS JÚNIOR - 62.416-1">JOSÉ ROOSEVELT MEDEIROS JÚNIOR - 62.416-1</option>
+                        <option value="JOSEMAR DA SILVA DAMASCENO - 60.068-7">JOSEMAR DA SILVA DAMASCENO - 60.068-7</option>
+                        <option value="JOSEMAR TAVARES CÂMARA JUNIOR - 43.152-4">JOSEMAR TAVARES CÂMARA JUNIOR - 43.152-4</option>
+                        <option value="JOSENILSON TEIXEIRA DE SOUZA - 00.386-7">JOSENILSON TEIXEIRA DE SOUZA - 00.386-7</option>
+                        <option value="KASTEEN CARLOS DE AQUINO E SILVA - 43.076-5">KASTEEN CARLOS DE AQUINO E SILVA - 43.076-5</option>
+                        <option value="KLEBER SILVESTRE LUSTOSA - 49.825-4">KLEBER SILVESTRE LUSTOSA - 49.825-4</option>
+                        <option value="LAILTON RIBEIRO DA COSTA - 43.078-1">LAILTON RIBEIRO DA COSTA - 43.078-1</option>
+                        <option value="LEONARDO BATISTA DE SOUZA SILVA - 64.542-7">LEONARDO BATISTA DE SOUZA SILVA - 64.542-7</option>
+                        <option value="LEONARDO DA SILVEIRA LUCENA - 43.122-2">LEONARDO DA SILVEIRA LUCENA - 43.122-2</option>
+                        <option value="MADSON LIMA CAVALCANTI DE OLIVEIRA - 49.989-7">MADSON LIMA CAVALCANTI DE OLIVEIRA - 49.989-7</option>
+                        <option value="MANOEL NOBREGA DE OLIVEIRA - 13.758-8">MANOEL NOBREGA DE OLIVEIRA - 13.758-8</option>
+                        <option value="MARA LUCIA BARROS DE SOUZA - 70.665-5">MARA LUCIA BARROS DE SOUZA - 70.665-5</option>
+                        <option value="MARCELO BATISTA DE ANDRADE - 61.952-3">MARCELO BATISTA DE ANDRADE - 61.952-3</option>
+                        <option value="MARCELO FRANÇA DA SILVA - 60.073-3">MARCELO FRANÇA DA SILVA - 60.073-3</option>
+                        <option value="MARCELO ZAERDSON LINS MEDEIROS - 62.184-6">MARCELO ZAERDSON LINS MEDEIROS - 62.184-6</option>
+                        <option value="MARCILIO DE OLIVEIRA RODRIGUES - 49.951-0">MARCILIO DE OLIVEIRA RODRIGUES - 49.951-0</option>
+                        <option value="MÁRCIO JOSÉ DA SILVA - 68.159-8">MÁRCIO JOSÉ DA SILVA - 68.159-8</option>
+                        <option value="MARCOS ANTONIO DE OLIVEIRA - 07.326-1">MARCOS ANTONIO DE OLIVEIRA - 07.326-1</option>
+                        <option value="MARIA DE LOURDES DA SILVA FILHA - 43.200-8">MARIA DE LOURDES DA SILVA FILHA - 43.200-8</option>
+                        <option value="MARIA DO CARMO DA SILVA - 00.571-1">MARIA DO CARMO DA SILVA - 00.571-1</option>
+                        <option value="MARIA DO SOCORRO LIMA MARTINS - 14.070-8">MARIA DO SOCORRO LIMA MARTINS - 14.070-8</option>
+                        <option value="MARIA DO SOCORRO SILVA DE ANDRADE - 14.114-3">MARIA DO SOCORRO SILVA DE ANDRADE - 14.114-3</option>
+                        <option value="MARIA GORETE DUTRA DE OLIVEIRA - 13.988-2">MARIA GORETE DUTRA DE OLIVEIRA - 13.988-2</option>
+                        <option value="MARIA JANEIDE BEZERRA DA SILVA - 00.536-3">MARIA JANEIDE BEZERRA DA SILVA - 00.536-3</option>
+                        <option value="MARIA SANTANA BORGES DA SILVA - 00.561-4">MARIA SANTANA BORGES DA SILVA - 00.561-4</option>
+                        <option value="MARIO JOSE DA SILVA LEMOS - 14.944-6">MARIO JOSE DA SILVA LEMOS - 14.944-6</option>
+                        <option value="MARISA GILVANEIDE BERTO - 00.538-0">MARISA GILVANEIDE BERTO - 00.538-0</option>
+                        <option value="MARYANE CRISTINA LOPES PEREIRA - 43.112-5">MARYANE CRISTINA LOPES PEREIRA - 43.112-5</option>
+                        <option value="MAXIMIANO CAPIM DE MIRANDA - 13.462-7">MAXIMIANO CAPIM DE MIRANDA - 13.462-7</option>
+                        <option value="MAXWELL FERNANDES DA SILVA - 13.136-9">MAXWELL FERNANDES DA SILVA - 13.136-9</option>
+                        <option value="MIGUEL ÂNGELO DE SANTANA - 62.092-1">MIGUEL ÂNGELO DE SANTANA - 62.092-1</option>
+                        <option value="MOISES PEREIRA DE ARAUJO - 08.229-5">MOISES PEREIRA DE ARAUJO - 08.229-5</option>
+                        <option value="NADJANIA MARIA DAMASCENO VALLE - 62.368-7">NADJANIA MARIA DAMASCENO VALLE - 62.368-7</option>
+                        <option value="NAOMI SUASSUNA DOS SANTOS - 60.237-0">NAOMI SUASSUNA DOS SANTOS - 60.237-0</option>
+                        <option value="NEUZELIDES PRISCILA SILVA ANDRADE - 49.949-8">NEUZELIDES PRISCILA SILVA ANDRADE - 49.949-8</option>
+                        <option value="NEWDENBERG FERREIRA GALVÃO - 43.081-1">NEWDENBERG FERREIRA GALVÃO - 43.081-1</option>
+                        <option value="NEWTON DE SOUZA PEREIRA FILHO - 60.064-4">NEWTON DE SOUZA PEREIRA FILHO - 60.064-4</option>
+                        <option value="NUBIA SILENE DA SILVA COSTA - 14.109-7">NUBIA SILENE DA SILVA COSTA - 14.109-7</option>
+                        <option value="PATRÍCIA CRISTINA CAVALCANTE - 45.990-9">PATRÍCIA CRISTINA CAVALCANTE - 45.990-9</option>
+                        <option value="RAIMUNDO NONATO DE MEDEIROS NETO - 00.249-6">RAIMUNDO NONATO DE MEDEIROS NETO - 00.249-6</option>
+                        <option value="RAPHAELLE CAVALCANTE R. DE ARAUJO - 62.149-8">RAPHAELLE CAVALCANTE R. DE ARAUJO - 62.149-8</option>
+                        <option value="RECIO RONALDO ANDRADE DE PAIVA - 09.532-0">RECIO RONALDO ANDRADE DE PAIVA - 09.532-0</option>
+                        <option value="REGINA VICÊNCIA CRISPIM - 62.250-8">REGINA VICÊNCIA CRISPIM - 62.250-8</option>
+                        <option value="RICARDO SERGIO GOMES DA SILVA - 13.477-5">RICARDO SERGIO GOMES DA SILVA - 13.477-5</option>
+                        <option value="RITA DE CÁSSIA SILVA - 49.992-7">RITA DE CÁSSIA SILVA - 49.992-7</option>
+                        <option value="ROBSON LUIZ DE AZEVEDO - 00.184-8">ROBSON LUIZ DE AZEVEDO - 00.184-8</option>
+                        <option value="RODRIGO COSTA - 43.087-1">RODRIGO COSTA - 43.087-1</option>
+                        <option value="ROGELIO FERNANDES DE MELO - 13.095-8">ROGELIO FERNANDES DE MELO - 13.095-8</option>
+                        <option value="RONALDO JORGE DA SILVA - 13.096-6">RONALDO JORGE DA SILVA - 13.096-6</option>
+                        <option value="RONALDO MARINHO DE SOUZA - 62.825-5">RONALDO MARINHO DE SOUZA - 62.825-5</option>
+                        <option value="RONALDO TEIXEIRA DE ARAÚJO - 62.257-5">RONALDO TEIXEIRA DE ARAÚJO - 62.257-5</option>
+                        <option value="ROSEMBERG PEREIRA - 00.137-6">ROSEMBERG PEREIRA - 00.137-6</option>
+                        <option value="SANDRA DA SILVA BEZERRIL BACELAR - 61.712-1">SANDRA DA SILVA BEZERRIL BACELAR - 61.712-1</option>
+                        <option value="SARAH POLYANA DIAS DOS SANTOS - 43.154-1">SARAH POLYANA DIAS DOS SANTOS - 43.154-1</option>
+                        <option value="SEVERINA SOARES NETA CARNEIRO - 00.327-1">SEVERINA SOARES NETA CARNEIRO - 00.327-1</option>
+                        <option value="SEVERINO FERNANDES MAIA - 00.192-9">SEVERINO FERNANDES MAIA - 00.192-9</option>
+                        <option value="SEVERINO SOLANO DA SILVA - 00.486-3">SEVERINO SOLANO DA SILVA - 00.486-3</option>
+                        <option value="SOLANO LOPES DANTAS - 00.663-7">SOLANO LOPES DANTAS - 00.663-7</option>
+                        <option value="SYBELLE DE ARAÚJO DANTAS - 63.386-1">SYBELLE DE ARAÚJO DANTAS - 63.386-1</option>
+                        <option value="TALITHA LOUISE FORTUNATO BEZERRA - 49.990-1">TALITHA LOUISE FORTUNATO BEZERRA - 49.990-1</option>
+                        <option value="THALES GALVÃO DE ARAUJO - 63.803-0">THALES GALVÃO DE ARAUJO - 63.803-0</option>
+                        <option value="THALLES THIAGO MEDEIROS DE SOUZA - 49.988-9">THALLES THIAGO MEDEIROS DE SOUZA - 49.988-9</option>
+                        <option value="THIAGO DE LIRA BEZERRA - 43.075-7">THIAGO DE LIRA BEZERRA - 43.075-7</option>
+                        <option value="THIAGO HENRIQUE FERREIRA DA SILVA - 60.275-2">THIAGO HENRIQUE FERREIRA DA SILVA - 60.275-2</option>
+                        <option value="VALDELICE FERREIRA DE OLIVEIRA - 00.507-0">VALDELICE FERREIRA DE OLIVEIRA - 00.507-0</option>
+                        <option value="VANESSA GALDINO DA SILVA - 61.955-8">VANESSA GALDINO DA SILVA - 61.955-8</option>
+                        <option value="WALDICK GUERRA DE MEDEIROS - 13.281-1">WALDICK GUERRA DE MEDEIROS - 13.281-1</option>
+                        <option value="WALTER PEDRO DA SILVA - 00.358-1">WALTER PEDRO DA SILVA - 00.358-1</option>
+                        <option value="WANDERCLEY SILVA NEVES - 70.563-2">WANDERCLEY SILVA NEVES - 70.563-2</option>
+                        <option value="WANDRÉ WAGNER DA SILVA - 62.367-9">WANDRÉ WAGNER DA SILVA - 62.367-9</option>
+                        <option value="ZELIO CUNHA - 13.400-7">ZELIO CUNHA - 13.400-7</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 11px; color: #555;">
+                    <div style="flex: 2;">OUTRO NOME (SE NÃO ESTIVER NA LISTA):</div>
                     <div style="flex: 1;">LOCAL ESCALA</div>
                     <div style="flex: 1;">ATESTADO?</div>
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <input type="text" id="afast-nome" placeholder="Nome..." style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="text" id="afast-nome" placeholder="Digite o nome..." style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     <input type="text" id="afast-local" placeholder="Local..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     <select id="afast-status" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                         <option value="SEM ATESTADO">NÃO</option>
@@ -282,7 +468,10 @@
                 </div>
             </div>
 
-        </div> </div> <div class="footer-menu">
+        </div> 
+    </div> 
+    
+    <div class="footer-menu">
         <a href="index.html" class="btn-nav">PÁGINA INICIAL</a>
         <a href="agentes.html" class="btn-nav">AGENTES</a>
         <a href="ocorrencias.html" class="btn-nav">OCORRÊNCIAS</a>
@@ -295,11 +484,14 @@
             <input type="hidden" id="id-devolucao-atual">
             <div class="grid-equipamentos" style="border:none; padding:0;">
                 <div class="item-conferencia">ETILÔMETRO: <input type="number" id="dev-etil" value="1"></div>
-                <div class="item-conferencia">CHAVES: <input type="number" id="dev-chaves" value="2"></div>
-                <div class="item-conferencia">CONTROLE: <input type="number" id="dev-ctrl" value="1"></div>
-                <div class="item-conferencia">CRACHÁS: <input type="number" id="dev-cracha" value="5"></div>
-                <div class="item-conferencia">CARR. DIF: <input type="number" id="dev-dif" value="1"></div>
-                <div class="item-conferencia">CABOS USB: <input type="number" id="dev-usb" value="2"></div>
+                <div class="item-conferencia">PITEIRA: <input type="number" id="dev-piteira" value="2"></div>
+                <div class="item-conferencia">IMPRESSORA: <input type="number" id="dev-impressora" value="1"></div>
+                <div class="item-conferencia">CARREGADORES: <input type="number" id="dev-carregadores" value="5"></div>
+                <div class="item-conferencia">BOBINA: <input type="number" id="dev-bobina" value="1"></div>
+                <div class="item-conferencia">BOAT: <input type="number" id="dev-boat" value="2"></div>
+                <div class="item-conferencia">CERTIFICADO: <input type="number" id="dev-certificado" value="2"></div>
+                <div class="item-conferencia">TC: <input type="number" id="dev-tc" value="2"></div>
+                <div class="item-conferencia">MANUAL: <input type="number" id="dev-manual" value="2"></div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-cancelar" onclick="fecharModal()">CANCELAR</button>
@@ -415,21 +607,27 @@
         document.getElementById('modalDevolucao').style.display = 'none';
     };
 
+    // --- FUNÇÃO DE BAIXA ---
     window.confirmarBaixaComFalta = async () => {
         const idDoc = document.getElementById('id-devolucao-atual').value;
         const agora = new Date().toLocaleTimeString('pt-BR');
         const docRef = doc(db, "observacoes_sttu", idDoc);
 
+        // Captura os valores dos novos IDs corrigidos
         const etil = document.getElementById('dev-etil').value;
-        const chaves = document.getElementById('dev-chaves').value;
-        const ctrl = document.getElementById('dev-ctrl').value;
-        const cracha = document.getElementById('dev-cracha').value;
-        const dif = document.getElementById('dev-dif').value;
-        const usb = document.getElementById('dev-usb').value;
+        const piteira = document.getElementById('dev-piteira').value;
+        const imp = document.getElementById('dev-impressora').value;
+        const car = document.getElementById('dev-carregadores').value;
+        const bob = document.getElementById('dev-bobina').value;
+        const boat = document.getElementById('dev-boat').value;
+        const cert = document.getElementById('dev-certificado').value;
+        const tc = document.getElementById('dev-tc').value;
+        const manual = document.getElementById('dev-manual').value;
 
         const docSnap = await getDoc(docRef);
         let textoAtual = docSnap.data().texto;
-        const obsFalta = `\n[DEVOLUÇÃO COM PENDÊNCIA DE MATERIAIS: ETIL:${etil}, CHV:${chaves}, CTRL:${ctrl}, CRACHA:${cracha}, DIF:${dif}, USB:${usb}]`;
+        
+        const obsFalta = `\n[DEVOLUÇÃO C/ PENDÊNCIA: ETIL:${etil}, PITEIRA:${piteira}, IMP:${imp}, CARR:${car}, BOB:${bob}, BOAT:${boat}, CERT:${cert}, TC:${tc}, MAN:${manual}]`;
 
         await updateDoc(docRef, { 
             baixa: agora,
@@ -458,8 +656,8 @@
         const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
         const matAgente = document.getElementById('agente-turno-matricula').value.trim().toUpperCase();
 
-        if (!nomeAgente || !matAgente) {
-            alert("⚠️ É obrigatório informar o NOME COMPLETO e a MATRÍCULA do agente para iniciar o turno!");
+        if (turno === "SELECIONE" || !nomeAgente || !matAgente) {
+            alert("⚠️ É OBRIGATÓRIO SELECIONAR O TURNO, INFORMAR O NOME E A MATRÍCULA DO AGENTE!");
             return;
         }
 
@@ -525,7 +723,6 @@
         const maleta = document.getElementById('maleta-selecionada').value;
         const obs = document.getElementById('obs-extras').value.trim();
 
-        // 1. Verifica se a maleta já está em uso
         if (maleta) {
             const qCheck = query(collection(db, "observacoes_sttu"), 
                 where("tipo_registro", "==", "ENTREGA_MALETA"),
@@ -541,13 +738,23 @@
                 }
             } catch (e) {
                 console.error("Erro ao verificar maleta:", e);
-                // Opcional: alert("Erro de conexão ao verificar maleta.");
             }
         }
 
-        const detalhes = `ENTREGA ${maleta ? 'DA MALETA '+maleta : 'DE EQUIPAMENTOS'}. ETIL:${document.getElementById('qtd-etil').value}, CHV:${document.getElementById('qtd-ch-arm').value}, CTRL:${document.getElementById('qtd-ctrl').value}, CRACHA:${document.getElementById('qtd-cracha').value}, DIF:${document.getElementById('qtd-dif-t2').value}, USB:${document.getElementById('qtd-cabos-t2').value} ${obs ? '| OBS: '+obs : ''}`;
+        const qtdEtil = document.getElementById('qtd-etil').value;
+        const qtdPiteira = document.getElementById('qtd-piteira').value;
+        const qtdImp = document.getElementById('qtd-impressora-maleta').value;
+        const qtdCar = document.getElementById('qtd-carregadores').value;
+        const qtdBob = document.getElementById('qtd-bobina').value;
+        const qtdBoat = document.getElementById('qtd-boat').value;
+        const qtdCert = document.getElementById('qtd-certificado').value;
+        const qtdTc = document.getElementById('qtd-tc').value;
+        const qtdMan = document.getElementById('qtd-manual').value;
+
+        const detalhes = `ENTREGA ${maleta ? 'DA MALETA '+maleta : 'DE EQUIPAMENTOS'}. ` +
+            `ETIL:${qtdEtil}, PITEIRA:${qtdPiteira}, IMP:${qtdImp}, CARR:${qtdCar}, BOB:${qtdBob}, ` +
+            `BOAT:${qtdBoat}, CERT:${qtdCert}, TC:${qtdTc}, MAN:${qtdMan} ${obs ? '| OBS: '+obs : ''}`;
         
-        // 2. Salva com os metadados para controle
         await salvarObservacao(detalhes, true, {
             tipo_registro: "ENTREGA_MALETA",
             numero_maleta: maleta || "OUTROS"
@@ -565,12 +772,31 @@
         campo.value = "";
     };
 
+    // --- NOVA LÓGICA DE AFASTAMENTO COM LISTA DE AGENTES ---
     document.getElementById('btn-registrar-afastamento').onclick = () => {
-        const nome = document.getElementById('afast-nome').value.trim();
+        // Tenta pegar o valor da lista (select)
+        const nomeLista = document.getElementById('afast-lista-agentes').value;
+        // Pega o valor do campo digitado
+        const nomeDigitado = document.getElementById('afast-nome').value.trim();
+        
+        // Define o nome final: prioridade para a lista, senão usa o digitado
+        let nomeFinal = "";
+        
+        if (nomeLista && nomeLista !== "") {
+            nomeFinal = nomeLista;
+        } else {
+            nomeFinal = nomeDigitado;
+        }
+
         const local = document.getElementById('afast-local').value.trim();
         const status = document.getElementById('afast-status').value;
-        if (!nome) return alert("Digite o nome.");
-        salvarObservacao(`AFASTAMENTO: AGENTE ${nome.toUpperCase()} - LOCAL: ${local.toUpperCase()} - SITUAÇÃO: ${status}`);
+
+        if (!nomeFinal) return alert("Selecione um agente na lista ou digite o nome.");
+        
+        salvarObservacao(`AFASTAMENTO: AGENTE ${nomeFinal.toUpperCase()} - LOCAL: ${local.toUpperCase()} - SITUAÇÃO: ${status}`);
+        
+        // Limpa os campos
+        document.getElementById('afast-lista-agentes').value = "";
         document.getElementById('afast-nome').value = "";
         document.getElementById('afast-local').value = "";
     };
@@ -633,31 +859,18 @@
         document.getElementById('cone-obs').value = "";
     };
 
-    // --- LÓGICA DE EXPORTAÇÃO PARA WORD (NOVO) ---
+    // --- LÓGICA DE EXPORTAÇÃO PARA WORD ---
     document.getElementById('btn-exportar-word').onclick = () => {
-        // Pega o conteúdo da div de registros
         const conteudo = document.getElementById('lista-registros').innerHTML;
-        
-        // Cabeçalho básico para o Word entender que é um HTML para interpretar
-        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' "+
-                        "xmlns:w='urn:schemas-microsoft-com:office:word' "+
-                        "xmlns='http://www.w3.org/TR/REC-html40'>"+
-                        "<head><meta charset='utf-8'><title>Relatório STTU</title>"+
-                        "<style>body{font-family: Arial; font-size:12px;} .registro-item{border-bottom: 1px solid #ccc; padding: 5px; margin-bottom: 5px;} .timestamp{font-weight:bold; color: #555;} button {display: none;} </style></head><body>";
-        
+        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Relatório STTU</title><style>body{font-family: Arial; font-size:12px;} .registro-item{border-bottom: 1px solid #ccc; padding: 5px; margin-bottom: 5px;} .timestamp{font-weight:bold; color: #555;} button {display: none;} </style></head><body>";
         const footer = "</body></html>";
-        
         const sourceHTML = header + "<h1>RELATÓRIO DE OBSERVAÇÕES DIÁRIAS - STTU</h1><hr>" + conteudo + footer;
-        
         const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-        
         const fileDownload = document.createElement("a");
         document.body.appendChild(fileDownload);
         fileDownload.href = source;
-        
         const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
         fileDownload.download = `Relatorio_STTU_${dataHoje}.doc`;
-        
         fileDownload.click();
         document.body.removeChild(fileDownload);
     };
