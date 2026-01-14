@@ -51,6 +51,14 @@
         
         .edit-row-container { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
         .edit-agente-input { width: 100% !important; font-size: 10px !important; background-color: white; }
+
+        /* --- CORES DAS REGIÕES (NOVO) --- */
+        .regiao-1 { background-color: #ff8c00 !important; color: white; text-align: center; font-weight: bold; } /* Laranja */
+        .regiao-2 { background-color: #28a745 !important; color: white; text-align: center; font-weight: bold; } /* Verde */
+        .regiao-3 { background-color: #003366 !important; color: white; text-align: center; font-weight: bold; } /* Azul Escuro */
+        .regiao-4 { background-color: #343a40 !important; color: white; text-align: center; font-weight: bold; } /* Cinza Escuro */
+        .regiao-5 { background-color: #d39e00 !important; color: black; text-align: center; font-weight: bold; } /* Amarelo Escuro */
+        .regiao-geral { background-color: #f8f9fa !important; color: #333; text-align: center; font-weight: bold; } /* Branco Fosco */
     </style>
 </head>
 <body>
@@ -193,7 +201,6 @@
     
     let veiculosEmUso = new Set();
     const form = document.getElementById('registroForm');
-    // ATENÇÃO: Referência CORRETA ao TBODY para evitar conflito com cabeçalho
     const tabelaAtivos = document.getElementById('tabelaAtivos').getElementsByTagName('tbody')[0];
     const relatorioFinalTbody = document.getElementById('relatorioFinal').getElementsByTagName('tbody')[0];
 
@@ -208,6 +215,19 @@
         return `${dia}/${mes}/${ano}`;
     }
 
+    // --- NOVA FUNÇÃO PARA CLASSES DE CORES ---
+    function obterClasseRegiao(zona) {
+        if (!zona) return '';
+        const z = zona.toUpperCase();
+        if (z === 'REGIÃO 1') return 'regiao-1';
+        if (z === 'REGIÃO 2') return 'regiao-2';
+        if (z === 'REGIÃO 3') return 'regiao-3';
+        if (z === 'REGIÃO 4') return 'regiao-4';
+        if (z === 'REGIÃO 5') return 'regiao-5';
+        if (z === 'GERAL') return 'regiao-geral';
+        return '';
+    }
+
     function carregarAgentes(agentesParaExcluir = []) {
         const dl = document.getElementById('listaAgentes');
         dl.innerHTML = "";
@@ -219,7 +239,6 @@
         });
     }
 
-    // MUDANÇA: Adicionado oninput para remover letras em HT e ASE
     function gerarCamposDinamicos() {
         const veiculo = document.getElementById('veiculo').value;
         const containerHT = document.getElementById('container-ht');
@@ -235,10 +254,9 @@
 
         for (let i = 0; i < qtd; i++) {
             let inputHT = document.createElement('input');
-            inputHT.type = 'text'; // Usar text para permitir leading zeros se precisar
+            inputHT.type = 'text'; 
             inputHT.className = 'campo-numerico only-numbers input-multiplo input-dinamico-ht';
             inputHT.placeholder = qtd > 1 ? `HT ${i+1}` : 'Nº HT';
-            // Adiciona restrição
             inputHT.oninput = function() { this.value = this.value.replace(/[^0-9]/g, ''); };
             containerHT.appendChild(inputHT);
 
@@ -246,7 +264,6 @@
             inputASE.type = 'text'; 
             inputASE.className = 'campo-numerico only-numbers input-multiplo input-dinamico-ase';
             inputASE.placeholder = qtd > 1 ? `ASE ${i+1}` : 'Nº ASE';
-            // Adiciona restrição
             inputASE.oninput = function() { this.value = this.value.replace(/[^0-9]/g, ''); };
             containerASE.appendChild(inputASE);
         }
@@ -390,6 +407,12 @@
         chaves.forEach(key => {
             const cell = row.insertCell();
             let conteudo = (String(dadosDisplay[key]) || "").replace(/\n/g, '<br>');
+            
+            // APLICAÇÃO DE CORES NA COLUNA ZONA (REGIÃO)
+            if (key === 'zona') {
+                cell.className = obterClasseRegiao(dadosDisplay[key]);
+            }
+
             if (key === 'agente') conteudo = conteudo.replace(/\(C\)/g, '<b class="condutor-destaque"> [CONDUTOR]</b>');
             if (key === 'horaFim') cell.className = 'hora-fim-celula';
             if (key === 'tipo') cell.className = dadosDisplay.tipo === 'ENCAMINHAMENTO' ? 'status-encaminhado' : 'status-encerrado';
@@ -406,6 +429,12 @@
             const cell = row.insertCell();
             cellsMap[key] = cell;
             let conteudo = (String(dados[key]) || "").replace(/\n/g, '<br>');
+            
+            // APLICAÇÃO DE CORES NA COLUNA ZONA (REGIÃO)
+            if (key === 'zona') {
+                cell.className = obterClasseRegiao(dados[key]);
+            }
+
             if(key === 'agente') conteudo = conteudo.replace(/\(C\)/g, '<b class="condutor-destaque"> [CONDUTOR]</b>');
             cell.innerHTML = conteudo;
         });
@@ -436,6 +465,9 @@
                         editaveis.forEach(key => { cellsMap[key].contentEditable = "true"; cellsMap[key].classList.add('editando-celula'); });
                         
                         const zonaAtual = cellsMap['zona'].innerText.trim();
+                        // Remove a classe de cor ao editar para ficar mais limpo
+                        cellsMap['zona'].className = ''; 
+                        
                         cellsMap['zona'].innerHTML = `<select class="edit-zona">
                             <option value="REGIÃO 1" ${zonaAtual==='REGIÃO 1'?'selected':''}>REGIÃO 1</option>
                             <option value="REGIÃO 2" ${zonaAtual==='REGIÃO 2'?'selected':''}>REGIÃO 2</option>
