@@ -73,6 +73,13 @@
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 3px; color: #555; }
         .btn-close-modal { background: #95a5a6; color: white; }
+
+        /* --- CORES DAS REGIÕES (ADICIONADO) --- */
+        .regiao-1 { background-color: #ff8c00 !important; color: white; text-align: center; font-weight: bold; } /* Laranja */
+        .regiao-2 { background-color: #28a745 !important; color: white; text-align: center; font-weight: bold; } /* Verde */
+        .regiao-3 { background-color: #003366 !important; color: white; text-align: center; font-weight: bold; } /* Azul Escuro */
+        .regiao-4 { background-color: #343a40 !important; color: white; text-align: center; font-weight: bold; } /* Cinza Escuro */
+        .regiao-5 { background-color: #d39e00 !important; color: black; text-align: center; font-weight: bold; } /* Amarelo Escuro */
     </style>
 </head>
 <body>
@@ -322,6 +329,18 @@
     let equipesSelecionadas = [];
     let equipesModal = [];
 
+    // --- FUNÇÃO AUXILIAR DE CORES DE REGIÃO ---
+    function obterClasseRegiao(zona) {
+        if (!zona) return '';
+        const z = zona.toUpperCase();
+        if (z === 'REGIÃO 1') return 'regiao-1';
+        if (z === 'REGIÃO 2') return 'regiao-2';
+        if (z === 'REGIÃO 3') return 'regiao-3';
+        if (z === 'REGIÃO 4') return 'regiao-4';
+        if (z === 'REGIÃO 5') return 'regiao-5';
+        return '';
+    }
+
     // --- VALIDAÇÃO DE INPUTS ---
     ['solicitante', 'editSolicitante'].forEach(id => {
         const input = document.getElementById(id);
@@ -349,12 +368,10 @@
         const equipeSelect = document.getElementById('equipeSelect');
         const qtcContainer = document.getElementById('qtcContainer');
         
-        // Novos elementos para submenu
         const divSub = document.getElementById('subtipoContainer');
         const selSub = document.getElementById('subtipoSelect');
 
-        // Lógica para submenus
-        selSub.innerHTML = ""; // Limpa opções anteriores
+        selSub.innerHTML = ""; 
         if (ocorrencia === "INTERVENÇÃO VIÁRIA") {
             divSub.style.display = "block";
             ["CORRIDA", "PROCISSÃO", "EVENTO"].forEach(op => {
@@ -463,11 +480,18 @@
             const id = docSnap.id;
             const row = (d.situacao === 'CONCLUÍDA' || d.situacao === 'NÃO ATENDIDA') ? tConcluidas.insertRow() : tPendentes.insertRow();
             
+            // Índice 6 é d.zona
             const campos = [d.numRegistro, d.solicitante, d.contato, d.ocorrencia, d.local, d.detalhamento, d.zona, d.equipe, d.horaEnvio, d.situacao, d.horaFinal, d.resultadoFinal];
             
             campos.forEach((txt, idx) => {
                 const cell = row.insertCell();
                 let conteudo = String(txt || "").replace(/\n/g, '<br>');
+                
+                // APLICAÇÃO DE CORES NA COLUNA ZONA (REGIÃO) - Índice 6
+                if (idx === 6) {
+                    cell.className = obterClasseRegiao(txt);
+                }
+
                 if(idx === 9) { 
                     if (txt === 'CONCLUÍDA') cell.className = 'status-concluida';
                     else if (txt === 'ENCAMINHADA') cell.className = 'status-encaminhada';
@@ -484,26 +508,19 @@
             const lista = document.createElement('ul');
             lista.className = 'lista-historico';
 
-            // 1. Log de CRIAÇÃO (Novo)
+            // Log de CRIAÇÃO
             let logCriacao = "Data pendente...";
             if (d.timestamp) {
-                // Tenta usar .toDate() do Firestore, se não der, usa new Date()
                 const dataObj = d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp);
-                
                 const dia = String(dataObj.getDate()).padStart(2, '0');
                 const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
                 const hora = String(dataObj.getHours()).padStart(2, '0');
                 const min = String(dataObj.getMinutes()).padStart(2, '0');
-                
                 logCriacao = `[${dia}/${mes} - ${hora}:${min}] Registro recebido`;
             }
 
-            // 2. Junta os logs de edição com o de criação
-            // Logs de edição primeiro (revertidos para mais recente em cima)
             const logsParaExibir = d.historicoLogs ? [...d.historicoLogs] : [];
             logsParaExibir.reverse(); 
-            
-            // Adiciona a criação no final da lista visual
             logsParaExibir.push(logCriacao);
 
             logsParaExibir.forEach(log => {
@@ -543,7 +560,7 @@
         document.getElementById('editId').value = id;
         document.getElementById('editSolicitante').value = dados.solicitante;
         document.getElementById('editContato').value = dados.contato;
-        document.getElementById('editOcorrencia').value = dados.ocorrencia.split(" (")[0]; // Tenta pegar só o principal caso tenha parenteses
+        document.getElementById('editOcorrencia').value = dados.ocorrencia.split(" (")[0]; 
         document.getElementById('editLocal').value = dados.local;
         document.getElementById('editDetalhamento').value = dados.detalhamento;
         document.getElementById('editZona').value = dados.zona;
@@ -606,14 +623,11 @@
         fecharModal();
     };
 
-    // --- NOVA FUNÇÃO DE CONCLUSÃO COM VALIDAÇÃO ---
     async function concluirOcorrencia(id, dadosAntigos) {
         let res = prompt("RESULTADO FINAL / MOTIVO QTC (OBRIGATÓRIO PARA CONCLUIR):", dadosAntigos.resultadoFinal || "");
 
-        // Se o usuário clicou em cancelar, res é null -> para tudo
         if (res === null) return;
 
-        // Se o usuário deixou em branco ou só espaços -> alerta e para
         if (res.trim() === "") {
             alert("⚠️ ERRO: Para concluir a ocorrência, é OBRIGATÓRIO escrever o Resultado Final.");
             return;
@@ -642,7 +656,6 @@
         const resultadoFinal = document.getElementById('resultadoFinal').value.trim();
         let horaFinalValor = document.getElementById('horaFinal').value;
         
-        // Verifica se há subtipo selecionado
         const divSub = document.getElementById('subtipoContainer');
         if (divSub.style.display === 'block') {
             const subtipo = document.getElementById('subtipoSelect').value;
@@ -662,13 +675,11 @@
             if (equipesSelecionadas.length === 0) { alert("⚠️ Selecione pelo menos uma EQUIPE!"); return; }
         }
 
-        // VALIDAÇÃO PARA REGISTRO DIRETO COMO CONCLUÍDA
         if (situacao === 'CONCLUÍDA') {
             if (!resultadoFinal) {
                 alert("⚠️ Para registrar como CONCLUÍDA, é OBRIGATÓRIO preencher o campo RESULTADO FINAL!");
                 return;
             }
-            // LÓGICA DE HORA AUTOMÁTICA SE O CAMPO ESTIVER VAZIO
             if (!horaFinalValor) {
                 const agora = new Date();
                 horaFinalValor = String(agora.getHours()).padStart(2, '0') + ":" + String(agora.getMinutes()).padStart(2, '0');
