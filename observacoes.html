@@ -20,7 +20,6 @@
         .item-conferencia { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: bold; color: #2c3e50; }
         .item-conferencia input { width: 45px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
 
-        /* ESTILOS NOVOS PARA LINHAS TELEFÔNICAS */
         .grid-linhas { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #ecf0f1; border-left: 2px solid #2c3e50; border-right: 2px solid #2c3e50; margin-bottom: 0; }
         .btn-linha { flex: 1; min-width: 100px; padding: 8px; border: 1px solid #bdc3c7; background-color: #fff; color: #7f8c8d; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; transition: all 0.2s; text-align: center; }
         .btn-linha:hover { opacity: 0.9; }
@@ -48,10 +47,9 @@
         .btn-geral { background-color: #7f8c8d; }
         .btn-cones { background-color: #d35400; }
         
-        /* ESTILOS DO NOVO FOOTER */
         .footer-menu { display: flex; gap: 10px; justify-content: center; width: 100%; max-width: 900px; margin-top: 30px; flex-wrap: wrap; }
         .btn-nav { 
-            background-color: #34495e; /* Mesma cor do Inspetor */
+            background-color: #34495e; 
             color: white; 
             padding: 12px 20px; 
             text-decoration: none; 
@@ -62,7 +60,7 @@
             font-size: 14px; 
             transition: background 0.3s;
             text-align: center;
-            flex: 1; /* Distribui o espaço igualmente */
+            flex: 1; 
             min-width: 150px;
         }
         .btn-nav:hover { background-color: #2c3e50; }
@@ -493,6 +491,12 @@
                 <div class="item-conferencia">TC: <input type="number" id="dev-tc" value="2"></div>
                 <div class="item-conferencia">MANUAL: <input type="number" id="dev-manual" value="2"></div>
             </div>
+            
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                <label style="font-size: 12px; font-weight: bold; color: #c0392b;">QUEM CONFERIU A DEVOLUÇÃO?</label>
+                <input type="text" id="dev-responsavel" placeholder="NOME DO AGENTE CONFERENTE" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; margin-top: 5px;">
+            </div>
+
             <div class="modal-footer">
                 <button class="btn btn-cancelar" onclick="fecharModal()">CANCELAR</button>
                 <button class="btn btn-baixa-falta" onclick="confirmarBaixaComFalta()">CONFIRMAR DEVOLUÇÃO</button>
@@ -553,12 +557,12 @@
                 const btnBaixa = document.createElement('button');
                 btnBaixa.className = 'btn btn-baixa';
                 btnBaixa.innerText = 'DAR BAIXA / DEVOLVER';
-                btnBaixa.onclick = () => darBaixaNoFirebase(id);
+                btnBaixa.onclick = () => window.darBaixaNoFirebase(id);
                 
                 const btnBaixaFalta = document.createElement('button');
                 btnBaixaFalta.className = 'btn btn-baixa-falta';
                 btnBaixaFalta.innerText = 'DEVOLVER C/ MATERIAIS EM FALTA';
-                btnBaixaFalta.onclick = () => abrirModalFalta(id);
+                btnBaixaFalta.onclick = () => window.abrirModalFalta(id);
 
                 btnContainer.appendChild(btnBaixa);
                 btnContainer.appendChild(btnBaixaFalta);
@@ -591,10 +595,28 @@
         }
     }
 
-    async function darBaixaNoFirebase(idDoc) {
+    // --- FUNÇÃO DE BAIXA SIMPLES (Botão Laranja) ---
+    window.darBaixaNoFirebase = async (idDoc) => {
+        const conferente = prompt("POR FAVOR, DIGITE O NOME DO AGENTE QUE ESTÁ CONFERINDO A DEVOLUÇÃO:");
+
+        if (conferente === null) return; 
+        if (conferente.trim() === "") {
+            alert("⚠️ É obrigatório informar o nome de quem conferiu!");
+            return;
+        }
+
         const agora = new Date().toLocaleTimeString('pt-BR');
         const docRef = doc(db, "observacoes_sttu", idDoc);
-        await updateDoc(docRef, { baixa: agora });
+        
+        const docSnap = await getDoc(docRef);
+        let textoAtual = docSnap.data().texto;
+        
+        const textoComConferencia = textoAtual + ` | CONFERIDO POR: ${conferente.toUpperCase()}`;
+
+        await updateDoc(docRef, { 
+            baixa: agora,
+            texto: textoComConferencia
+        });
     }
 
     // --- LÓGICA DO MODAL DE FALTA ---
@@ -607,13 +629,20 @@
         document.getElementById('modalDevolucao').style.display = 'none';
     };
 
-    // --- FUNÇÃO DE BAIXA ---
+    // --- FUNÇÃO DE BAIXA COM FALTA (Botão Vermelho / Modal) ---
     window.confirmarBaixaComFalta = async () => {
         const idDoc = document.getElementById('id-devolucao-atual').value;
+        const conferente = document.getElementById('dev-responsavel').value.trim().toUpperCase();
+
+        if (!conferente) {
+            alert("⚠️ POR FAVOR, INFORME QUEM CONFERIU A DEVOLUÇÃO NO CAMPO ABAIXO.");
+            document.getElementById('dev-responsavel').focus();
+            return;
+        }
+
         const agora = new Date().toLocaleTimeString('pt-BR');
         const docRef = doc(db, "observacoes_sttu", idDoc);
 
-        // Captura os valores dos novos IDs corrigidos
         const etil = document.getElementById('dev-etil').value;
         const piteira = document.getElementById('dev-piteira').value;
         const imp = document.getElementById('dev-impressora').value;
@@ -627,12 +656,14 @@
         const docSnap = await getDoc(docRef);
         let textoAtual = docSnap.data().texto;
         
-        const obsFalta = `\n[DEVOLUÇÃO C/ PENDÊNCIA: ETIL:${etil}, PITEIRA:${piteira}, IMP:${imp}, CARR:${car}, BOB:${bob}, BOAT:${boat}, CERT:${cert}, TC:${tc}, MAN:${manual}]`;
+        const obsFalta = `\n[DEVOLUÇÃO C/ PENDÊNCIA: ETIL:${etil}, PITEIRA:${piteira}, IMP:${imp}, CARR:${car}, BOB:${bob}, BOAT:${boat}, CERT:${cert}, TC:${tc}, MAN:${manual}] | CONFERIDO POR: ${conferente}`;
 
         await updateDoc(docRef, { 
             baixa: agora,
             texto: textoAtual + obsFalta
         });
+        
+        document.getElementById('dev-responsavel').value = "";
         fecharModal();
     };
 
@@ -720,6 +751,15 @@
 
     // --- NOVA LÓGICA DE ENTREGA DE MALETA COM VALIDAÇÃO ---
     document.getElementById('btn-registrar-maleta').onclick = async () => {
+        const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
+        const matAgente = document.getElementById('agente-turno-matricula').value.trim().toUpperCase();
+
+        if (!nomeAgente || !matAgente) {
+            alert("⚠️ OBRIGATÓRIO: Preencha o NOME e MATRÍCULA do agente no topo da página antes de registrar a maleta!");
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            return;
+        }
+
         const maleta = document.getElementById('maleta-selecionada').value;
         const obs = document.getElementById('obs-extras').value.trim();
 
@@ -752,7 +792,8 @@
         const qtdMan = document.getElementById('qtd-manual').value;
 
         const detalhes = `ENTREGA ${maleta ? 'DA MALETA '+maleta : 'DE EQUIPAMENTOS'}. ` +
-            `ETIL:${qtdEtil}, PITEIRA:${qtdPiteira}, IMP:${qtdImp}, CARR:${qtdCar}, BOB:${qtdBob}, ` +
+            `RETIRADO POR: ${nomeAgente} (${matAgente}). ` + 
+            `ITENS: ETIL:${qtdEtil}, PITEIRA:${qtdPiteira}, IMP:${qtdImp}, CARR:${qtdCar}, BOB:${qtdBob}, ` +
             `BOAT:${qtdBoat}, CERT:${qtdCert}, TC:${qtdTc}, MAN:${qtdMan} ${obs ? '| OBS: '+obs : ''}`;
         
         await salvarObservacao(detalhes, true, {
