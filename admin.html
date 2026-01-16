@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - STTU</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #c0392b; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; color: white; transition: 0.3s; }
+        
+        .btn-salvar { background-color: #2c3e50; }
+        .btn-salvar:hover { background-color: #34495e; }
+
+        /* Botão de Excluir */
+        .btn-excluir { background-color: #c0392b; margin-top: 5px; }
+        .btn-excluir:hover { background-color: #a93226; }
+
+        .btn-voltar { background-color: #7f8c8d; margin-top: 20px; }
+
+        .user-list { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; }
+        .user-item { background: #fafafa; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .user-item:hover { background: #f1f1f1; border-color: #bbb; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
+        .bg-admin { background-color: #c0392b; }
+        .bg-agente { background-color: #27ae60; }
+        .bg-visualizador { background-color: #f39c12; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>⚙️ Gerenciar Usuários</h1>
+        
+        <div class="form-group">
+            <label>UID do Usuário:</label>
+            <input type="text" id="uidUser" placeholder="Selecione na lista abaixo..." readonly style="background-color: #eee;">
+        </div>
+        
+        <div class="form-group">
+            <label>Nome Completo:</label>
+            <input type="text" id="nomeUser" style="text-transform: uppercase;">
+        </div>
+
+        <div class="form-group">
+            <label>Matrícula:</label>
+            <input type="text" id="matUser">
+        </div>
+
+        <div class="form-group">
+            <label>Cargo / Permissão:</label>
+            <select id="cargoUser">
+                <option value="agente">AGENTE</option>
+                <option value="admin">ADMINISTRADOR</option>
+                <option value="visualizador">VISUALIZADOR</option>
+            </select>
+        </div>
+
+        <button class="btn btn-salvar" id="btnSalvar">💾 SALVAR ALTERAÇÕES</button>
+        <button class="btn btn-excluir" id="btnExcluir">🗑️ EXCLUIR USUÁRIO</button>
+
+        <div class="user-list">
+            <h3>Usuários Cadastrados:</h3>
+            <div id="listaUsuarios">Carregando...</div>
+        </div>
+
+        <button class="btn btn-voltar" onclick="window.location.href='index.html'">VOLTAR AO INÍCIO</button>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    // IMPORTANTE: Adicionei 'deleteDoc' aqui na lista
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
+        authDomain: "sttu-registros.firebaseapp.com",
+        projectId: "sttu-registros",
+        storageBucket: "sttu-registros.firebasestorage.app",
+        messagingSenderId: "785219239564",
+        appId: "1:785219239564:web:4b8175a8d7ccceba06c5a9",
+        measurementId: "G-C7PSE7YFRG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // --- SEGURANÇA: Só Admin entra aqui ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const docRef = doc(db, "usuarios", user.uid);
+            const docSnap = await getDoc(docRef);
+            
+            if (!docSnap.exists() || docSnap.data().cargo !== 'admin') {
+                alert("ACESSO NEGADO.");
+                window.location.href = "index.html";
+            }
+        } else {
+            window.location.href = "login.html";
+        }
+    });
+
+    // --- FUNÇÃO SALVAR/EDITAR ---
+    document.getElementById('btnSalvar').onclick = async () => {
+        const uid = document.getElementById('uidUser').value.trim();
+        const nome = document.getElementById('nomeUser').value.trim().toUpperCase();
+        const mat = document.getElementById('matUser').value.trim();
+        const cargo = document.getElementById('cargoUser').value;
+
+        if (!uid || !nome || !mat) return alert("Selecione um usuário na lista primeiro.");
+
+        try {
+            await updateDoc(doc(db, "usuarios", uid), {
+                nome: nome,
+                matricula: mat,
+                cargo: cargo
+            });
+            alert("✅ Dados atualizados!");
+            limparFormulario();
+        } catch (error) {
+            alert("Erro: " + error.message);
+        }
+    };
+
+    // --- FUNÇÃO EXCLUIR ---
+    document.getElementById('btnExcluir').onclick = async () => {
+        const uid = document.getElementById('uidUser').value.trim();
+        const nome = document.getElementById('nomeUser').value.trim();
+
+        if (!uid) return alert("Selecione um usuário na lista primeiro para excluir.");
+
+        // Confirmação de segurança
+        const confirmacao = confirm(`⚠️ TEM CERTEZA que deseja EXCLUIR o acesso de:\n\n${nome}?\n\nEssa ação impedirá o login deste usuário imediatamente.`);
+        
+        if (confirmacao) {
+            try {
+                // Deleta o documento do Firestore
+                await deleteDoc(doc(db, "usuarios", uid));
+                alert("🗑️ Usuário removido do sistema com sucesso!");
+                limparFormulario();
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao excluir: " + error.message);
+            }
+        }
+    };
+
+    function limparFormulario() {
+        document.getElementById('uidUser').value = "";
+        document.getElementById('nomeUser').value = "";
+        document.getElementById('matUser').value = "";
+        document.getElementById('cargoUser').value = "agente";
+    }
+
+    // --- LISTA COM BOTÃO DE APROVAÇÃO ---
+    onSnapshot(collection(db, "usuarios"), (snapshot) => {
+        const lista = document.getElementById('listaUsuarios');
+        lista.innerHTML = "";
+
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const uid = docSnap.id;
+            
+            let corBadge = "bg-agente";
+            if (data.cargo === "admin") corBadge = "bg-admin";
+
+            // Se estiver pendente
+            let statusHtml = "";
+            let btnAprovar = "";
+            let estiloItem = "";
+
+            if (data.status === "pendente") {
+                estiloItem = "border-left: 5px solid orange; background: #fffdf0;";
+                statusHtml = `<span class="badge" style="background:orange; color:black; margin-right:5px;">PENDENTE</span>`;
+                btnAprovar = `<button onclick="aprovarUsuario('${uid}')" style="margin-left:10px; padding:6px; background:#27ae60; color:white; border:none; border-radius:3px; cursor:pointer; font-weight:bold;">✅ APROVAR</button>`;
+            } else {
+                statusHtml = `<span class="badge" style="background:#2ecc71; margin-right:5px;">ATIVO</span>`;
+            }
+
+            const item = document.createElement('div');
+            item.className = "user-item";
+            if(estiloItem) item.style.cssText = estiloItem;
+
+            item.innerHTML = `
+                <div style="flex-grow:1;">
+                    ${statusHtml} 
+                    <strong>${data.nome || 'SEM NOME'}</strong> (${data.matricula || 'S/M'})
+                    ${btnAprovar}
+                    <br><span style="font-size:10px; color:#999;">UID: ${uid}</span>
+                </div>
+                <span class="badge ${corBadge}">${data.cargo ? data.cargo.toUpperCase() : 'AGENTE'}</span>
+            `;
+            
+            // Ao clicar no item
+            item.onclick = (e) => {
+                if(e.target.tagName !== 'BUTTON') {
+                    document.getElementById('uidUser').value = uid;
+                    document.getElementById('nomeUser').value = data.nome || "";
+                    document.getElementById('matUser').value = data.matricula || "";
+                    document.getElementById('cargoUser').value = data.cargo || "agente";
+                    
+                    // Rola a tela para cima suavemente para editar
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+            item.style.cursor = "pointer";
+            item.title = "Clique para editar ou excluir";
+
+            lista.appendChild(item);
+        });
+    });
+
+    // Função Global para Aprovar
+    window.aprovarUsuario = async (uid) => {
+        if(confirm("Confirma a aprovação deste usuário?")) {
+            try {
+                const docRef = doc(db, "usuarios", uid);
+                await updateDoc(docRef, { status: "aprovado" });
+                alert("Usuário Aprovado!");
+            } catch (e) {
+                alert("Erro: " + e.message);
+            }
+        }
+    };
+</script>
+
+</body>
+</html>
