@@ -30,7 +30,7 @@
         .button-group {
             margin-top: 30px;
         }
-        .button-group a {
+        .button-group a, .button-group button {
             display: inline-block;
             padding: 15px 30px;
             margin: 10px 15px;
@@ -40,13 +40,22 @@
             background-color: #36454f;
             border-radius: 5px;
             transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
         }
-        .button-group a:hover {
+        .button-group a:hover, .button-group button:hover {
             background-color: #55606b;
         }
         h1 {
             color: #36454f;
             font-size: 24px;
+        }
+        .btn-admin {
+            background-color: #c0392b !important;
+        }
+        .btn-admin:hover {
+            background-color: #a93226 !important;
         }
     </style>
 </head>
@@ -58,32 +67,99 @@
         <h1>Bem-vindo à Central de Operação de Trânsito e Transportes</h1>
         <p>Selecione uma opção para continuar:</p>
         
-        <div class="button-group">
+        <div class="button-group" id="menu-botoes">
             <a href="agentes.html">AGENTES</a> 
             <a href="ocorrencias.html">OCORRÊNCIAS</a>
             <a href="observacoes.html">OBSERVAÇÕES</a>
+            
+            <a href="relatorio_geral.html" style="background-color: #8e44ad;">📑 RELATÓRIO PDF</a>
         </div>
     </div>
 
 <script type="module">
-  // Importação do Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-  // Sua configuração (mantida igual para manter a conexão)
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFupijB29MN2XKQmGRr6BKsJW5VlpdLlA",
-    authDomain: "sttudatabase.firebaseapp.com",
-    projectId: "sttudatabase",
-    storageBucket: "sttudatabase.firebasestorage.app",
-    messagingSenderId: "926992433848",
-    appId: "1:926992433848:web:038926366bd761c003aa4d",
-    measurementId: "G-DFH2VG54Q9"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
+        authDomain: "sttu-registros.firebaseapp.com",
+        projectId: "sttu-registros",
+        storageBucket: "sttu-registros.firebasestorage.app",
+        messagingSenderId: "785219239564",
+        appId: "1:785219239564:web:4b8175a8d7ccceba06c5a9",
+        measurementId: "G-C7PSE7YFRG"
+    };
 
-  // Inicializa o Firebase nesta página
-  const app = initializeApp(firebaseConfig);
-  
-  console.log("Sistema STTU Natal conectado.");
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // 1. Botão de Logout
+    function adicionarLogout(userEmail) {
+        const div = document.createElement('div');
+        div.style.cssText = "position: absolute; top: 10px; right: 10px; font-size: 11px; color: #333; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index:9999;";
+        div.innerHTML = `Logado: <b>${userEmail}</b> <button id="btnLogout" style="margin-left:5px; cursor:pointer; background:#c0392b; color:white; border:none; padding:3px 6px; border-radius:3px; font-weight:bold;">SAIR</button>`;
+        document.body.appendChild(div);
+
+        document.getElementById('btnLogout').onclick = () => {
+            signOut(auth).then(() => window.location.href = "login.html");
+        };
+    }
+
+    // 2. Botão Admin
+    function habilitarPainelAdmin() {
+        const menu = document.getElementById('menu-botoes');
+        if (!document.getElementById('btn-admin-link')) {
+            const btnAdmin = document.createElement('button');
+            btnAdmin.id = 'btn-admin-link';
+            btnAdmin.innerText = "⚙️ PAINEL ADMIN";
+            btnAdmin.className = "btn-admin";
+            btnAdmin.onclick = () => window.location.href = "admin.html";
+            menu.appendChild(btnAdmin);
+        }
+    }
+
+    // 3. VERIFICAÇÃO DE SEGURANÇA (O Porteiro)
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+
+                    // ADMIN PASSA DIRETO
+                    if (dados.cargo === 'admin') {
+                        adicionarLogout(user.email);
+                        habilitarPainelAdmin();
+                        return;
+                    }
+
+                    // SE NÃO FOR ADMIN, TEM QUE ESTAR "APROVADO"
+                    if (dados.status !== 'aprovado') {
+                        alert("🚫 ACESSO BLOQUEADO\n\nSeu cadastro foi realizado, mas ainda aguarda aprovação do administrador.\nPor favor, aguarde a liberação.");
+                        await signOut(auth); // Desloga
+                        window.location.href = "login.html";
+                        return;
+                    }
+
+                    // Se chegou aqui, está aprovado
+                    adicionarLogout(user.email);
+                } else {
+                    // Usuário sem registro no banco (erro raro)
+                    alert("Erro de cadastro. Contate o suporte.");
+                    await signOut(auth);
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+            }
+        } else {
+            window.location.href = "login.html";
+        }
+    });
+
 </script>
 
 </body>
