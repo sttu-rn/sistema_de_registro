@@ -7,7 +7,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 900px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header-box { background-color: #2c3e50; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        .header-box { background-color: #2c3e50; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 2px; position: relative; }
         
         .registros-container { border: 1px solid #ddd; padding: 15px; height: 350px; overflow-y: auto; background-color: #fafafa; margin-bottom: 30px; font-size: 13px; line-height: 1.6; color: #333; }
         .registro-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: flex-start; } 
@@ -71,6 +71,10 @@
         .modal-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #c0392b; }
         .modal-footer { margin-top: 15px; text-align: right; display: flex; justify-content: flex-end; gap: 10px; }
         .btn-cancelar { background-color: #95a5a6; }
+
+        /* Botão SAIR no topo */
+        .logout-container { position: absolute; top: 15px; right: 15px; }
+        .btn-sair-topo { background-color: #c0392b; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -78,6 +82,9 @@
     <div class="container">
         <div class="header-box">
             <h1 style="margin:0;">Observações - STTU</h1>
+            <div class="logout-container">
+                <button id="btnSair" class="btn-sair-topo">SAIR</button>
+            </div>
         </div>
 
         <div class="registros-container" id="lista-registros">
@@ -505,21 +512,44 @@
     </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, doc, serverTimestamp, getDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, doc, serverTimestamp, getDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
+    // --- CONFIGURAÇÃO CORRETA (sttu-registros) ---
     const firebaseConfig = {
-        apiKey: "AIzaSyAFupijB29MN2XKQmGRr6BKsJW5VlpdLlA",
-        authDomain: "sttudatabase.firebaseapp.com",
-        projectId: "sttudatabase",
-        storageBucket: "sttudatabase.firebasestorage.app",
-        messagingSenderId: "926992433848",
-        appId: "1:926992433848:web:038926366bd761c003aa4d",
-        measurementId: "G-DFH2VG54Q9"
+        apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
+        authDomain: "sttu-registros.firebaseapp.com",
+        projectId: "sttu-registros",
+        storageBucket: "sttu-registros.firebasestorage.app",
+        messagingSenderId: "785219239564",
+        appId: "1:785219239564:web:4b8175a8d7ccceba06c5a9",
+        measurementId: "G-C7PSE7YFRG"
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
+
+    // --- SEGURANÇA: VERIFICA LOGIN ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log("Usuário logado:", user.email);
+        } else {
+            // Se não tiver logado, manda pro login
+            window.location.href = "login.html";
+        }
+    });
+
+    // --- BOTÃO DE SAIR ---
+    const btnSair = document.getElementById('btnSair');
+    if(btnSair) {
+        btnSair.onclick = () => {
+            signOut(auth).then(() => {
+                window.location.href = "login.html";
+            });
+        }
+    }
 
     // --- CARREGAMENTO EM TEMPO REAL ---
     const q = query(collection(db, "observacoes_sttu"), orderBy("timestamp", "desc"));
