@@ -7,7 +7,9 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 900px; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .header-box { background-color: #2c3e50; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center; text-transform: uppercase; letter-spacing: 2px; position: relative; }
+        
+        .header-box { background-color: #2c3e50; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
         
         .registros-container { border: 1px solid #ddd; padding: 15px; height: 350px; overflow-y: auto; background-color: #fafafa; margin-bottom: 30px; font-size: 13px; line-height: 1.6; color: #333; }
         .registro-item { border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between; align-items: flex-start; } 
@@ -23,8 +25,8 @@
         .grid-linhas { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #ecf0f1; border-left: 2px solid #2c3e50; border-right: 2px solid #2c3e50; margin-bottom: 0; }
         .btn-linha { flex: 1; min-width: 100px; padding: 8px; border: 1px solid #bdc3c7; background-color: #fff; color: #7f8c8d; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; transition: all 0.2s; text-align: center; }
         .btn-linha:hover { opacity: 0.9; }
-        .btn-linha.ok { background-color: #27ae60; color: white; border-color: #219150; } /* Verde - OK */
-        .btn-linha.nok { background-color: #c0392b; color: white; border-color: #a93226; } /* Vermelho - Erro */
+        .btn-linha.ok { background-color: #27ae60; color: white; border-color: #219150; }
+        .btn-linha.nok { background-color: #c0392b; color: white; border-color: #a93226; }
 
         .outras-obs, .tentante-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-top: 10px; box-sizing: border-box; font-family: inherit; }
         .tentante-input { min-height: 80px; resize: vertical; }
@@ -48,32 +50,16 @@
         .btn-cones { background-color: #d35400; }
         
         .footer-menu { display: flex; gap: 10px; justify-content: center; width: 100%; max-width: 900px; margin-top: 30px; flex-wrap: wrap; }
-        .btn-nav { 
-            background-color: #34495e; 
-            color: white; 
-            padding: 12px 20px; 
-            text-decoration: none; 
-            border-radius: 5px; 
-            font-weight: bold; 
-            border: none; 
-            cursor: pointer; 
-            font-size: 14px; 
-            transition: background 0.3s;
-            text-align: center;
-            flex: 1; 
-            min-width: 150px;
-        }
+        .btn-nav { background-color: #34495e; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; border: none; cursor: pointer; font-size: 14px; transition: background 0.3s; text-align: center; flex: 1; min-width: 150px; }
         .btn-nav:hover { background-color: #2c3e50; }
 
-        /* ESTILOS DO MODAL */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .modal-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #c0392b; }
         .modal-footer { margin-top: 15px; text-align: right; display: flex; justify-content: flex-end; gap: 10px; }
         .btn-cancelar { background-color: #95a5a6; }
 
-        /* Botão SAIR no topo */
-        .logout-container { position: absolute; top: 15px; right: 15px; }
+        .data-hoje { background: #3498db; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; margin-right: 10px; }
         .btn-sair-topo { background-color: #c0392b; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold; }
     </style>
 </head>
@@ -81,18 +67,18 @@
 
     <div class="container">
         <div class="header-box">
-            <h1 style="margin:0;">Observações - STTU</h1>
-            <div class="logout-container">
+            <h1 class="header-title">Observações - STTU</h1>
+            <div style="display: flex; align-items: center;">
+                <span id="displayData" class="data-hoje">--/--/----</span>
                 <button id="btnSair" class="btn-sair-topo">SAIR</button>
             </div>
         </div>
 
         <div class="registros-container" id="lista-registros">
-            <em>Carregando histórico do banco de dados...</em>
+            <em>Carregando histórico de hoje...</em>
         </div>
 
         <div class="input-section">
-            
             <div class="config-turno">
                 <strong>SERVIÇO INICIADO NA CENTRAL TURNO:</strong>
                 <select id="turno-select">
@@ -108,9 +94,7 @@
                 <input type="text" id="agente-turno-matricula" placeholder="MATRÍCULA" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
             </div>
             
-            <div style="background: #2c3e50; color: #bdc3c7; font-size: 11px; padding: 0 10px; text-align: center; margin-top: 5px;">
-                CLIQUE NOS NÚMEROS: VERDE = FUNCIONANDO | VERMELHO = INOPERANTE
-            </div>
+            <div style="background: #2c3e50; color: #bdc3c7; font-size: 11px; padding: 0 10px; text-align: center; margin-top: 5px;">CLIQUE NOS NÚMEROS: VERDE = FUNCIONANDO | VERMELHO = INOPERANTE</div>
             <div class="grid-linhas">
                 <button class="btn-linha" data-num="3232-1003">3232-1003</button>
                 <button class="btn-linha" data-num="156">156</button>
@@ -129,18 +113,14 @@
                 <div class="item-conferencia">RÁDIO MÓVEL: <input type="number" id="qtd-radio-movel" value="1"></div>
                 <div class="item-conferencia">IMPRESSORA: <input type="number" id="qtd-impressora" value="1"></div>
                 <div class="item-conferencia">CONTROLE AR: <input type="number" id="qtd-ar" value="1"></div>
-                
                 <div class="item-conferencia">MALETA 4744: <input type="number" id="qtd-m4744" value="1"></div>
                 <div class="item-conferencia">MALETA 4746: <input type="number" id="qtd-m4746" value="1"></div>
                 <div class="item-conferencia">MALETA 4750: <input type="number" id="qtd-m4750" value="1"></div>
                 <div class="item-conferencia">MALETA 4751: <input type="number" id="qtd-m4751" value="1"></div>
                 <div class="item-conferencia">MALETA 4756: <input type="number" id="qtd-m4756" value="1"></div>
-                
                 <div class="item-conferencia">RÁDIO FIXO: <input type="number" id="qtd-radio-fixo" value="1"></div>
             </div>
-            <div class="btn-group">
-                <button class="btn btn-registrar" id="btn-registrar-inicio">REGISTRAR INÍCIO DE TURNO</button>
-            </div>
+            <div class="btn-group"><button class="btn btn-registrar" id="btn-registrar-inicio">REGISTRAR INÍCIO DE TURNO</button></div>
             
             <div class="config-turno"><strong>EQUIPAMENTOS POR MALETA / OUTROS:</strong></div>
             <div class="grid-equipamentos">
@@ -162,238 +142,29 @@
                 <div class="item-conferencia">CERTIFICADO: <input type="number" id="qtd-certificado" value="2"></div>
                 <div class="item-conferencia">TC: <input type="number" id="qtd-tc" value="2"></div>
                 <div class="item-conferencia">MANUAL: <input type="number" id="qtd-manual" value="2"></div>
-                
-                <div style="grid-column: 1 / -1;">
-                    <input type="text" id="obs-extras" class="outras-obs" placeholder="Outras observações...">
-                </div>
+                <div style="grid-column: 1 / -1;"><input type="text" id="obs-extras" class="outras-obs" placeholder="Outras observações..."></div>
             </div>
-            <div class="btn-group">
-                <button class="btn btn-entrega" id="btn-registrar-maleta">REGISTRAR ENTREGA DE MALETA</button>
-            </div>
+            <div class="btn-group"><button class="btn btn-entrega" id="btn-registrar-maleta">REGISTRAR ENTREGA DE MALETA</button></div>
 
             <div class="config-turno"><strong>REGISTRO DE TENTANTES:</strong></div>
             <div style="border: 2px solid #2c3e50; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
                 <textarea id="texto-tentante" class="tentante-input" placeholder="Digite aqui o registo do tentante..."></textarea>
-                <div class="btn-group">
-                    <button class="btn btn-tentante" id="btn-registrar-tentante">REGISTRAR TENTANTE</button>
-                </div>
+                <div class="btn-group"><button class="btn btn-tentante" id="btn-registrar-tentante">REGISTRAR TENTANTE</button></div>
             </div>
 
             <div class="config-turno" style="background-color: #8e44ad;"><strong>AFASTAMENTOS / ATESTADOS:</strong></div>
             <div style="border: 2px solid #8e44ad; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
-                <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 12px; color: #555;">
-                    <div style="flex: 2;">SELECIONE O AGENTE:</div>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <select id="afast-lista-agentes" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;">
-                        <option value="">-- SELECIONE NA LISTA --</option>
-                        <option value="ADRIANA GOMES DA SILVA - 43.071-4">ADRIANA GOMES DA SILVA - 43.071-4</option>
-                        <option value="ADRIANO ANDRÉ GUEDES COSTA - 43.079-0">ADRIANO ANDRÉ GUEDES COSTA - 43.079-0</option>
-                        <option value="ADRIANO NASCIMENTO DA FONSECA - 49.991-9">ADRIANO NASCIMENTO DA FONSECA - 49.991-9</option>
-                        <option value="AFRÂNIO MEDEIROS DA COSTA - 43.151-6">AFRÂNIO MEDEIROS DA COSTA - 43.151-6</option>
-                        <option value="AGRICIO BELCHIOR BANDEIRA NETO - 43.127-3">AGRICIO BELCHIOR BANDEIRA NETO - 43.127-3</option>
-                        <option value="AILTON ANDRADE - 62.095-5">AILTON ANDRADE - 62.095-5</option>
-                        <option value="ALCINEIDE JUSTO SIQUEIRA - 62.100-5">ALCINEIDE JUSTO SIQUEIRA - 62.100-5</option>
-                        <option value="ALDREY LUIZ MORAIS DA SILVA - 62.549-3">ALDREY LUIZ MORAIS DA SILVA - 62.549-3</option>
-                        <option value="ALDRIN MAGNO DANTAS SIQUEIRA - 43.080-3">ALDRIN MAGNO DANTAS SIQUEIRA - 43.080-3</option>
-                        <option value="ALESSANDRA DORA DA SILVA COSTA - 43.199-1">ALESSANDRA DORA DA SILVA COSTA - 43.199-1</option>
-                        <option value="ALEX SERAFIM DA SILVA - 15.231-5">ALEX SERAFIM DA SILVA - 15.231-5</option>
-                        <option value="ALEXANDRA BARROS DO NASCIMENTO - 49.953-6">ALEXANDRA BARROS DO NASCIMENTO - 49.953-6</option>
-                        <option value="ALEXANDRE DE SOUZA - 13.174-1">ALEXANDRE DE SOUZA - 13.174-1</option>
-                        <option value="ALEXANDRE MAGNO FREITAS COSMO - 61.947-7">ALEXANDRE MAGNO FREITAS COSMO - 61.947-7</option>
-                        <option value="ALEXSANDRO NASCIMENTO BARBOSA - 43.072-2">ALEXSANDRO NASCIMENTO BARBOSA - 43.072-2</option>
-                        <option value="ALYENE PATRICIA CRUZ BRITO ALVES - 64.545-0">ALYENE PATRICIA CRUZ BRITO ALVES - 64.545-0</option>
-                        <option value="ALISSON EMANOEL DE OLIVEIRA FAGUNDES - 49.995-1">ALISSON EMANOEL DE OLIVEIRA FAGUNDES - 49.995-1</option>
-                        <option value="ALLAN ARAÚJO DE MEDEIROS - 43.073-1">ALLAN ARAÚJO DE MEDEIROS - 43.073-1</option>
-                        <option value="ANA MARIA DA SILVA ALVES - 13.141-5">ANA MARIA DA SILVA ALVES - 13.141-5</option>
-                        <option value="ANDERSON RODRIGO DO NASCIMENTO - 63.802-1">ANDERSON RODRIGO DO NASCIMENTO - 63.802-1</option>
-                        <option value="ANDRE CORCINO DE LIMA FILHO - 00.387-5">ANDRE CORCINO DE LIMA FILHO - 00.387-5</option>
-                        <option value="ANDREA CASTRO GALVÃO - 62.097-1">ANDREA CASTRO GALVÃO - 62.097-1</option>
-                        <option value="ANDREIA CARLA SILVA FONSECA E SOUZA - 14.071-6">ANDREIA CARLA SILVA FONSECA E SOUZA - 14.071-6</option>
-                        <option value="ANDREZA CABRAL CÂMARA NUNES - 61.710-5">ANDREZA CABRAL CÂMARA NUNES - 61.710-5</option>
-                        <option value="ANNE CAROLINE MACEDO DE ARAÚJO - 60.233-7">ANNE CAROLINE MACEDO DE ARAÚJO - 60.233-7</option>
-                        <option value="ANTÃO LOPES DE ARAÚJO FILHO - 43.100-1">ANTÃO LOPES DE ARAÚJO FILHO - 43.100-1</option>
-                        <option value="ANTONIO CLEMENTINO DA ROCHA - 13.632-8">ANTONIO CLEMENTINO DA ROCHA - 13.632-8</option>
-                        <option value="ANTONIO GUILHERME DOS SANTOS - 14.206-9">ANTONIO GUILHERME DOS SANTOS - 14.206-9</option>
-                        <option value="ANTONIO SARMENTO RODRIGUES FILHO - 13.634-4">ANTONIO SARMENTO RODRIGUES FILHO - 13.634-4</option>
-                        <option value="BARBARA KALYANA DOS SANTOS GOMES - 43.102-8">BARBARA KALYANA DOS SANTOS GOMES - 43.102-8</option>
-                        <option value="CARLOS EUBER DE FREITAS NEVES - 43.077-3">CARLOS EUBER DE FREITAS NEVES - 43.077-3</option>
-                        <option value="CARLOS EUGÊNIO BARBOSA DE OLIVEIRA - 00.282-8">CARLOS EUGÊNIO BARBOSA DE OLIVEIRA - 00.282-8</option>
-                        <option value="CARLOS VALENTIM ALVES - 13.140-7">CARLOS VALENTIM ALVES - 13.140-7</option>
-                        <option value="CARLYLE CÂMARA DOS SANTOS - 43.150-8">CARLYLE CÂMARA DOS SANTOS - 43.150-8</option>
-                        <option value="CARMOZINA REGIA DE MELO DANTAS - 43.084-6">CARMOZINA REGIA DE MELO DANTAS - 43.084-6</option>
-                        <option value="CAROLINA DE CÁSSIA DEFENTE - 43.101-0">CAROLINA DE CÁSSIA DEFENTE - 43.101-0</option>
-                        <option value="CASSIO CLAY PEREIRA - 14.190-9">CASSIO CLAY PEREIRA - 14.190-9</option>
-                        <option value="CASTRICIANO BRAZ DOS SANTOS - 13.593-3">CASTRICIANO BRAZ DOS SANTOS - 13.593-3</option>
-                        <option value="CHIARA LUCIA DE GUMÃO GONÇALVES COSTA - 43.096-0">CHIARA LUCIA DE GUMÃO GONÇALVES COSTA - 43.096-0</option>
-                        <option value="CLAUDIA JACQUELINE GALVÃO SOUZA - 14.937-3">CLAUDIA JACQUELINE GALVÃO SOUZA - 14.937-3</option>
-                        <option value="CLEIDE MARIA DOS SANTOS SILVA - 13.614-0">CLEIDE MARIA DOS SANTOS SILVA - 13.614-0</option>
-                        <option value="CLEONEIDE CORREIA RAMALHO RIBEIRO - 13.609-3">CLEONEIDE CORREIA RAMALHO RIBEIRO - 13.609-3</option>
-                        <option value="CRISTIANE DE MACEDO E SILVA - 62.873-5">CRISTIANE DE MACEDO E SILVA - 62.873-5</option>
-                        <option value="DANIEL ALBURQUERQUE EMERENCIANO GONÇALVES - 43.090-1">DANIEL ALBURQUERQUE EMERENCIANO GONÇALVES - 43.090-1</option>
-                        <option value="DANIELLE PEREIRA DE OLIVEIRA - 60.072-5">DANIELLE PEREIRA DE OLIVEIRA - 60.072-5</option>
-                        <option value="DANILSON BENTES MARINHO - 13.116-4">DANILSON BENTES MARINHO - 13.116-4</option>
-                        <option value="DAVI FIRMINO DE LIMA - 14.953-5">DAVI FIRMINO DE LIMA - 14.953-5</option>
-                        <option value="DENÍLSON ARAÚJO DA COSTA - 60.090-3">DENÍLSON ARAÚJO DA COSTA - 60.090-3</option>
-                        <option value="DIONISIO CARDOSO DA COSTA - 13.659-0">DIONISIO CARDOSO DA COSTA - 13.659-0</option>
-                        <option value="DANILO CLAUDIO LIRA DOS SANTOS - 72.245-7">DANILO CLAUDIO LIRA DOS SANTOS - 72.245-7</option>
-                        <option value="EDÍLSON FERREIRA DOS SANTOS - 00.417-1">EDÍLSON FERREIRA DOS SANTOS - 00.417-1</option>
-                        <option value="EDILSON OLIVEIRA DA SILVA - 13.147-4">EDILSON OLIVEIRA DA SILVA - 13.147-4</option>
-                        <option value="EDINALVA DUARTE LEAL DE MEDEIROS - 00.463-4">EDINALVA DUARTE LEAL DE MEDEIROS - 00.463-4</option>
-                        <option value="EDINÁSIO COSTA SOARES - 49.986-2">EDINÁSIO COSTA SOARES - 49.986-2</option>
-                        <option value="EDJA DE PAULA MAIA - 45.570-9">EDJA DE PAULA MAIA - 45.570-9</option>
-                        <option value="EDSON RAIMUNDO DA SILVA - 13.463-5">EDSON RAIMUNDO DA SILVA - 13.463-5</option>
-                        <option value="EDVALDO MANOEL DA SILVA - 00.465-1">EDVALDO MANOEL DA SILVA - 00.465-1</option>
-                        <option value="EDVALDO SOARES DA SILVA - 09.325-4">EDVALDO SOARES DA SILVA - 09.325-4</option>
-                        <option value="ELIZABETE RANYELA MORAIS DE MOURA - 43.198-2">ELIZABETE RANYELA MORAIS DE MOURA - 43.198-2</option>
-                        <option value="ERNESTO MORAIS VIANA - 14.930-6">ERNESTO MORAIS VIANA - 14.930-6</option>
-                        <option value="EVALDO FELIX FERREIRA - 00.518-5">EVALDO FELIX FERREIRA - 00.518-5</option>
-                        <option value="EVERALDO ALEXANDRE FREIRE - 14.043-1">EVERALDO ALEXANDRE FREIRE - 14.043-1</option>
-                        <option value="FERNANDA FREITAS DE HOLANDA - 60.066-1">FERNANDA FREITAS DE HOLANDA - 60.066-1</option>
-                        <option value="FRANCISCO GILSON LEONIDAS DA SILVA - 13.679-4">FRANCISCO GILSON LEONIDAS DA SILVA - 13.679-4</option>
-                        <option value="FRANZ BIAGGIO FULCO GAAG - 65.247-4">FRANZ BIAGGIO FULCO GAAG - 65.247-4</option>
-                        <option value="GENALDO AZEVEDO TRINDADE - 43.086-2">GENALDO AZEVEDO TRINDADE - 43.086-2</option>
-                        <option value="GILDIBERTO DE SOUZA ALVES - 08.646-1">GILDIBERTO DE SOUZA ALVES - 08.646-1</option>
-                        <option value="GILMAR GOMES DO NASCIMENTO - 06.726-1">GILMAR GOMES DO NASCIMENTO - 06.726-1</option>
-                        <option value="GUTEMBERG PEREIRA - 08.015-2">GUTEMBERG PEREIRA - 08.015-2</option>
-                        <option value="HAILSON CABRAL DO NASCIMENTO - 00.375-1">HAILSON CABRAL DO NASCIMENTO - 00.375-1</option>
-                        <option value="HARLLEY CAMPOS MARQUES - 65.420-5">HARLLEY CAMPOS MARQUES - 65.420-5</option>
-                        <option value="HEITOR RODRIGUES DE LIMA - 43.097-8">HEITOR RODRIGUES DE LIMA - 43.097-8</option>
-                        <option value="HEMERSON MELO DA SILVA - 49.952-8">HEMERSON MELO DA SILVA - 49.952-8</option>
-                        <option value="HERANDY DE ARAÚJO CABRAL - 49.950-1">HERANDY DE ARAÚJO CABRAL - 49.950-1</option>
-                        <option value="HERQUILES LIMA DOS SANTOS - 43.149-4">HERQUILES LIMA DOS SANTOS - 43.149-4</option>
-                        <option value="HEWERTON MOURA DA SILVA - 43.098-6">HEWERTON MOURA DA SILVA - 43.098-6</option>
-                        <option value="ISABELA SILVA NICÁCIO DE BRITO - 60.234-5">ISABELA SILVA NICÁCIO DE BRITO - 60.234-5</option>
-                        <option value="ISRAEL FERREIRA PEREIRA - 13.110-5">ISRAEL FERREIRA PEREIRA - 13.110-5</option>
-                        <option value="IVAN DE CARVALHO MEDEIROS - 00.431-6">IVAN DE CARVALHO MEDEIROS - 00.431-6</option>
-                        <option value="IVES SILVA DE SOUZA - 62.151-0">IVES SILVA DE SOUZA - 62.151-0</option>
-                        <option value="JAIR JEFFERSON DE CARVALHO - 13.896-7">JAIR JEFFERSON DE CARVALHO - 13.896-7</option>
-                        <option value="JARDEL BEZERRA DE ANDRADE - 62.189-7">JARDEL BEZERRA DE ANDRADE - 62.189-7</option>
-                        <option value="JARDS MEDEIROS DE OLIVEIRA - 62.826-3">JARDS MEDEIROS DE OLIVEIRA - 62.826-3</option>
-                        <option value="JATSON FRANCISCO DA SILVA BANDEIRA - 13.727-8">JATSON FRANCISCO DA SILVA BANDEIRA - 13.727-8</option>
-                        <option value="JEFFERSON STANLEY DA SILVA - 62.919-7">JEFFERSON STANLEY DA SILVA - 62.919-7</option>
-                        <option value="JOÃO BATISTA MONTEIRO DE AQUINO - 00.482-1">JOÃO BATISTA MONTEIRO DE AQUINO - 00.482-1</option>
-                        <option value="JOÃO BATISTA ROCHA FILHO - 49.994-3">JOÃO BATISTA ROCHA FILHO - 49.994-3</option>
-                        <option value="JOÃO BATISTA VARELA BARCA - 15.710-4">JOÃO BATISTA VARELA BARCA - 15.710-4</option>
-                        <option value="JOÃO CLAUDIO OLIVEIRA DE FARIAS - 00.383-2">JOÃO CLAUDIO OLIVEIRA DE FARIAS - 00.383-2</option>
-                        <option value="JOÃO FERREIRA - 06.644-3">JOÃO FERREIRA - 06.644-3</option>
-                        <option value="JOÃO MARIA ALMEIDA DE MOURA - 43.070-6">JOÃO MARIA ALMEIDA DE MOURA - 43.070-6</option>
-                        <option value="JOÃO MARIA MACEDO ROCHA - 43.201-6">JOÃO MARIA MACEDO ROCHA - 43.201-6</option>
-                        <option value="JOÃO PAULO DE OLIVEIRA - 43.082-0">JOÃO PAULO DE OLIVEIRA - 43.082-0</option>
-                        <option value="JOÃO WILLAMS DA SILVA - 62.253-2">JOÃO WILLAMS DA SILVA - 62.253-2</option>
-                        <option value="JONAS CRISTINO DA SILVA - 14.931-4">JONAS CRISTINO DA SILVA - 14.931-4</option>
-                        <option value="JORGE LUIZ BARROS DO NASCIMENTO - 62.431-4">JORGE LUIZ BARROS DO NASCIMENTO - 62.431-4</option>
-                        <option value="JORGE LUIZ SIQUEIRA DE OLIVEIRA - 62.191-9">JORGE LUIZ SIQUEIRA DE OLIVEIRA - 62.191-9</option>
-                        <option value="JOSÉ EUDES BEZERRA - 49.985-4">JOSÉ EUDES BEZERRA - 49.985-4</option>
-                        <option value="JOSÉ ALBERTO FREIRE DA COSTA - 42.766-7">JOSÉ ALBERTO FREIRE DA COSTA - 42.766-7</option>
-                        <option value="JOSE ALVES DE SOUZA NETO - 00.544-4">JOSE ALVES DE SOUZA NETO - 00.544-4</option>
-                        <option value="JOSE AUTEMAR RICARDO - 00.475-8">JOSE AUTEMAR RICARDO - 00.475-8</option>
-                        <option value="JOSE DINIZ RAMOS - 00.575-4">JOSE DINIZ RAMOS - 00.575-4</option>
-                        <option value="JOSE EBER DA SILVA - 13.105-9">JOSE EBER DA SILVA - 13.105-9</option>
-                        <option value="JOSÉ GONÇALVES MANGABEIRA DE MEDEIROS - 43.083-8">JOSÉ GONÇALVES MANGABEIRA DE MEDEIROS - 43.083-8</option>
-                        <option value="JOSÉ RICARDO GOMES CAVALCANTE - 13.102-4">JOSÉ RICARDO GOMES CAVALCANTE - 13.102-4</option>
-                        <option value="JOSE ROBERTO DA SILVA DE OLIVEIRA - 14.922-5">JOSE ROBERTO DA SILVA DE OLIVEIRA - 14.922-5</option>
-                        <option value="JOSÉ ROOSEVELT MEDEIROS JÚNIOR - 62.416-1">JOSÉ ROOSEVELT MEDEIROS JÚNIOR - 62.416-1</option>
-                        <option value="JOSEMAR DA SILVA DAMASCENO - 60.068-7">JOSEMAR DA SILVA DAMASCENO - 60.068-7</option>
-                        <option value="JOSEMAR TAVARES CÂMARA JUNIOR - 43.152-4">JOSEMAR TAVARES CÂMARA JUNIOR - 43.152-4</option>
-                        <option value="JOSENILSON TEIXEIRA DE SOUZA - 00.386-7">JOSENILSON TEIXEIRA DE SOUZA - 00.386-7</option>
-                        <option value="KASTEEN CARLOS DE AQUINO E SILVA - 43.076-5">KASTEEN CARLOS DE AQUINO E SILVA - 43.076-5</option>
-                        <option value="KLEBER SILVESTRE LUSTOSA - 49.825-4">KLEBER SILVESTRE LUSTOSA - 49.825-4</option>
-                        <option value="LAILTON RIBEIRO DA COSTA - 43.078-1">LAILTON RIBEIRO DA COSTA - 43.078-1</option>
-                        <option value="LEONARDO BATISTA DE SOUZA SILVA - 64.542-7">LEONARDO BATISTA DE SOUZA SILVA - 64.542-7</option>
-                        <option value="LEONARDO DA SILVEIRA LUCENA - 43.122-2">LEONARDO DA SILVEIRA LUCENA - 43.122-2</option>
-                        <option value="MADSON LIMA CAVALCANTI DE OLIVEIRA - 49.989-7">MADSON LIMA CAVALCANTI DE OLIVEIRA - 49.989-7</option>
-                        <option value="MANOEL NOBREGA DE OLIVEIRA - 13.758-8">MANOEL NOBREGA DE OLIVEIRA - 13.758-8</option>
-                        <option value="MARA LUCIA BARROS DE SOUZA - 70.665-5">MARA LUCIA BARROS DE SOUZA - 70.665-5</option>
-                        <option value="MARCELO BATISTA DE ANDRADE - 61.952-3">MARCELO BATISTA DE ANDRADE - 61.952-3</option>
-                        <option value="MARCELO FRANÇA DA SILVA - 60.073-3">MARCELO FRANÇA DA SILVA - 60.073-3</option>
-                        <option value="MARCELO ZAERDSON LINS MEDEIROS - 62.184-6">MARCELO ZAERDSON LINS MEDEIROS - 62.184-6</option>
-                        <option value="MARCILIO DE OLIVEIRA RODRIGUES - 49.951-0">MARCILIO DE OLIVEIRA RODRIGUES - 49.951-0</option>
-                        <option value="MÁRCIO JOSÉ DA SILVA - 68.159-8">MÁRCIO JOSÉ DA SILVA - 68.159-8</option>
-                        <option value="MARCOS ANTONIO DE OLIVEIRA - 07.326-1">MARCOS ANTONIO DE OLIVEIRA - 07.326-1</option>
-                        <option value="MARIA DE LOURDES DA SILVA FILHA - 43.200-8">MARIA DE LOURDES DA SILVA FILHA - 43.200-8</option>
-                        <option value="MARIA DO CARMO DA SILVA - 00.571-1">MARIA DO CARMO DA SILVA - 00.571-1</option>
-                        <option value="MARIA DO SOCORRO LIMA MARTINS - 14.070-8">MARIA DO SOCORRO LIMA MARTINS - 14.070-8</option>
-                        <option value="MARIA DO SOCORRO SILVA DE ANDRADE - 14.114-3">MARIA DO SOCORRO SILVA DE ANDRADE - 14.114-3</option>
-                        <option value="MARIA GORETE DUTRA DE OLIVEIRA - 13.988-2">MARIA GORETE DUTRA DE OLIVEIRA - 13.988-2</option>
-                        <option value="MARIA JANEIDE BEZERRA DA SILVA - 00.536-3">MARIA JANEIDE BEZERRA DA SILVA - 00.536-3</option>
-                        <option value="MARIA SANTANA BORGES DA SILVA - 00.561-4">MARIA SANTANA BORGES DA SILVA - 00.561-4</option>
-                        <option value="MARIO JOSE DA SILVA LEMOS - 14.944-6">MARIO JOSE DA SILVA LEMOS - 14.944-6</option>
-                        <option value="MARISA GILVANEIDE BERTO - 00.538-0">MARISA GILVANEIDE BERTO - 00.538-0</option>
-                        <option value="MARYANE CRISTINA LOPES PEREIRA - 43.112-5">MARYANE CRISTINA LOPES PEREIRA - 43.112-5</option>
-                        <option value="MAXIMIANO CAPIM DE MIRANDA - 13.462-7">MAXIMIANO CAPIM DE MIRANDA - 13.462-7</option>
-                        <option value="MAXWELL FERNANDES DA SILVA - 13.136-9">MAXWELL FERNANDES DA SILVA - 13.136-9</option>
-                        <option value="MIGUEL ÂNGELO DE SANTANA - 62.092-1">MIGUEL ÂNGELO DE SANTANA - 62.092-1</option>
-                        <option value="MOISES PEREIRA DE ARAUJO - 08.229-5">MOISES PEREIRA DE ARAUJO - 08.229-5</option>
-                        <option value="NADJANIA MARIA DAMASCENO VALLE - 62.368-7">NADJANIA MARIA DAMASCENO VALLE - 62.368-7</option>
-                        <option value="NAOMI SUASSUNA DOS SANTOS - 60.237-0">NAOMI SUASSUNA DOS SANTOS - 60.237-0</option>
-                        <option value="NEUZELIDES PRISCILA SILVA ANDRADE - 49.949-8">NEUZELIDES PRISCILA SILVA ANDRADE - 49.949-8</option>
-                        <option value="NEWDENBERG FERREIRA GALVÃO - 43.081-1">NEWDENBERG FERREIRA GALVÃO - 43.081-1</option>
-                        <option value="NEWTON DE SOUZA PEREIRA FILHO - 60.064-4">NEWTON DE SOUZA PEREIRA FILHO - 60.064-4</option>
-                        <option value="NUBIA SILENE DA SILVA COSTA - 14.109-7">NUBIA SILENE DA SILVA COSTA - 14.109-7</option>
-                        <option value="PATRÍCIA CRISTINA CAVALCANTE - 45.990-9">PATRÍCIA CRISTINA CAVALCANTE - 45.990-9</option>
-                        <option value="RAIMUNDO NONATO DE MEDEIROS NETO - 00.249-6">RAIMUNDO NONATO DE MEDEIROS NETO - 00.249-6</option>
-                        <option value="RAPHAELLE CAVALCANTE R. DE ARAUJO - 62.149-8">RAPHAELLE CAVALCANTE R. DE ARAUJO - 62.149-8</option>
-                        <option value="RECIO RONALDO ANDRADE DE PAIVA - 09.532-0">RECIO RONALDO ANDRADE DE PAIVA - 09.532-0</option>
-                        <option value="REGINA VICÊNCIA CRISPIM - 62.250-8">REGINA VICÊNCIA CRISPIM - 62.250-8</option>
-                        <option value="RICARDO SERGIO GOMES DA SILVA - 13.477-5">RICARDO SERGIO GOMES DA SILVA - 13.477-5</option>
-                        <option value="RITA DE CÁSSIA SILVA - 49.992-7">RITA DE CÁSSIA SILVA - 49.992-7</option>
-                        <option value="ROBSON LUIZ DE AZEVEDO - 00.184-8">ROBSON LUIZ DE AZEVEDO - 00.184-8</option>
-                        <option value="RODRIGO COSTA - 43.087-1">RODRIGO COSTA - 43.087-1</option>
-                        <option value="ROGELIO FERNANDES DE MELO - 13.095-8">ROGELIO FERNANDES DE MELO - 13.095-8</option>
-                        <option value="RONALDO JORGE DA SILVA - 13.096-6">RONALDO JORGE DA SILVA - 13.096-6</option>
-                        <option value="RONALDO MARINHO DE SOUZA - 62.825-5">RONALDO MARINHO DE SOUZA - 62.825-5</option>
-                        <option value="RONALDO TEIXEIRA DE ARAÚJO - 62.257-5">RONALDO TEIXEIRA DE ARAÚJO - 62.257-5</option>
-                        <option value="ROSEMBERG PEREIRA - 00.137-6">ROSEMBERG PEREIRA - 00.137-6</option>
-                        <option value="SANDRA DA SILVA BEZERRIL BACELAR - 61.712-1">SANDRA DA SILVA BEZERRIL BACELAR - 61.712-1</option>
-                        <option value="SARAH POLYANA DIAS DOS SANTOS - 43.154-1">SARAH POLYANA DIAS DOS SANTOS - 43.154-1</option>
-                        <option value="SEVERINA SOARES NETA CARNEIRO - 00.327-1">SEVERINA SOARES NETA CARNEIRO - 00.327-1</option>
-                        <option value="SEVERINO FERNANDES MAIA - 00.192-9">SEVERINO FERNANDES MAIA - 00.192-9</option>
-                        <option value="SEVERINO SOLANO DA SILVA - 00.486-3">SEVERINO SOLANO DA SILVA - 00.486-3</option>
-                        <option value="SOLANO LOPES DANTAS - 00.663-7">SOLANO LOPES DANTAS - 00.663-7</option>
-                        <option value="SYBELLE DE ARAÚJO DANTAS - 63.386-1">SYBELLE DE ARAÚJO DANTAS - 63.386-1</option>
-                        <option value="TALITHA LOUISE FORTUNATO BEZERRA - 49.990-1">TALITHA LOUISE FORTUNATO BEZERRA - 49.990-1</option>
-                        <option value="THALES GALVÃO DE ARAUJO - 63.803-0">THALES GALVÃO DE ARAUJO - 63.803-0</option>
-                        <option value="THALLES THIAGO MEDEIROS DE SOUZA - 49.988-9">THALLES THIAGO MEDEIROS DE SOUZA - 49.988-9</option>
-                        <option value="THIAGO DE LIRA BEZERRA - 43.075-7">THIAGO DE LIRA BEZERRA - 43.075-7</option>
-                        <option value="THIAGO HENRIQUE FERREIRA DA SILVA - 60.275-2">THIAGO HENRIQUE FERREIRA DA SILVA - 60.275-2</option>
-                        <option value="VALDELICE FERREIRA DE OLIVEIRA - 00.507-0">VALDELICE FERREIRA DE OLIVEIRA - 00.507-0</option>
-                        <option value="VANESSA GALDINO DA SILVA - 61.955-8">VANESSA GALDINO DA SILVA - 61.955-8</option>
-                        <option value="WALDICK GUERRA DE MEDEIROS - 13.281-1">WALDICK GUERRA DE MEDEIROS - 13.281-1</option>
-                        <option value="WALTER PEDRO DA SILVA - 00.358-1">WALTER PEDRO DA SILVA - 00.358-1</option>
-                        <option value="WANDERCLEY SILVA NEVES - 70.563-2">WANDERCLEY SILVA NEVES - 70.563-2</option>
-                        <option value="WANDRÉ WAGNER DA SILVA - 62.367-9">WANDRÉ WAGNER DA SILVA - 62.367-9</option>
-                        <option value="ZELIO CUNHA - 13.400-7">ZELIO CUNHA - 13.400-7</option>
-                    </select>
-                </div>
-                <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 11px; color: #555;">
-                    <div style="flex: 2;">OUTRO NOME (SE NÃO ESTIVER NA LISTA):</div>
-                    <div style="flex: 1;">LOCAL ESCALA</div>
-                    <div style="flex: 1;">ATESTADO?</div>
-                </div>
+                <div style="margin-bottom: 10px;"><select id="afast-lista-agentes" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #f9f9f9;"></select></div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <input type="text" id="afast-nome" placeholder="Digite o nome..." style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     <input type="text" id="afast-local" placeholder="Local..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                    <select id="afast-status" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                        <option value="SEM ATESTADO">NÃO</option>
-                        <option value="COM ATESTADO">SIM</option>
-                    </select>
+                    <select id="afast-status" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"><option value="SEM ATESTADO">NÃO</option><option value="COM ATESTADO">SIM</option></select>
                 </div>
-                <div class="btn-group">
-                    <button class="btn" id="btn-registrar-afastamento" style="background-color: #8e44ad;">REGISTRAR AFASTAMENTO</button>
-                </div>
+                <div class="btn-group"><button class="btn" id="btn-registrar-afastamento" style="background-color: #8e44ad;">REGISTRAR AFASTAMENTO</button></div>
             </div>
 
             <div class="config-turno" style="background-color: #c0392b;"><strong>VEÍCULOS REMOVIDOS:</strong></div>
             <div style="border: 2px solid #c0392b; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
-                <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 11px; color: #555;">
-                    <div style="flex: 1; min-width: 80px;">PLACA</div>
-                    <div style="flex: 1; min-width: 80px;">EQUIPE</div>
-                    <div style="flex: 2; min-width: 120px;">LOCAL / HORÁRIO</div>
-                    <div style="flex: 2; min-width: 120px;">MOTIVO</div>
-                    <div style="flex: 1; min-width: 60px;">AIT</div>
-                    <div style="flex: 1; min-width: 60px;">TRV</div>
-                </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                     <input type="text" id="rem-placa" placeholder="ABC-1234" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
                     <input type="text" id="rem-equipe" placeholder="VTR..." style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
@@ -402,25 +173,19 @@
                     <input type="text" id="rem-ait" placeholder="Nº AIT" style="flex: 1; min-width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     <input type="text" id="rem-trv" placeholder="Nº TRV" style="flex: 1; min-width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                 </div>
-                <div class="btn-group">
-                    <button class="btn btn-remocao" id="btn-registrar-remocao">REGISTRAR REMOÇÃO</button>
-                </div>
+                <div class="btn-group"><button class="btn btn-remocao" id="btn-registrar-remocao">REGISTRAR REMOÇÃO</button></div>
             </div>
 
             <div class="config-turno" style="background-color: #34495e;"><strong>RELATO DO INSPETOR:</strong></div>
             <div style="border: 2px solid #34495e; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
                 <textarea id="texto-inspetor" class="tentante-input" placeholder="Digite aqui o relato do inspetor..." style="margin-top: 0;"></textarea>
-                <div class="btn-group" style="margin-top: 10px;">
-                    <button class="btn btn-inspetor" id="btn-registrar-inspetor">REGISTRAR RELATO</button>
-                </div>
+                <div class="btn-group" style="margin-top: 10px;"><button class="btn btn-inspetor" id="btn-registrar-inspetor">REGISTRAR RELATO</button></div>
             </div>
 
             <div class="config-turno" style="background-color: #7f8c8d;"><strong>OBSERVAÇÕES GERAIS:</strong></div>
             <div style="border: 2px solid #7f8c8d; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
                 <textarea id="texto-obs-geral" class="tentante-input" placeholder="Relate aqui as ocorrências gerais do dia..."></textarea>
-                <div class="btn-group">
-                    <button class="btn btn-geral" id="btn-registrar-obs-geral">REGISTRAR OBSERVAÇÃO</button>
-                </div>
+                <div class="btn-group"><button class="btn btn-geral" id="btn-registrar-obs-geral">REGISTRAR OBSERVAÇÃO</button></div>
             </div>
 
             <div class="config-turno" style="background-color: #d35400;">
@@ -431,13 +196,6 @@
                 </div>
             </div>
             <div style="border: 2px solid #d35400; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
-                <div style="display: flex; gap: 10px; margin-bottom: 5px; font-weight: bold; font-size: 11px; color: #555;">
-                    <div style="flex: 1;">EQUIPE</div>
-                    <div style="flex: 2;">LOCAL/HORA</div>
-                    <div style="flex: 1; color: #c0392b;">QTD. COLOCADO (-)</div>
-                    <div style="flex: 1; color: #27ae60;">QTD. RECOLHIDO (+)</div>
-                    <div style="flex: 1;">HORA FINAL</div>
-                </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
                     <select id="cone-equipe" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                         <option value="">EQUIPE...</option>
@@ -460,19 +218,14 @@
                         <option value="GUINCHO">GUINCHO</option>
                         <option value="SEMAFÓRICA">SEMAFÓRICA</option>
                     </select>
-                    
                     <input type="text" id="cone-local" placeholder="Local..." style="flex: 2; min-width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     <input type="number" id="cone-colocado" placeholder="0" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; border-color: #c0392b;">
                     <input type="number" id="cone-recolhido" placeholder="0" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; border-color: #27ae60;">
                     <input type="time" id="cone-hora-fim" style="flex: 1; min-width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                 </div>
                 <input type="text" id="cone-obs" class="outras-obs" placeholder="Observações sobre os cones..." style="margin-top: 0; margin-bottom: 15px;">
-                
-                <div class="btn-group">
-                    <button class="btn btn-cones" id="btn-registrar-cones">REGISTRAR MOVIMENTAÇÃO DE CONES</button>
-                </div>
+                <div class="btn-group"><button class="btn btn-cones" id="btn-registrar-cones">REGISTRAR MOVIMENTAÇÃO DE CONES</button></div>
             </div>
-
         </div> 
     </div> 
     
@@ -480,7 +233,7 @@
         <a href="index.html" class="btn-nav">PÁGINA INICIAL</a>
         <a href="agentes.html" class="btn-nav">AGENTES</a>
         <a href="ocorrencias.html" class="btn-nav">OCORRÊNCIAS</a>
-        <button id="btn-exportar-word" class="btn-nav">BAIXAR RELATÓRIO (WORD)</button>
+        <a href="relatorio_geral.html" class="btn-nav" style="background-color: #8e44ad;">RELATÓRIOS</a>
     </div>
 
     <div id="modalDevolucao" class="modal-overlay">
@@ -498,12 +251,10 @@
                 <div class="item-conferencia">TC: <input type="number" id="dev-tc" value="2"></div>
                 <div class="item-conferencia">MANUAL: <input type="number" id="dev-manual" value="2"></div>
             </div>
-            
             <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
                 <label style="font-size: 12px; font-weight: bold; color: #c0392b;">QUEM CONFERIU A DEVOLUÇÃO?</label>
                 <input type="text" id="dev-responsavel" placeholder="NOME DO AGENTE CONFERENTE" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; margin-top: 5px;">
             </div>
-
             <div class="modal-footer">
                 <button class="btn btn-cancelar" onclick="fecharModal()">CANCELAR</button>
                 <button class="btn btn-baixa-falta" onclick="confirmarBaixaComFalta()">CONFIRMAR DEVOLUÇÃO</button>
@@ -516,7 +267,6 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, doc, serverTimestamp, getDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-    // --- CONFIGURAÇÃO CORRETA (sttu-registros) ---
     const firebaseConfig = {
         apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
         authDomain: "sttu-registros.firebaseapp.com",
@@ -531,17 +281,64 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- SEGURANÇA: VERIFICA LOGIN ---
-    onAuthStateChanged(auth, (user) => {
+    const agentesDB = ["ADRIANA GOMES DA SILVA - 43.071-4", "ADRIANO ANDRÉ GUEDES COSTA - 43.079-0", "ADRIANO NASCIMENTO DA FONSECA - 49.991-9", "AFRÂNIO MEDEIROS DA COSTA - 43.151-6", "AGRICIO BELCHIOR BANDEIRA NETO - 43.127-3", "AILTON ANDRADE - 62.095-5", "ALCINEIDE JUSTO SIQUEIRA - 62.100-5", "ALDREY LUIZ MORAIS DA SILVA - 62.549-3", "ALDRIN MAGNO DANTAS SIQUEIRA - 43.080-3", "ALESSANDRA DORA DA SILVA COSTA - 43.199-1", "ALEX SERAFIM DA SILVA - 15.231-5", "ALEXANDRA BARROS DO NASCIMENTO - 49.953-6", "ALEXANDRE DE SOUZA - 13.174-1", "ALEXANDRE MAGNO FREITAS COSMO - 61.947-7", "ALEXSANDRO NASCIMENTO BARBOSA - 43.072-2", "ALYENE PATRICIA CRUZ BRITO ALVES - 64.545-0", "ALISSON EMANOEL DE OLIVEIRA FAGUNDES - 49.995-1", "ALLAN ARAÚJO DE MEDEIROS - 43.073-1", "ANA MARIA DA SILVA ALVES - 13.141-5", "ANDERSON RODRIGO DO NASCIMENTO - 63.802-1", "ANDRE CORCINO DE LIMA FILHO - 00.387-5", "ANDREA CASTRO GALVÃO - 62.097-1", "ANDREIA CARLA SILVA FONSECA E SOUZA - 14.071-6", "ANDREZA CABRAL CÂMARA NUNES - 61.710-5", "ANNE CAROLINE MACEDO DE ARAÚJO - 60.233-7", "ANTÃO LOPES DE ARAÚJO FILHO - 43.100-1", "ANTONIO CLEMENTINO DA ROCHA - 13.632-8", "ANTONIO GUILHERME DOS SANTOS - 14.206-9", "ANTONIO SARMENTO RODRIGUES FILHO - 13.634-4", "BARBARA KALYANA DOS SANTOS GOMES - 43.102-8", "CARLOS EUBER DE FREITAS NEVES - 43.077-3", "CARLOS EUGÊNIO BARBOSA DE OLIVEIRA - 00.282-8", "CARLOS VALENTIM ALVES - 13.140-7", "CARLYLE CÂMARA DOS SANTOS - 43.150-8", "CARMOZINA REGIA DE MELO DANTAS - 43.084-6", "CAROLINA DE CÁSSIA DEFENTE - 43.101-0", "CASSIO CLAY PEREIRA - 14.190-9", "CASTRICIANO BRAZ DOS SANTOS - 13.593-3", "CHIARA LUCIA DE GUMÃO GONÇALVES COSTA - 43.096-0", "CLAUDIA JACQUELINE GALVÃO SOUZA - 14.937-3", "CLEIDE MARIA DOS SANTOS SILVA - 13.614-0", "CLEONEIDE CORREIA RAMALHO RIBEIRO - 13.609-3", "CRISTIANE DE MACEDO E SILVA - 62.873-5", "DANIEL ALBURQUERQUE EMERENCIANO GONÇALVES - 43.090-1", "DANIELLE PEREIRA DE OLIVEIRA - 60.072-5", "DANILSON BENTES MARINHO - 13.116-4", "DAVI FIRMINO DE LIMA - 14.953-5", "DENÍLSON ARAÚJO DA COSTA - 60.090-3", "DIONISIO CARDOSO DA COSTA - 13.659-0", "DANILO CLAUDIO LIRA DOS SANTOS - 72.245-7", "EDÍLSON FERREIRA DOS SANTOS - 00.417-1", "EDILSON OLIVEIRA DA SILVA - 13.147-4", "EDINALVA DUARTE LEAL DE MEDEIROS - 00.463-4", "EDINÁSIO COSTA SOARES - 49.986-2", "EDJA DE PAULA MAIA - 45.570-9", "EDSON RAIMUNDO DA SILVA - 13.463-5", "EDVALDO MANOEL DA SILVA - 00.465-1", "EDVALDO SOARES DA SILVA - 09.325-4", "ELIZABETE RANYELA MORAIS DE MOURA - 43.198-2", "ERNESTO MORAIS VIANA - 14.930-6", "EVALDO FELIX FERREIRA - 00.518-5", "EVERALDO ALEXANDRE FREIRE - 14.043-1", "FERNANDA FREITAS DE HOLANDA - 60.066-1", "FRANCISCO GILSON LEONIDAS DA SILVA - 13.679-4", "FRANZ BIAGGIO FULCO GAAG - 65.247-4", "GENALDO AZEVEDO TRINDADE - 43.086-2", "GILDIBERTO DE SOUZA ALVES - 08.646-1", "GILMAR GOMES DO NASCIMENTO - 06.726-1", "GUTEMBERG PEREIRA - 08.015-2", "HAILSON CABRAL DO NASCIMENTO - 00.375-1", "HARLLEY CAMPOS MARQUES - 65.420-5", "HEITOR RODRIGUES DE LIMA - 43.097-8", "HEMERSON MELO DA SILVA - 49.952-8", "HERANDY DE ARAÚJO CABRAL - 49.950-1", "HERQUILES LIMA DOS SANTOS - 43.149-4", "HEWERTON MOURA DA SILVA - 43.098-6", "ISABELA SILVA NICÁCIO DE BRITO - 60.234-5", "ISRAEL FERREIRA PEREIRA - 13.110-5", "IVAN DE CARVALHO MEDEIROS - 00.431-6", "IVES SILVA DE SOUZA - 62.151-0", "JAIR JEFFERSON DE CARVALHO - 13.896-7", "JARDEL BEZERRA DE ANDRADE - 62.189-7", "JARDS MEDEIROS DE OLIVEIRA - 62.826-3", "JATSON FRANCISCO DA SILVA BANDEIRA - 13.727-8", "JEFFERSON STANLEY DA SILVA - 62.919-7", "JOÃO BATISTA MONTEIRO DE AQUINO - 00.482-1", "JOÃO BATISTA ROCHA FILHO - 49.994-3", "JOÃO BATISTA VARELA BARCA - 15.710-4", "JOÃO CLAUDIO OLIVEIRA DE FARIAS - 00.383-2", "JOÃO FERREIRA - 06.644-3", "JOÃO MARIA ALMEIDA DE MOURA - 43.070-6", "JOÃO MARIA MACEDO ROCHA - 43.201-6", "JOÃO PAULO DE OLIVEIRA - 43.082-0", "JOÃO WILLAMS DA SILVA - 62.253-2", "JONAS CRISTINO DA SILVA - 14.931-4", "JORGE LUIZ BARROS DO NASCIMENTO - 62.431-4", "JORGE LUIZ SIQUEIRA DE OLIVEIRA - 62.191-9", "JOSÉ EUDES BEZERRA - 49.985-4", "JOSÉ ALBERTO FREIRE DA COSTA - 42.766-7", "JOSE ALVES DE SOUZA NETO - 00.544-4", "JOSE AUTEMAR RICARDO - 00.475-8", "JOSE DINIZ RAMOS - 00.575-4", "JOSE EBER DA SILVA - 13.105-9", "JOSÉ GONÇALVES MANGABEIRA DE MEDEIROS - 43.083-8", "JOSÉ RICARDO GOMES CAVALCANTE - 13.102-4", "JOSE ROBERTO DA SILVA DE OLIVEIRA - 14.922-5", "JOSÉ ROOSEVELT MEDEIROS JÚNIOR - 62.416-1", "JOSEMAR DA SILVA DAMASCENO - 60.068-7", "JOSEMAR TAVARES CÂMARA JUNIOR - 43.152-4", "JOSENILSON TEIXEIRA DE SOUZA - 00.386-7", "KASTEEN CARLOS DE AQUINO E SILVA - 43.076-5", "KLEBER SILVESTRE LUSTOSA - 49.825-4", "LAILTON RIBEIRO DA COSTA - 43.078-1", "LEONARDO BATISTA DE SOUZA SILVA - 64.542-7", "LEONARDO DA SILVEIRA LUCENA - 43.122-2", "MADSON LIMA CAVALCANTI DE OLIVEIRA - 49.989-7", "MANOEL NOBREGA DE OLIVEIRA - 13.758-8", "MARA LUCIA BARROS DE SOUZA - 70.665-5", "MARCELO BATISTA DE ANDRADE - 61.952-3", "MARCELO FRANÇA DA SILVA - 60.073-3", "MARCELO ZAERDSON LINS MEDEIROS - 62.184-6", "MARCILIO DE OLIVEIRA RODRIGUES - 49.951-0", "MÁRCIO JOSÉ DA SILVA - 68.159-8", "MARCOS ANTONIO DE OLIVEIRA - 07.326-1", "MARIA DE LOURDES DA SILVA FILHA - 43.200-8", "MARIA DO CARMO DA SILVA - 00.571-1", "MARIA DO SOCORRO LIMA MARTINS - 14.070-8", "MARIA DO SOCORRO SILVA DE ANDRADE - 14.114-3", "MARIA GORETE DUTRA DE OLIVEIRA - 13.988-2", "MARIA JANEIDE BEZERRA DA SILVA - 00.536-3", "MARIA SANTANA BORGES DA SILVA - 00.561-4", "MARIO JOSE DA SILVA LEMOS - 14.944-6", "MARISA GILVANEIDE BERTO - 00.538-0", "MARYANE CRISTINA LOPES PEREIRA - 43.112-5", "MAXIMIANO CAPIM DE MIRANDA - 13.462-7", "MAXWELL FERNANDES DA SILVA - 13.136-9", "MIGUEL ÂNGELO DE SANTANA - 62.092-1", "MOISES PEREIRA DE ARAUJO - 08.229-5", "NADJANIA MARIA DAMASCENO VALLE - 62.368-7", "NAOMI SUASSUNA DOS SANTOS - 60.237-0", "NEUZELIDES PRISCILA SILVA ANDRADE - 49.949-8", "NEWDENBERG FERREIRA GALVÃO - 43.081-1", "NEWTON DE SOUZA PEREIRA FILHO - 60.064-4", "NUBIA SILENE DA SILVA COSTA - 14.109-7", "PATRÍCIA CRISTINA CAVALCANTE - 45.990-9", "RAIMUNDO NONATO DE MEDEIROS NETO - 00.249-6", "RAPHAELLE CAVALCANTE R. DE ARAUJO - 62.149-8", "RECIO RONALDO ANDRADE DE PAIVA - 09.532-0", "REGINA VICÊNCIA CRISPIM - 62.250-8", "RICARDO SERGIO GOMES DA SILVA - 13.477-5", "RITA DE CÁSSIA SILVA - 49.992-7", "ROBSON LUIZ DE AZEVEDO - 00.184-8", "RODRIGO COSTA - 43.087-1", "ROGELIO FERNANDES DE MELO - 13.095-8", "RONALDO JORGE DA SILVA - 13.096-6", "RONALDO MARINHO DE SOUZA - 62.825-5", "RONALDO TEIXEIRA DE ARAÚJO - 62.257-5", "ROSEMBERG PEREIRA - 00.137-6", "SANDRA DA SILVA BEZERRIL BACELAR - 61.712-1", "SARAH POLYANA DIAS DOS SANTOS - 43.154-1", "SEVERINA SOARES NETA CARNEIRO - 00.327-1", "SEVERINO FERNANDES MAIA - 00.192-9", "SEVERINO SOLANO DA SILVA - 00.486-3", "SOLANO LOPES DANTAS - 00.663-7", "SYBELLE DE ARAÚJO DANTAS - 63.386-1", "TALITHA LOUISE FORTUNATO BEZERRA - 49.990-1", "THALES GALVÃO DE ARAUJO - 63.803-0", "THALLES THIAGO MEDEIROS DE SOUZA - 49.988-9", "THIAGO DE LIRA BEZERRA - 43.075-7", "THIAGO HENRIQUE FERREIRA DA SILVA - 60.275-2", "VALDELICE FERREIRA DE OLIVEIRA - 00.507-0", "VANESSA GALDINO DA SILVA - 61.955-8", "WALDICK GUERRA DE MEDEIROS - 13.281-1", "WALTER PEDRO DA SILVA - 00.358-1", "WANDERCLEY SILVA NEVES - 70.563-2", "WANDRÉ WAGNER DA SILVA - 62.367-9", "ZELIO CUNHA - 13.400-7"];
+
+    window.onload = () => {
+        const select = document.getElementById('afast-lista-agentes');
+        select.innerHTML = '<option value="">-- SELECIONE NA LISTA --</option>';
+        agentesDB.forEach(agente => {
+            const opt = document.createElement('option');
+            opt.value = agente;
+            opt.innerText = agente;
+            select.appendChild(opt);
+        });
+    };
+
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
-            console.log("Usuário logado:", user.email);
+            try {
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+
+                    // --- TEMPORIZADOR DE SEGURANÇA (30 MIN) ---
+                    if (dados.cargo !== 'visualizador') {
+                        let tempoInatividade;
+                        const LIMITE_TEMPO = 30 * 60 * 1000; // 30 minutos
+
+                        const resetarTimer = () => {
+                            clearTimeout(tempoInatividade);
+                            tempoInatividade = setTimeout(() => {
+                                alert("⚠️ Sessão encerrada por inatividade (30min).");
+                                signOut(auth).then(() => window.location.href = "login.html");
+                            }, LIMITE_TEMPO);
+                        };
+
+                        window.onload = resetarTimer;
+                        document.onmousemove = resetarTimer;
+                        document.onkeypress = resetarTimer;
+                        document.onclick = resetarTimer;
+                        document.onscroll = resetarTimer;
+                        
+                        console.log("⏳ Timer de segurança ativo.");
+                    } else {
+                        console.log("👁️ Modo Visualizador: Timer DESATIVADO.");
+                    }
+                } else {
+                    alert("Erro de cadastro. Contate o suporte.");
+                    await signOut(auth);
+                    window.location.href = "login.html";
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+            }
         } else {
-            // Se não tiver logado, manda pro login
             window.location.href = "login.html";
         }
     });
 
-    // --- BOTÃO DE SAIR ---
     const btnSair = document.getElementById('btnSair');
     if(btnSair) {
         btnSair.onclick = () => {
@@ -551,14 +348,33 @@
         }
     }
 
-    // --- CARREGAMENTO EM TEMPO REAL ---
-    const q = query(collection(db, "observacoes_sttu"), orderBy("timestamp", "desc"));
+    function getDataHojeISO() {
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        return `${ano}-${mes}-${dia}`;
+    }
+    function getDataHojeBR() {
+        const hoje = new Date();
+        return hoje.toLocaleDateString('pt-BR');
+    }
+    document.getElementById('displayData').innerText = "DATA: " + getDataHojeBR();
+
+    const dataFiltro = getDataHojeISO();
+    
+    const q = query(
+        collection(db, "observacoes_sttu"), 
+        where("data_filtro", "==", dataFiltro),
+        orderBy("timestamp", "desc")
+    );
+
     onSnapshot(q, (snapshot) => {
         const lista = document.getElementById('lista-registros');
         lista.innerHTML = "";
         
         if (snapshot.empty) {
-            lista.innerHTML = "<em>Nenhum registro encontrado.</em>";
+            lista.innerHTML = "<em>Nenhum registro encontrado para hoje.</em>";
             return;
         }
 
@@ -607,7 +423,6 @@
         });
     });
 
-    // --- FUNÇÕES DE GRAVAÇÃO ---
     async function salvarObservacao(texto, requerBaixa = false, extras = {}) {
         try {
             const dados = {
@@ -615,6 +430,7 @@
                 requerBaixa: requerBaixa,
                 baixa: null,
                 timestamp: serverTimestamp(),
+                data_filtro: getDataHojeISO(), 
                 ...extras
             };
 
@@ -625,54 +441,32 @@
         }
     }
 
-    // --- FUNÇÃO DE BAIXA SIMPLES (Botão Laranja) ---
     window.darBaixaNoFirebase = async (idDoc) => {
         const conferente = prompt("POR FAVOR, DIGITE O NOME DO AGENTE QUE ESTÁ CONFERINDO A DEVOLUÇÃO:");
-
-        if (conferente === null) return; 
-        if (conferente.trim() === "") {
-            alert("⚠️ É obrigatório informar o nome de quem conferiu!");
-            return;
-        }
+        if (!conferente || conferente.trim() === "") return;
 
         const agora = new Date().toLocaleTimeString('pt-BR');
         const docRef = doc(db, "observacoes_sttu", idDoc);
-        
         const docSnap = await getDoc(docRef);
-        let textoAtual = docSnap.data().texto;
-        
-        const textoComConferencia = textoAtual + ` | CONFERIDO POR: ${conferente.toUpperCase()}`;
+        const textoComConferencia = docSnap.data().texto + ` | CONFERIDO POR: ${conferente.toUpperCase()}`;
 
-        await updateDoc(docRef, { 
-            baixa: agora,
-            texto: textoComConferencia
-        });
+        await updateDoc(docRef, { baixa: agora, texto: textoComConferencia });
     }
 
-    // --- LÓGICA DO MODAL DE FALTA ---
     window.abrirModalFalta = (id) => {
         document.getElementById('id-devolucao-atual').value = id;
         document.getElementById('modalDevolucao').style.display = 'flex';
     };
+    window.fecharModal = () => document.getElementById('modalDevolucao').style.display = 'none';
 
-    window.fecharModal = () => {
-        document.getElementById('modalDevolucao').style.display = 'none';
-    };
-
-    // --- FUNÇÃO DE BAIXA COM FALTA (Botão Vermelho / Modal) ---
     window.confirmarBaixaComFalta = async () => {
         const idDoc = document.getElementById('id-devolucao-atual').value;
         const conferente = document.getElementById('dev-responsavel').value.trim().toUpperCase();
-
-        if (!conferente) {
-            alert("⚠️ POR FAVOR, INFORME QUEM CONFERIU A DEVOLUÇÃO NO CAMPO ABAIXO.");
-            document.getElementById('dev-responsavel').focus();
-            return;
-        }
+        if (!conferente) return alert("Informe quem conferiu.");
 
         const agora = new Date().toLocaleTimeString('pt-BR');
         const docRef = doc(db, "observacoes_sttu", idDoc);
-
+        
         const etil = document.getElementById('dev-etil').value;
         const piteira = document.getElementById('dev-piteira').value;
         const imp = document.getElementById('dev-impressora').value;
@@ -684,109 +478,72 @@
         const manual = document.getElementById('dev-manual').value;
 
         const docSnap = await getDoc(docRef);
-        let textoAtual = docSnap.data().texto;
-        
         const obsFalta = `\n[DEVOLUÇÃO C/ PENDÊNCIA: ETIL:${etil}, PITEIRA:${piteira}, IMP:${imp}, CARR:${car}, BOB:${bob}, BOAT:${boat}, CERT:${cert}, TC:${tc}, MAN:${manual}] | CONFERIDO POR: ${conferente}`;
 
-        await updateDoc(docRef, { 
-            baixa: agora,
-            texto: textoAtual + obsFalta
-        });
-        
-        document.getElementById('dev-responsavel').value = "";
+        await updateDoc(docRef, { baixa: agora, texto: docSnap.data().texto + obsFalta });
         fecharModal();
     };
 
-    // --- LÓGICA DAS LINHAS ---
     document.querySelectorAll('.btn-linha').forEach(btn => {
         btn.onclick = () => {
-            if (btn.classList.contains('ok')) {
-                btn.classList.remove('ok');
-                btn.classList.add('nok');
-            } else if (btn.classList.contains('nok')) {
-                btn.classList.remove('nok');
-            } else {
-                btn.classList.add('ok');
-            }
+            if (btn.classList.contains('ok')) { btn.classList.remove('ok'); btn.classList.add('nok'); }
+            else if (btn.classList.contains('nok')) { btn.classList.remove('nok'); }
+            else { btn.classList.add('ok'); }
         };
     });
 
-    // --- LÓGICA DOS BOTÕES ---
     document.getElementById('btn-registrar-inicio').onclick = async () => {
         const turno = document.getElementById('turno-select').value;
         const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
         const matAgente = document.getElementById('agente-turno-matricula').value.trim().toUpperCase();
 
-        if (turno === "SELECIONE" || !nomeAgente || !matAgente) {
-            alert("⚠️ É OBRIGATÓRIO SELECIONAR O TURNO, INFORMAR O NOME E A MATRÍCULA DO AGENTE!");
-            return;
-        }
-
-        const hoje = new Date();
-        const dataString = hoje.getFullYear() + '-' + 
-                           String(hoje.getMonth() + 1).padStart(2, '0') + '-' + 
-                           String(hoje.getDate()).padStart(2, '0');
+        if (turno === "SELECIONE" || !nomeAgente || !matAgente) return alert("Preencha Turno, Nome e Matrícula.");
 
         const qVerificacao = query(
             collection(db, "observacoes_sttu"), 
             where("tipo_registro", "==", "INICIO_TURNO"),
-            where("data_controle", "==", dataString),
+            where("data_controle", "==", getDataHojeISO()), 
             where("turno_controle", "==", turno)
         );
+        const snapshot = await getDocs(qVerificacao);
+        if (!snapshot.empty) return alert(`Turno ${turno} já registrado hoje!`);
 
-        try {
-            const snapshot = await getDocs(qVerificacao);
-            if (!snapshot.empty) {
-                alert(`⚠️ ATENÇÃO: O turno ${turno} já foi registrado hoje (${dataString})!`);
-                return;
-            }
+        let statusLinhas = [];
+        document.querySelectorAll('.btn-linha').forEach(btn => {
+            if (btn.classList.contains('ok')) statusLinhas.push(`${btn.getAttribute('data-num')}: OK`);
+            else if (btn.classList.contains('nok')) statusLinhas.push(`${btn.getAttribute('data-num')}: INOPERANTE`);
+        });
+        const textoLinhas = statusLinhas.length > 0 ? ` | LINHAS: ${statusLinhas.join(', ')}` : "";
 
-            let statusLinhas = [];
-            document.querySelectorAll('.btn-linha').forEach(btn => {
-                const numero = btn.getAttribute('data-num');
-                if (btn.classList.contains('ok')) {
-                    statusLinhas.push(`${numero}: OK`);
-                } else if (btn.classList.contains('nok')) {
-                    statusLinhas.push(`${numero}: INOPERANTE`);
-                }
-            });
-            const textoLinhas = statusLinhas.length > 0 ? ` | LINHAS: ${statusLinhas.join(', ')}` : "";
-
-            const detalhes = `SERVIÇO INICIADO TURNO ${turno} - AGENTE: ${nomeAgente} (MAT: ${matAgente})${textoLinhas}. CONFERÊNCIA: ` +
-                `CEL.ATEND:${document.getElementById('qtd-cel-atend').value}, ` +
-                `FONTE:${document.getElementById('qtd-fonte-cel').value}, ` +
-                `CABO:${document.getElementById('qtd-cabo-cel').value}, ` +
-                `ZAP:${document.getElementById('qtd-zap').value}, ` +
-                `RAD.MOV:${document.getElementById('qtd-radio-movel').value}, ` +
-                `IMP:${document.getElementById('qtd-impressora').value}, ` +
-                `AR:${document.getElementById('qtd-ar').value}, ` +
-                `M.4744:${document.getElementById('qtd-m4744').value}, ` +
-                `M.4746:${document.getElementById('qtd-m4746').value}, ` +
-                `M.4750:${document.getElementById('qtd-m4750').value}, ` +
-                `M.4751:${document.getElementById('qtd-m4751').value}, ` +
-                `M.4756:${document.getElementById('qtd-m4756').value}, ` +
-                `RAD.FIX:${document.getElementById('qtd-radio-fixo').value}`;
-            
-            await salvarObservacao(detalhes, false, {
-                tipo_registro: "INICIO_TURNO",
-                data_controle: dataString,
-                turno_controle: turno
-            });
-            alert("✅ Início de turno registrado com sucesso!");
-        } catch (e) {
-            console.error("Erro:", e);
-            alert("Erro: " + e.message);
-        }
+        const detalhes = `SERVIÇO INICIADO TURNO ${turno} - AGENTE: ${nomeAgente} (MAT: ${matAgente})${textoLinhas}. CONFERÊNCIA: ` +
+            `CEL.ATEND:${document.getElementById('qtd-cel-atend').value}, ` +
+            `FONTE:${document.getElementById('qtd-fonte-cel').value}, ` +
+            `CABO:${document.getElementById('qtd-cabo-cel').value}, ` +
+            `ZAP:${document.getElementById('qtd-zap').value}, ` +
+            `RAD.MOV:${document.getElementById('qtd-radio-movel').value}, ` +
+            `IMP:${document.getElementById('qtd-impressora').value}, ` +
+            `AR:${document.getElementById('qtd-ar').value}, ` +
+            `M.4744:${document.getElementById('qtd-m4744').value}, ` +
+            `M.4746:${document.getElementById('qtd-m4746').value}, ` +
+            `M.4750:${document.getElementById('qtd-m4750').value}, ` +
+            `M.4751:${document.getElementById('qtd-m4751').value}, ` +
+            `M.4756:${document.getElementById('qtd-m4756').value}, ` +
+            `RAD.FIX:${document.getElementById('qtd-radio-fixo').value}`;
+        
+        await salvarObservacao(detalhes, false, {
+            tipo_registro: "INICIO_TURNO",
+            data_controle: getDataHojeISO(),
+            turno_controle: turno
+        });
+        alert("Início registrado!");
     };
 
-    // --- NOVA LÓGICA DE ENTREGA DE MALETA COM VALIDAÇÃO ---
     document.getElementById('btn-registrar-maleta').onclick = async () => {
         const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
         const matAgente = document.getElementById('agente-turno-matricula').value.trim().toUpperCase();
-
         if (!nomeAgente || !matAgente) {
-            alert("⚠️ OBRIGATÓRIO: Preencha o NOME e MATRÍCULA do agente no topo da página antes de registrar a maleta!");
-            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            alert("Preencha Nome e Matrícula no topo primeiro.");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
@@ -797,18 +554,10 @@
             const qCheck = query(collection(db, "observacoes_sttu"), 
                 where("tipo_registro", "==", "ENTREGA_MALETA"),
                 where("numero_maleta", "==", maleta),
-                where("baixa", "==", null)
+                where("baixa", "==", null) 
             );
-
-            try {
-                const snapshot = await getDocs(qCheck);
-                if (!snapshot.empty) {
-                    alert(`⚠️ ERRO: A MALETA ${maleta} JÁ ESTÁ EM USO (NÃO FOI DEVOLVIDA)!\nPor favor, realize a baixa da entrega anterior antes de registrar novamente.`);
-                    return;
-                }
-            } catch (e) {
-                console.error("Erro ao verificar maleta:", e);
-            }
+            const snapshot = await getDocs(qCheck);
+            if (!snapshot.empty) return alert(`MALETA ${maleta} JÁ ESTÁ EM USO!`);
         }
 
         const qtdEtil = document.getElementById('qtd-etil').value;
@@ -838,35 +587,18 @@
 
     document.getElementById('btn-registrar-tentante').onclick = () => {
         const campo = document.getElementById('texto-tentante');
-        if (!campo.value.trim()) return alert("Descreva o registro.");
-        salvarObservacao(`REGISTRO DE TENTANTE: ${campo.value.trim()}`);
-        campo.value = "";
+        if (campo.value.trim()) { salvarObservacao(`REGISTRO DE TENTANTE: ${campo.value.trim()}`); campo.value = ""; }
     };
 
-    // --- NOVA LÓGICA DE AFASTAMENTO COM LISTA DE AGENTES ---
     document.getElementById('btn-registrar-afastamento').onclick = () => {
-        // Tenta pegar o valor da lista (select)
         const nomeLista = document.getElementById('afast-lista-agentes').value;
-        // Pega o valor do campo digitado
         const nomeDigitado = document.getElementById('afast-nome').value.trim();
-        
-        // Define o nome final: prioridade para a lista, senão usa o digitado
-        let nomeFinal = "";
-        
-        if (nomeLista && nomeLista !== "") {
-            nomeFinal = nomeLista;
-        } else {
-            nomeFinal = nomeDigitado;
-        }
-
+        const nomeFinal = nomeLista || nomeDigitado;
         const local = document.getElementById('afast-local').value.trim();
         const status = document.getElementById('afast-status').value;
 
-        if (!nomeFinal) return alert("Selecione um agente na lista ou digite o nome.");
-        
+        if (!nomeFinal) return alert("Informe o agente.");
         salvarObservacao(`AFASTAMENTO: AGENTE ${nomeFinal.toUpperCase()} - LOCAL: ${local.toUpperCase()} - SITUAÇÃO: ${status}`);
-        
-        // Limpa os campos
         document.getElementById('afast-lista-agentes').value = "";
         document.getElementById('afast-nome').value = "";
         document.getElementById('afast-local').value = "";
@@ -877,76 +609,40 @@
         const equipe = document.getElementById('rem-equipe').value.trim().toUpperCase();
         const local = document.getElementById('rem-local').value.trim().toUpperCase();
         const motivo = document.getElementById('rem-motivo').value.trim().toUpperCase();
-        const ait = document.getElementById('rem-ait').value.trim().toUpperCase();
-        const trv = document.getElementById('rem-trv').value.trim().toUpperCase();
         if (!placa || !motivo) return alert("Preencha Placa e Motivo.");
-        salvarObservacao(`VEÍCULO REMOVIDO: PLACA ${placa} - EQUIPE: ${equipe || 'N/I'} - LOCAL/HORA: ${local} - MOTIVO: ${motivo} - AIT: ${ait || 'N/I'} - TRV: ${trv || 'N/I'}`);
+        salvarObservacao(`VEÍCULO REMOVIDO: PLACA ${placa} - EQUIPE: ${equipe} - LOCAL: ${local} - MOTIVO: ${motivo}`);
         document.getElementById('rem-placa').value = "";
-        document.getElementById('rem-equipe').value = "";
-        document.getElementById('rem-local').value = "";
         document.getElementById('rem-motivo').value = "";
-        document.getElementById('rem-ait').value = "";
-        document.getElementById('rem-trv').value = "";
-        document.getElementById('rem-placa').focus();
     };
 
     document.getElementById('btn-registrar-inspetor').onclick = () => {
         const relato = document.getElementById('texto-inspetor').value.trim();
-        if (!relato) return alert("Digite o relato do inspetor.");
-        salvarObservacao(`RELATO DO INSPETOR: ${relato}`);
-        alert("Relato registrado!");
-        document.getElementById('texto-inspetor').value = "";
+        if (relato) { salvarObservacao(`RELATO DO INSPETOR: ${relato}`); document.getElementById('texto-inspetor').value = ""; }
     };
 
     document.getElementById('btn-registrar-obs-geral').onclick = () => {
         const obs = document.getElementById('texto-obs-geral').value.trim();
-        if (!obs) return alert("Digite alguma observação.");
-        salvarObservacao(`OBSERVAÇÃO GERAL: ${obs}`);
-        document.getElementById('texto-obs-geral').value = "";
+        if (obs) { salvarObservacao(`OBSERVAÇÃO GERAL: ${obs}`); document.getElementById('texto-obs-geral').value = ""; }
     };
 
-    // --- LÓGICA DE CONTROLE DE CONES ---
     document.getElementById('btn-registrar-cones').onclick = () => {
-        const equipe = document.getElementById('cone-equipe').value.trim().toUpperCase();
+        const equipe = document.getElementById('cone-equipe').value;
         const local = document.getElementById('cone-local').value.trim().toUpperCase();
-        let colocado = parseInt(document.getElementById('cone-colocado').value) || 0;
-        let recolhido = parseInt(document.getElementById('cone-recolhido').value) || 0;
-        const horaFim = document.getElementById('cone-hora-fim').value;
+        let col = parseInt(document.getElementById('cone-colocado').value) || 0;
+        let rec = parseInt(document.getElementById('cone-recolhido').value) || 0;
         const obs = document.getElementById('cone-obs').value.trim().toUpperCase();
         
-        let totalAtual = parseInt(document.getElementById('total-cones-geral').value) || 0;
-        const novoTotal = totalAtual - colocado + recolhido;
-        document.getElementById('total-cones-geral').value = novoTotal;
+        let total = parseInt(document.getElementById('total-cones-geral').value) || 0;
+        total = total - col + rec;
+        document.getElementById('total-cones-geral').value = total;
         
-        const texto = `CONTROLE DE CONES: EQUIPE ${equipe} - LOCAL: ${local} - COLOCADOS: ${colocado} - RECOLHIDOS: ${recolhido} - HORA FINAL: ${horaFim} - OBS: ${obs || 'NENHUMA'} - SALDO ATUAL: ${novoTotal}`;
-        
-        salvarObservacao(texto);
-        
-        document.getElementById('cone-equipe').value = "";
+        salvarObservacao(`CONTROLE DE CONES: ${equipe} - LOCAL: ${local} - COLOCADOS: ${col} - RECOLHIDOS: ${rec} - OBS: ${obs} - SALDO: ${total}`);
         document.getElementById('cone-local').value = "";
         document.getElementById('cone-colocado').value = "";
         document.getElementById('cone-recolhido').value = "";
-        document.getElementById('cone-hora-fim').value = "";
         document.getElementById('cone-obs').value = "";
     };
 
-    // --- LÓGICA DE EXPORTAÇÃO PARA WORD ---
-    document.getElementById('btn-exportar-word').onclick = () => {
-        const conteudo = document.getElementById('lista-registros').innerHTML;
-        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Relatório STTU</title><style>body{font-family: Arial; font-size:12px;} .registro-item{border-bottom: 1px solid #ccc; padding: 5px; margin-bottom: 5px;} .timestamp{font-weight:bold; color: #555;} button {display: none;} </style></head><body>";
-        const footer = "</body></html>";
-        const sourceHTML = header + "<h1>RELATÓRIO DE OBSERVAÇÕES DIÁRIAS - STTU</h1><hr>" + conteudo + footer;
-        const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-        const fileDownload = document.createElement("a");
-        document.body.appendChild(fileDownload);
-        fileDownload.href = source;
-        const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
-        fileDownload.download = `Relatorio_STTU_${dataHoje}.doc`;
-        fileDownload.click();
-        document.body.removeChild(fileDownload);
-    };
-
-    // --- SELEÇÃO DE MALETAS ---
     document.querySelectorAll('.btn-maleta').forEach(botao => {
         botao.onclick = () => {
             const selecionada = botao.classList.contains('selecionada');
