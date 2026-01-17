@@ -2,10 +2,11 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema STTU - Início</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,148 +20,204 @@
             background: white;
             padding: 40px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             max-width: 600px;
+            width: 90%;
         }
+        
         .logo-sttu {
-            width: 250px;
+            width: 180px;
             height: auto;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
+
         .button-group {
             margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
         }
         .button-group a, .button-group button {
             display: inline-block;
             padding: 15px 30px;
-            margin: 10px 15px;
-            font-size: 18px;
+            font-size: 16px;
+            font-weight: bold;
             text-decoration: none;
             color: white;
-            background-color: #36454f;
+            background-color: #34495e;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            transition: transform 0.2s, background-color 0.3s;
             border: none;
             cursor: pointer;
-            font-family: Arial, sans-serif;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .button-group a:hover, .button-group button:hover {
-            background-color: #55606b;
+            background-color: #2c3e50;
+            transform: translateY(-2px);
         }
         h1 {
-            color: #36454f;
+            color: #2c3e50;
             font-size: 24px;
+            margin-bottom: 10px;
         }
-        .btn-admin {
-            background-color: #c0392b !important;
+        p { color: #7f8c8d; }
+
+        .btn-admin { background-color: #c0392b !important; }
+        .btn-admin:hover { background-color: #a93226 !important; }
+        
+        .btn-relatorio { background-color: #8e44ad !important; }
+        .btn-relatorio:hover { background-color: #732d91 !important; }
+
+        .user-info {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            color: #333;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .btn-admin:hover {
-            background-color: #a93226 !important;
+        .btn-logout {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
         }
+        .btn-logout:hover { background: #c0392b; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <img src="emblemasttu.jpeg" alt="Logo STTU" class="logo-sttu">
+        <img src="emblemasttu.jpeg" alt="Brasão STTU" class="logo-sttu">
         
-        <h1>Bem-vindo à Central de Operação de Trânsito e Transportes</h1>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <h1>Painel de Controle</h1>
         <p>Selecione uma opção para continuar:</p>
         
         <div class="button-group" id="menu-botoes">
-            <a href="agentes.html">AGENTES</a> 
-            <a href="ocorrencias.html">OCORRÊNCIAS</a>
-            <a href="observacoes.html">OBSERVAÇÕES</a>
-            
-            <a href="relatorio_geral.html" style="background-color: #8e44ad;">📑 RELATÓRIO PDF</a>
+            <a href="agentes.html">👮 AGENTES</a> 
+            <a href="ocorrencias.html">🚨 OCORRÊNCIAS</a>
+            <a href="observacoes.html">📝 OBSERVAÇÕES</a>
+            <a href="relatorio_geral.html" class="btn-relatorio">📑 RELATÓRIOS</a>
         </div>
     </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
-        authDomain: "sttu-registros.firebaseapp.com",
-        projectId: "sttu-registros",
-        storageBucket: "sttu-registros.firebasestorage.app",
-        messagingSenderId: "785219239564",
-        appId: "1:785219239564:web:4b8175a8d7ccceba06c5a9",
-        measurementId: "G-C7PSE7YFRG"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    
-    // 1. Botão de Logout
-    function adicionarLogout(userEmail) {
-        const div = document.createElement('div');
-        div.style.cssText = "position: absolute; top: 10px; right: 10px; font-size: 11px; color: #333; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index:9999;";
-        div.innerHTML = `Logado: <b>${userEmail}</b> <button id="btnLogout" style="margin-left:5px; cursor:pointer; background:#c0392b; color:white; border:none; padding:3px 6px; border-radius:3px; font-weight:bold;">SAIR</button>`;
-        document.body.appendChild(div);
-
-        document.getElementById('btnLogout').onclick = () => {
-            signOut(auth).then(() => window.location.href = "login.html");
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
+            authDomain: "sttu-registros.firebaseapp.com",
+            projectId: "sttu-registros",
+            storageBucket: "sttu-registros.firebasestorage.app",
+            messagingSenderId: "785219239564",
+            appId: "1:785219239564:web:4b8175a8d7ccceba06c5a9",
+            measurementId: "G-C7PSE7YFRG"
         };
-    }
 
-    // 2. Botão Admin
-    function habilitarPainelAdmin() {
-        const menu = document.getElementById('menu-botoes');
-        if (!document.getElementById('btn-admin-link')) {
-            const btnAdmin = document.createElement('button');
-            btnAdmin.id = 'btn-admin-link';
-            btnAdmin.innerText = "⚙️ PAINEL ADMIN";
-            btnAdmin.className = "btn-admin";
-            btnAdmin.onclick = () => window.location.href = "admin.html";
-            menu.appendChild(btnAdmin);
-        }
-    }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        function mostrarUsuarioLogado(email) {
+            const div = document.createElement('div');
+            div.className = 'user-info';
+            div.innerHTML = `
+                <span>Logado: <b>${email}</b></span>
+                <button id="btnLogout" class="btn-logout">SAIR</button>
+            `;
+            document.body.appendChild(div);
 
-    // 3. VERIFICAÇÃO DE SEGURANÇA (O Porteiro)
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            try {
-                const docRef = doc(db, "usuarios", user.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const dados = docSnap.data();
-
-                    // ADMIN PASSA DIRETO
-                    if (dados.cargo === 'admin') {
-                        adicionarLogout(user.email);
-                        habilitarPainelAdmin();
-                        return;
-                    }
-
-                    // SE NÃO FOR ADMIN, TEM QUE ESTAR "APROVADO"
-                    if (dados.status !== 'aprovado') {
-                        alert("🚫 ACESSO BLOQUEADO\n\nSeu cadastro foi realizado, mas ainda aguarda aprovação do administrador.\nPor favor, aguarde a liberação.");
-                        await signOut(auth); // Desloga
-                        window.location.href = "login.html";
-                        return;
-                    }
-
-                    // Se chegou aqui, está aprovado
-                    adicionarLogout(user.email);
-                } else {
-                    // Usuário sem registro no banco (erro raro)
-                    alert("Erro de cadastro. Contate o suporte.");
-                    await signOut(auth);
+            document.getElementById('btnLogout').onclick = () => {
+                if(confirm("Deseja realmente sair?")) {
+                    signOut(auth).then(() => window.location.href = "login.html");
                 }
-            } catch (error) {
-                console.error("Erro:", error);
-            }
-        } else {
-            window.location.href = "login.html";
+            };
         }
-    });
 
-</script>
+        function habilitarPainelAdmin() {
+            const menu = document.getElementById('menu-botoes');
+            if (!document.getElementById('btn-admin-link')) {
+                const btnAdmin = document.createElement('button');
+                btnAdmin.id = 'btn-admin-link';
+                btnAdmin.innerText = "⚙️ PAINEL ADMIN";
+                btnAdmin.className = "btn-admin"; 
+                btnAdmin.onclick = () => window.location.href = "admin.html";
+                menu.appendChild(btnAdmin);
+            }
+        }
 
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const docRef = doc(db, "usuarios", user.uid);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const dados = docSnap.data();
+
+                        if (dados.cargo !== 'admin' && dados.status !== 'aprovado') {
+                            alert("🚫 ACESSO BLOQUEADO\n\nSeu cadastro aguarda aprovação do administrador.");
+                            await signOut(auth);
+                            window.location.href = "login.html";
+                            return;
+                        }
+
+                        mostrarUsuarioLogado(user.email);
+                        if (dados.cargo === 'admin') habilitarPainelAdmin();
+
+                        if (dados.cargo !== 'visualizador') {
+                            let tempoInatividade;
+                            const LIMITE_TEMPO = 30 * 60 * 1000; 
+
+                            const resetarTimer = () => {
+                                clearTimeout(tempoInatividade);
+                                tempoInatividade = setTimeout(() => {
+                                    alert("⚠️ Sessão encerrada por inatividade (30min).");
+                                    signOut(auth).then(() => window.location.href = "login.html");
+                                }, LIMITE_TEMPO);
+                            };
+
+                            window.onload = resetarTimer;
+                            document.onmousemove = resetarTimer;
+                            document.onkeypress = resetarTimer;
+                            document.onclick = resetarTimer;
+                            document.onscroll = resetarTimer;
+                            
+                            console.log("⏳ Timer de segurança ativo.");
+                        } else {
+                            console.log("👁️ Modo Visualizador: Timer DESATIVADO.");
+                        }
+
+                    } else {
+                        alert("Erro de cadastro. Contate o suporte.");
+                        await signOut(auth);
+                        window.location.href = "login.html";
+                    }
+                } catch (error) {
+                    console.error("Erro:", error);
+                }
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+    </script>
 </body>
 </html>
