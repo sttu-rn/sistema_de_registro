@@ -17,7 +17,6 @@
         .btn-salvar { background-color: #2c3e50; }
         .btn-salvar:hover { background-color: #34495e; }
 
-        /* Botão de Excluir */
         .btn-excluir { background-color: #c0392b; margin-top: 5px; }
         .btn-excluir:hover { background-color: #a93226; }
 
@@ -31,6 +30,11 @@
         .bg-admin { background-color: #c0392b; }
         .bg-agente { background-color: #27ae60; }
         .bg-visualizador { background-color: #f39c12; }
+
+        /* Card do Contador */
+        .card-contador { margin-top: 30px; padding: 20px; background: #fff8e1; border-left: 5px solid #f39c12; border-radius: 4px; }
+        .btn-zerar { background-color: #e67e22; width: 100%; margin-top: 10px; padding: 10px; }
+        .btn-zerar:hover { background-color: #d35400; }
     </style>
 </head>
 <body>
@@ -70,14 +74,19 @@
             <div id="listaUsuarios">Carregando...</div>
         </div>
 
+        <div class="card-contador">
+            <h3 style="margin-top:0; color:#e67e22;">🔢 Controle Global de Ocorrências</h3>
+            <p style="font-size:14px; color:#555;">Use este botão apenas na virada do ano ou quando for necessário reiniciar a numeração para 001.</p>
+            <button class="btn btn-zerar" id="btnZerarContador">ZERAR CONTADOR PARA 000</button>
+        </div>
+
         <button class="btn btn-voltar" onclick="window.location.href='index.html'">VOLTAR AO INÍCIO</button>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    // IMPORTANTE: Adicionei 'deleteDoc' aqui na lista
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
@@ -93,20 +102,58 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- SEGURANÇA: Só Admin entra aqui ---
+    // --- SEGURANÇA + TIMER (30 min) ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            const docRef = doc(db, "usuarios", user.uid);
-            const docSnap = await getDoc(docRef);
-            
-            if (!docSnap.exists() || docSnap.data().cargo !== 'admin') {
-                alert("ACESSO NEGADO.");
-                window.location.href = "index.html";
+            try {
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+                
+                // 1. Verifica se é Admin mesmo
+                if (!docSnap.exists() || docSnap.data().cargo !== 'admin') {
+                    alert("ACESSO NEGADO.");
+                    window.location.href = "index.html";
+                    return;
+                }
+
+                // 2. Timer de Inatividade (Mesmo para Admin)
+                let tempoInatividade;
+                const LIMITE_TEMPO = 30 * 60 * 1000; // 30 minutos
+
+                const resetarTimer = () => {
+                    clearTimeout(tempoInatividade);
+                    tempoInatividade = setTimeout(() => {
+                        alert("⚠️ Sessão de Admin encerrada por inatividade.");
+                        signOut(auth).then(() => window.location.href = "login.html");
+                    }, LIMITE_TEMPO);
+                };
+
+                window.onload = resetarTimer;
+                document.onmousemove = resetarTimer;
+                document.onkeypress = resetarTimer;
+                document.onclick = resetarTimer;
+                document.onscroll = resetarTimer;
+
+            } catch (e) {
+                console.error(e);
             }
         } else {
             window.location.href = "login.html";
         }
     });
+
+    // --- FUNÇÃO PARA ZERAR CONTADOR GLOBAL ---
+    document.getElementById('btnZerarContador').onclick = async () => {
+        if(confirm("ATENÇÃO: Isso reiniciará o contador de ocorrências para 001 para TODOS os usuários do sistema.\n\nDeseja continuar?")) {
+            try {
+                // Seta o valor 'atual' como 0. A próxima ocorrência será 0 + 1 = 1 (001).
+                await setDoc(doc(db, "config", "contador"), { atual: 0 });
+                alert("✅ Contador reiniciado com sucesso!");
+            } catch (e) {
+                alert("Erro ao zerar: " + e.message);
+            }
+        }
+    };
 
     // --- FUNÇÃO SALVAR/EDITAR ---
     document.getElementById('btnSalvar').onclick = async () => {
@@ -137,17 +184,14 @@
 
         if (!uid) return alert("Selecione um usuário na lista primeiro para excluir.");
 
-        // Confirmação de segurança
         const confirmacao = confirm(`⚠️ TEM CERTEZA que deseja EXCLUIR o acesso de:\n\n${nome}?\n\nEssa ação impedirá o login deste usuário imediatamente.`);
         
         if (confirmacao) {
             try {
-                // Deleta o documento do Firestore
                 await deleteDoc(doc(db, "usuarios", uid));
                 alert("🗑️ Usuário removido do sistema com sucesso!");
                 limparFormulario();
             } catch (error) {
-                console.error(error);
                 alert("Erro ao excluir: " + error.message);
             }
         }
@@ -171,6 +215,7 @@
             
             let corBadge = "bg-agente";
             if (data.cargo === "admin") corBadge = "bg-admin";
+            if (data.cargo === "visualizador") corBadge = "bg-visualizador";
 
             // Se estiver pendente
             let statusHtml = "";
@@ -206,8 +251,6 @@
                     document.getElementById('nomeUser').value = data.nome || "";
                     document.getElementById('matUser').value = data.matricula || "";
                     document.getElementById('cargoUser').value = data.cargo || "agente";
-                    
-                    // Rola a tela para cima suavemente para editar
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             };
