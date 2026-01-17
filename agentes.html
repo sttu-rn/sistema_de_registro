@@ -55,7 +55,7 @@
         .edit-row-container { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
         .edit-agente-input { width: 100% !important; font-size: 10px !important; background-color: white; }
 
-        /* --- CORES DAS REGIÕES (NOVO) --- */
+        /* --- CORES DAS REGIÕES --- */
         .regiao-1 { background-color: #3b364c !important; color: white; text-align: center; font-weight: bold; } 
         .regiao-2 { background-color: #e4f001 !important; color: white; text-align: center; font-weight: bold; } 
         .regiao-3 { background-color: #64ec02 !important; color: white; text-align: center; font-weight: bold; } 
@@ -154,10 +154,11 @@
     </form>
 
     <div style="text-align: center; margin-top: 20px; gap: 10px; display: flex; justify-content: center;">
-        <button id="btnCSV" class="btn btn-download">Baixar Relatório Completo (Histórico + Ativos)</button>
+        <button id="btnCSV" class="btn btn-download">Baixar Relatório CSV</button>
         <a href="index.html" class="btn btn-home">Página Inicial</a>
         <a href="ocorrencias.html" class="btn btn-home">Ocorrências</a>
         <a href="observacoes.html" class="btn btn-home">Observações</a>
+        <a href="relatorio_geral.html" class="btn btn-home" style="background-color: #8e44ad;">Relatório PDF</a>
     </div>
 
     <div class="section-title">⚠️ Veículos em Operação (Sincronizado)</div>
@@ -187,11 +188,11 @@
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-    // --- CONFIGURAÇÃO CORRETA (sttu-registros) ---
+    // --- CONFIGURAÇÃO ---
     const firebaseConfig = {
         apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
         authDomain: "sttu-registros.firebaseapp.com",
@@ -206,17 +207,52 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- SEGURANÇA: VERIFICA LOGIN ---
-    onAuthStateChanged(auth, (user) => {
+    // --- SEGURANÇA + TIMER DE 30 MIN ---
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
-            console.log("Usuário logado:", user.email);
+            try {
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+
+                    // TIMER DE INATIVIDADE (Exceto Visualizador)
+                    if (dados.cargo !== 'visualizador') {
+                        let tempoInatividade;
+                        const LIMITE_TEMPO = 30 * 60 * 1000; // 30 minutos
+
+                        const resetarTimer = () => {
+                            clearTimeout(tempoInatividade);
+                            tempoInatividade = setTimeout(() => {
+                                alert("⚠️ Sessão encerrada por inatividade (30min).");
+                                signOut(auth).then(() => window.location.href = "login.html");
+                            }, LIMITE_TEMPO);
+                        };
+
+                        window.onload = resetarTimer;
+                        document.onmousemove = resetarTimer;
+                        document.onkeypress = resetarTimer;
+                        document.onclick = resetarTimer;
+                        document.onscroll = resetarTimer;
+                        
+                        console.log("⏳ Timer de segurança ativo.");
+                    } else {
+                        console.log("👁️ Modo Visualizador: Timer DESATIVADO.");
+                    }
+                } else {
+                    alert("Erro de cadastro. Contate o suporte.");
+                    await signOut(auth);
+                    window.location.href = "login.html";
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+            }
         } else {
-            // Se não tiver logado, manda pro login
             window.location.href = "login.html";
         }
     });
 
-    // --- BOTÃO DE SAIR ---
     const btnSair = document.getElementById('btnSair');
     if(btnSair) {
         btnSair.onclick = () => {
@@ -244,7 +280,6 @@
         return `${dia}/${mes}/${ano}`;
     }
 
-    // --- NOVA FUNÇÃO PARA CLASSES DE CORES ---
     function obterClasseRegiao(zona) {
         if (!zona) return '';
         const z = zona.toUpperCase();
@@ -437,7 +472,6 @@
             const cell = row.insertCell();
             let conteudo = (String(dadosDisplay[key]) || "").replace(/\n/g, '<br>');
             
-            // APLICAÇÃO DE CORES NA COLUNA ZONA (REGIÃO)
             if (key === 'zona') {
                 cell.className = obterClasseRegiao(dadosDisplay[key]);
             }
@@ -459,7 +493,6 @@
             cellsMap[key] = cell;
             let conteudo = (String(dados[key]) || "").replace(/\n/g, '<br>');
             
-            // APLICAÇÃO DE CORES NA COLUNA ZONA (REGIÃO)
             if (key === 'zona') {
                 cell.className = obterClasseRegiao(dados[key]);
             }
@@ -494,7 +527,6 @@
                         editaveis.forEach(key => { cellsMap[key].contentEditable = "true"; cellsMap[key].classList.add('editando-celula'); });
                         
                         const zonaAtual = cellsMap['zona'].innerText.trim();
-                        // Remove a classe de cor ao editar para ficar mais limpo
                         cellsMap['zona'].className = ''; 
                         
                         cellsMap['zona'].innerHTML = `<select class="edit-zona">
