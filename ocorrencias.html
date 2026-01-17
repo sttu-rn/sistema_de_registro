@@ -76,6 +76,9 @@
         .regiao-3 { background-color: #64ec02 !important; color: white; text-align: center; font-weight: bold; } 
         .regiao-4 { background-color: #096acc !important; color: white; text-align: center; font-weight: bold; } 
         .regiao-5 { background-color: #d30000 !important; color: black; text-align: center; font-weight: bold; } 
+        
+        /* Select Desabilitado (Visual) */
+        option:disabled { color: #c0392b; font-weight: bold; background: #eee; }
     </style>
 </head>
 <body>
@@ -306,6 +309,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    let veiculosOcupados = new Set(); // ARMAZENA VEÍCULOS "ENCAMINHADA"
+
     // --- SEGURANÇA + TIMER DE 30 MIN ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -315,12 +320,9 @@
 
                 if (docSnap.exists()) {
                     const dados = docSnap.data();
-
-                    // TIMER DE INATIVIDADE (Exceto Visualizador)
                     if (dados.cargo !== 'visualizador') {
                         let tempoInatividade;
-                        const LIMITE_TEMPO = 30 * 60 * 1000; // 30 minutos
-
+                        const LIMITE_TEMPO = 30 * 60 * 1000; 
                         const resetarTimer = () => {
                             clearTimeout(tempoInatividade);
                             tempoInatividade = setTimeout(() => {
@@ -328,23 +330,12 @@
                                 signOut(auth).then(() => window.location.href = "login.html");
                             }, LIMITE_TEMPO);
                         };
-
-                        window.onload = resetarTimer;
-                        document.onmousemove = resetarTimer;
-                        document.onkeypress = resetarTimer;
-                        document.onclick = resetarTimer;
-                        document.onscroll = resetarTimer;
-                        
-                        console.log("⏳ Timer de segurança ativo.");
+                        window.onload = resetarTimer; document.onmousemove = resetarTimer; document.onkeypress = resetarTimer; document.onclick = resetarTimer; document.onscroll = resetarTimer;
                     }
                 } else {
-                    alert("Erro de cadastro. Contate o suporte.");
-                    await signOut(auth);
-                    window.location.href = "login.html";
+                    alert("Erro de cadastro."); await signOut(auth); window.location.href = "login.html";
                 }
-            } catch (error) {
-                console.error("Erro:", error);
-            }
+            } catch (error) { console.error("Erro:", error); }
         } else {
             window.location.href = "login.html";
         }
@@ -352,11 +343,7 @@
 
     const btnSair = document.getElementById('btnSair');
     if(btnSair) {
-        btnSair.onclick = () => {
-            signOut(auth).then(() => {
-                window.location.href = "login.html";
-            });
-        }
+        btnSair.onclick = () => signOut(auth).then(() => window.location.href = "login.html");
     }
 
     // --- LÓGICA DO SISTEMA ---
@@ -367,12 +354,8 @@
     async function buscarProximoNumero() {
         const contadorRef = doc(db, "config", "contador");
         const docSnap = await getDoc(contadorRef);
-        
         let proximo = 1;
-        if (docSnap.exists()) {
-            proximo = (docSnap.data().atual || 0) + 1;
-        }
-        
+        if (docSnap.exists()) proximo = (docSnap.data().atual || 0) + 1;
         document.getElementById('numRegistro').value = String(proximo).padStart(3, '0');
         return proximo;
     }
@@ -390,12 +373,10 @@
 
     ['solicitante', 'editSolicitante', 'contato', 'editContato'].forEach(id => {
         const input = document.getElementById(id);
-        if(input) {
-            input.addEventListener('input', function() {
-                if(id.includes('solicitante')) this.value = this.value.replace(/[0-9]/g, '');
-                if(id.includes('contato')) this.value = this.value.replace(/[a-zA-Z]/g, '');
-            });
-        }
+        if(input) input.addEventListener('input', function() {
+            if(id.includes('solicitante')) this.value = this.value.replace(/[0-9]/g, '');
+            if(id.includes('contato')) this.value = this.value.replace(/[a-zA-Z]/g, '');
+        });
     });
 
     window.verificarRegrasObrigatoriedade = function() {
@@ -422,16 +403,12 @@
 
         if (isExcecao) {
             inputHoraEnvio.required = false;
-            inputHoraEnvio.classList.remove('campo-obrigatorio');
-            inputHoraEnvio.classList.add('campo-opcional');
-            equipeSelect.classList.remove('campo-obrigatorio');
-            equipeSelect.classList.add('campo-opcional');
+            inputHoraEnvio.classList.remove('campo-obrigatorio'); inputHoraEnvio.classList.add('campo-opcional');
+            equipeSelect.classList.remove('campo-obrigatorio'); equipeSelect.classList.add('campo-opcional');
         } else {
             inputHoraEnvio.required = true;
-            inputHoraEnvio.classList.add('campo-obrigatorio');
-            inputHoraEnvio.classList.remove('campo-opcional');
-            equipeSelect.classList.add('campo-obrigatorio');
-            equipeSelect.classList.remove('campo-opcional');
+            inputHoraEnvio.classList.add('campo-obrigatorio'); inputHoraEnvio.classList.remove('campo-opcional');
+            equipeSelect.classList.add('campo-obrigatorio'); equipeSelect.classList.remove('campo-opcional');
         }
         qtcContainer.style.display = (situacao === 'NÃO ATENDIDA') ? 'block' : 'none';
     };
@@ -439,9 +416,20 @@
     function popularEquipes(selectId) {
         const sel = document.getElementById(selectId);
         sel.innerHTML = '<option value="">+ ADICIONAR...</option>';
-        for(let i=1; i<=80; i++) { let n = i < 10 ? '0'+i : i; sel.add(new Option('MT '+n, 'MT '+n)); }
-        for(let i=1; i<=20; i++) { let n = i < 10 ? '0'+i : i; sel.add(new Option('VT '+n, 'VT '+n)); }
-        ["EQUIPE SEMAFÓRICA", "SINAL VIDA", "UMT", "SERTELL"].forEach(nome => sel.add(new Option(nome, nome)));
+        
+        const adicionarOpcao = (valor) => {
+            const opt = new Option(valor, valor);
+            // BLOQUEIO VISUAL: Se estiver ocupado, desabilita e avisa
+            if (veiculosOcupados.has(valor)) {
+                opt.disabled = true;
+                opt.text += " (EM USO)";
+            }
+            sel.add(opt);
+        };
+
+        for(let i=1; i<=80; i++) { let n = i < 10 ? '0'+i : i; adicionarOpcao('MT '+n); }
+        for(let i=1; i<=20; i++) { let n = i < 10 ? '0'+i : i; adicionarOpcao('VT '+n); }
+        ["EQUIPE SEMAFÓRICA", "SINAL VIDA", "UMT", "SERTELL"].forEach(nome => adicionarOpcao(nome));
     }
 
     function renderizarEquipes(targetContainer, lista, removeCallback) {
@@ -480,7 +468,7 @@
         e.target.value = "";
     };
 
-    // --- FILTRO DE DATA (00:00 LIMPA TELA) ---
+    // --- FILTRO DE DATA ---
     function getDataHojeISO() {
         const hoje = new Date();
         const ano = hoje.getFullYear();
@@ -490,7 +478,6 @@
     }
     const dataFiltro = getDataHojeISO();
 
-    // --- QUERY SEM ORDER BY PARA EVITAR ERRO DE ÍNDICE E GARANTIR QUE APAREÇA ---
     const q = query(
         collection(db, "ocorrencias_sttu"), 
         where("data_filtro", "==", dataFiltro)
@@ -500,23 +487,27 @@
         const tPendentes = document.getElementById('tabelaPendentes').getElementsByTagName('tbody')[0];
         const tConcluidas = document.getElementById('relatorioTable').getElementsByTagName('tbody')[0];
         tPendentes.innerHTML = ""; tConcluidas.innerHTML = "";
+        veiculosOcupados.clear(); // Limpa a lista para recriar
 
-        // CONVERTER SNAPSHOT PARA ARRAY E ORDENAR NO CLIENTE (JScript)
         let listaDocs = [];
-        snapshot.forEach((doc) => {
-            listaDocs.push({ id: doc.id, ...doc.data() });
-        });
+        snapshot.forEach((doc) => listaDocs.push({ id: doc.id, ...doc.data() }));
 
-        // Ordenar do mais recente para o mais antigo
         listaDocs.sort((a, b) => {
             const tA = a.timestamp ? a.timestamp.seconds : 0;
             const tB = b.timestamp ? b.timestamp.seconds : 0;
             return tB - tA; 
         });
 
-        // RENDERIZAR NA TELA
         listaDocs.forEach((d) => {
             const id = d.id;
+            
+            // --- LÓGICA DE BLOQUEIO ---
+            // Se a ocorrência está ENCAMINHADA, as viaturas dela ficam bloqueadas
+            if (d.situacao === 'ENCAMINHADA' && d.equipe) {
+                const vtrs = d.equipe.split(', '); // "VT 01, MT 02"
+                vtrs.forEach(v => veiculosOcupados.add(v.trim()));
+            }
+
             const row = (d.situacao === 'CONCLUÍDA' || d.situacao === 'NÃO ATENDIDA') ? tConcluidas.insertRow() : tPendentes.insertRow();
             
             const campos = [d.numRegistro, d.solicitante, d.contato, d.ocorrencia, d.local, d.detalhamento, d.zona, d.equipe, d.horaEnvio, d.situacao, d.horaFinal, d.resultadoFinal];
@@ -585,6 +576,10 @@
                 acCell.appendChild(btnCon);
             }
         });
+
+        // ATUALIZA A LISTA DE VIATURAS (BLOQUEANDO AS USADAS)
+        popularEquipes('equipeSelect');
+        popularEquipes('editEquipeSelect'); 
     });
 
     window.abrirModalEncaminhar = (id, dados) => {
