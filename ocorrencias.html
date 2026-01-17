@@ -211,7 +211,7 @@
         </table>
     </div>
 
-    <div class="section-title">✅ HISTÓRICO DE OCORRÊNCIAS CONCLUÍDAS</div>
+    <div class="section-title">✅ HISTÓRICO DE OCORRÊNCIAS CONCLUÍDAS (HOJE)</div>
     <div class="table-container container-rolagem">
         <table id="relatorioTable">
             <thead>
@@ -480,7 +480,7 @@
         e.target.value = "";
     };
 
-    // --- FILTRO DE DATA ---
+    // --- FILTRO DE DATA (00:00 LIMPA TELA) ---
     function getDataHojeISO() {
         const hoje = new Date();
         const ano = hoje.getFullYear();
@@ -490,10 +490,10 @@
     }
     const dataFiltro = getDataHojeISO();
 
+    // --- QUERY SEM ORDER BY PARA EVITAR ERRO DE ÍNDICE E GARANTIR QUE APAREÇA ---
     const q = query(
         collection(db, "ocorrencias_sttu"), 
-        where("data_filtro", "==", dataFiltro), 
-        orderBy("timestamp", "desc")
+        where("data_filtro", "==", dataFiltro)
     );
 
     onSnapshot(q, (snapshot) => {
@@ -501,9 +501,22 @@
         const tConcluidas = document.getElementById('relatorioTable').getElementsByTagName('tbody')[0];
         tPendentes.innerHTML = ""; tConcluidas.innerHTML = "";
 
-        snapshot.forEach((docSnap) => {
-            const d = docSnap.data();
-            const id = docSnap.id;
+        // CONVERTER SNAPSHOT PARA ARRAY E ORDENAR NO CLIENTE (JScript)
+        let listaDocs = [];
+        snapshot.forEach((doc) => {
+            listaDocs.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Ordenar do mais recente para o mais antigo
+        listaDocs.sort((a, b) => {
+            const tA = a.timestamp ? a.timestamp.seconds : 0;
+            const tB = b.timestamp ? b.timestamp.seconds : 0;
+            return tB - tA; 
+        });
+
+        // RENDERIZAR NA TELA
+        listaDocs.forEach((d) => {
+            const id = d.id;
             const row = (d.situacao === 'CONCLUÍDA' || d.situacao === 'NÃO ATENDIDA') ? tConcluidas.insertRow() : tPendentes.insertRow();
             
             const campos = [d.numRegistro, d.solicitante, d.contato, d.ocorrencia, d.local, d.detalhamento, d.zona, d.equipe, d.horaEnvio, d.situacao, d.horaFinal, d.resultadoFinal];
@@ -675,7 +688,7 @@
         }
 
         // --- SALVA COM NÚMERO GLOBAL ---
-        const numAtual = document.getElementById('numRegistro').value; // Pega o valor que já foi carregado
+        const numAtual = document.getElementById('numRegistro').value; 
         
         const dados = {
             numRegistro: numAtual,
