@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Ocorrências - STTU</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; color: #333; }
@@ -14,23 +15,12 @@
         .table-container { width: 99%; margin: 0 auto; overflow-x: auto; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         
         /* ROLAGEM INTELIGENTE */
-        .container-rolagem {
-            max-height: 60vh; 
-            overflow-y: auto; 
-        }
-        
-        .container-rolagem th {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2);
-        }
+        .container-rolagem { max-height: 60vh; overflow-y: auto; }
+        .container-rolagem th { position: sticky; top: 0; z-index: 20; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.2); }
 
         table { border-collapse: collapse; width: 100%; min-width: 1600px; table-layout: fixed; }
         th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: left; font-size: 11px; vertical-align: middle; word-wrap: break-word; }
         .data-header { background-color: #eceff1; text-align: center; font-weight: bold; color: #455a64; text-transform: uppercase; font-size: 11px; }
-        
-        /* COLUNAS */
         .col-hist { width: 250px; font-size: 10px; color: #444; background-color: #fffaf0; vertical-align: top; }
         
         /* INPUTS */
@@ -40,12 +30,10 @@
         }
         .campo-obrigatorio { border-left: 4px solid #dc3545 !important; background-color: #fff8f8; }
         .campo-opcional { border-left: 4px solid #27ae60 !important; background-color: #f0fff4; }
-
         .auto-number { background-color: #e3f2fd !important; font-weight: bold; color: #1565c0; text-align: center; }
         
-        /* TITULOS E BOTOES */
+        /* BOTOES */
         .section-title { background-color: #455a64; color: white; padding: 12px; margin-top: 30px; border-radius: 6px 6px 0 0; font-weight: bold; font-size: 14px; }
-        
         .btn { padding: 6px 10px; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; font-size: 11px; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; margin: 2px; }
         .btn-salvar { background-color: #2980b9; color: white; font-size: 14px; padding: 10px 20px; }
         .btn-concluir { background-color: #27ae60; color: white; }
@@ -53,9 +41,6 @@
         .btn-download { background-color: #16a085; color: white; text-decoration: none; padding: 10px; }
         .btn-home { background-color: #7f8c8d; color: white; text-decoration: none; padding: 10px; }
         .btn-sair { background-color: #c0392b; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; }
-        
-        .btn-reset { background-color: #e67e22; color: white; font-size: 10px; padding: 5px; margin-top: 5px; cursor: pointer; border-radius: 3px; border:none; }
-
         .btn-acao-tabela { width: 100%; margin: 2px 0; padding: 4px 0; font-size: 10px; text-align: center; }
 
         /* STATUS */
@@ -66,14 +51,11 @@
         /* EXTRAS */
         .qtc-container { margin-top: 8px; display: none; }
         .qtc-label { font-size: 10px; font-weight: bold; color: #c62828; display: block; }
-
         .subtipo-container { margin-top: 5px; display: none; background: #e3f2fd; padding: 5px; border-radius: 4px; border: 1px dashed #2980b9; }
         .subtipo-label { font-size: 9px; font-weight: bold; color: #2980b9; display: block; margin-bottom: 2px; }
-        
         .chip-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
         .chip { background: #2980b9; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 5px; cursor: pointer; }
         .chip:hover { background: #c0392b; }
-
         .hist-wrapper { max-height: 100px; overflow-y: auto; font-size: 10px; }
         .lista-historico { margin: 0; padding-left: 0; list-style-type: none; }
         .lista-historico li { margin-bottom: 4px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
@@ -130,7 +112,6 @@
                     <tr>
                         <td>
                             <input type="text" id="numRegistro" class="auto-number" readonly>
-                            <button type="button" class="btn-reset" id="btnResetContador">Reiniciar Nº</button>
                         </td>
                         <td><input type="text" id="solicitante" class="campo-obrigatorio" required></td>
                         <td><input type="text" id="contato" class="campo-obrigatorio" required></td>
@@ -259,17 +240,8 @@
     <div class="modal-content">
         <div class="modal-header">EDITAR E ENCAMINHAR OCORRÊNCIA</div>
         <input type="hidden" id="editId">
-        
-        <div class="form-group">
-            <label>SOLICITANTE:</label>
-            <input type="text" id="editSolicitante">
-        </div>
-        
-        <div class="form-group">
-            <label>CONTATO:</label>
-            <input type="text" id="editContato">
-        </div>
-
+        <div class="form-group"><label>SOLICITANTE:</label><input type="text" id="editSolicitante"></div>
+        <div class="form-group"><label>CONTATO:</label><input type="text" id="editContato"></div>
         <div class="form-group">
             <label>OCORRÊNCIA:</label>
             <select id="editOcorrencia">
@@ -286,17 +258,8 @@
                 <option value="OUTROS">OUTROS</option>
             </select>
         </div>
-
-        <div class="form-group">
-            <label>LOCAL:</label>
-            <textarea id="editLocal"></textarea>
-        </div>
-        
-        <div class="form-group">
-            <label>DETALHE:</label>
-            <textarea id="editDetalhamento"></textarea>
-        </div>
-
+        <div class="form-group"><label>LOCAL:</label><textarea id="editLocal"></textarea></div>
+        <div class="form-group"><label>DETALHE:</label><textarea id="editDetalhamento"></textarea></div>
         <div class="form-group">
             <label>REGIÃO:</label>
             <select id="editZona">
@@ -307,20 +270,15 @@
                 <option value="REGIÃO 5">REGIÃO 5</option>
             </select>
         </div>
-
         <div class="form-group">
             <label>EQUIPE(S):</label>
             <select id="editEquipeSelect"></select>
             <div id="editContainerEquipes" class="chip-container"></div>
         </div>
-
         <div class="form-group">
             <label>SITUAÇÃO:</label>
-            <select id="editSituacao">
-                <option value="ENCAMINHADA">ENCAMINHADA</option>
-            </select>
+            <select id="editSituacao"><option value="ENCAMINHADA">ENCAMINHADA</option></select>
         </div>
-        
         <div style="margin-top: 20px; text-align: right;">
             <button class="btn btn-close-modal" onclick="fecharModal()">CANCELAR</button>
             <button class="btn btn-salvar" onclick="confirmarEncaminhamento()">SALVAR E ENCAMINHAR</button>
@@ -331,9 +289,9 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, doc, serverTimestamp, getDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, updateDoc, doc, serverTimestamp, getDoc, arrayUnion, where, setDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-    // --- CONFIGURAÇÃO CORRETA (sttu-registros) ---
+    // --- CONFIGURAÇÃO ---
     const firebaseConfig = {
         apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
         authDomain: "sttu-registros.firebaseapp.com",
@@ -348,18 +306,50 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- SEGURANÇA: VERIFICA LOGIN ---
-    onAuthStateChanged(auth, (user) => {
+    // --- SEGURANÇA + TIMER DE 30 MIN ---
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
-            console.log("Usuário logado:", user.email);
-            // Aqui poderíamos mostrar o email do usuário na tela se quisesse
+            try {
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+
+                    // TIMER DE INATIVIDADE (Exceto Visualizador)
+                    if (dados.cargo !== 'visualizador') {
+                        let tempoInatividade;
+                        const LIMITE_TEMPO = 30 * 60 * 1000; // 30 minutos
+
+                        const resetarTimer = () => {
+                            clearTimeout(tempoInatividade);
+                            tempoInatividade = setTimeout(() => {
+                                alert("⚠️ Sessão encerrada por inatividade (30min).");
+                                signOut(auth).then(() => window.location.href = "login.html");
+                            }, LIMITE_TEMPO);
+                        };
+
+                        window.onload = resetarTimer;
+                        document.onmousemove = resetarTimer;
+                        document.onkeypress = resetarTimer;
+                        document.onclick = resetarTimer;
+                        document.onscroll = resetarTimer;
+                        
+                        console.log("⏳ Timer de segurança ativo.");
+                    }
+                } else {
+                    alert("Erro de cadastro. Contate o suporte.");
+                    await signOut(auth);
+                    window.location.href = "login.html";
+                }
+            } catch (error) {
+                console.error("Erro:", error);
+            }
         } else {
-            // Se não tiver logado, manda pro login
             window.location.href = "login.html";
         }
     });
 
-    // --- BOTÃO DE SAIR ---
     const btnSair = document.getElementById('btnSair');
     if(btnSair) {
         btnSair.onclick = () => {
@@ -373,6 +363,20 @@
     let equipesSelecionadas = [];
     let equipesModal = [];
 
+    // --- BUSCA NÚMERO GLOBAL DO FIREBASE ---
+    async function buscarProximoNumero() {
+        const contadorRef = doc(db, "config", "contador");
+        const docSnap = await getDoc(contadorRef);
+        
+        let proximo = 1;
+        if (docSnap.exists()) {
+            proximo = (docSnap.data().atual || 0) + 1;
+        }
+        
+        document.getElementById('numRegistro').value = String(proximo).padStart(3, '0');
+        return proximo;
+    }
+
     function obterClasseRegiao(zona) {
         if (!zona) return '';
         const z = zona.toUpperCase();
@@ -384,20 +388,12 @@
         return '';
     }
 
-    ['solicitante', 'editSolicitante'].forEach(id => {
+    ['solicitante', 'editSolicitante', 'contato', 'editContato'].forEach(id => {
         const input = document.getElementById(id);
         if(input) {
             input.addEventListener('input', function() {
-                this.value = this.value.replace(/[0-9]/g, '');
-            });
-        }
-    });
-
-    ['contato', 'editContato'].forEach(id => {
-        const input = document.getElementById(id);
-        if(input) {
-            input.addEventListener('input', function() {
-                this.value = this.value.replace(/[a-zA-Z]/g, '');
+                if(id.includes('solicitante')) this.value = this.value.replace(/[0-9]/g, '');
+                if(id.includes('contato')) this.value = this.value.replace(/[a-zA-Z]/g, '');
             });
         }
     });
@@ -408,21 +404,16 @@
         const inputHoraEnvio = document.getElementById('horaEnvio');
         const equipeSelect = document.getElementById('equipeSelect');
         const qtcContainer = document.getElementById('qtcContainer');
-        
         const divSub = document.getElementById('subtipoContainer');
         const selSub = document.getElementById('subtipoSelect');
 
         selSub.innerHTML = ""; 
         if (ocorrencia === "INTERVENÇÃO VIÁRIA") {
             divSub.style.display = "block";
-            ["CORRIDA", "PROCISSÃO", "EVENTO"].forEach(op => {
-                selSub.add(new Option(op, op));
-            });
+            ["CORRIDA", "PROCISSÃO", "EVENTO"].forEach(op => selSub.add(new Option(op, op)));
         } else if (ocorrencia === "INTERVENÇÃO EM VIA") {
             divSub.style.display = "block";
-            ["ALAGAMENTO", "OBRAS", "CRATERAS", "TOMBAMENTO"].forEach(op => {
-                selSub.add(new Option(op, op));
-            });
+            ["ALAGAMENTO", "OBRAS", "CRATERAS", "TOMBAMENTO"].forEach(op => selSub.add(new Option(op, op)));
         } else {
             divSub.style.display = "none";
         }
@@ -433,44 +424,23 @@
             inputHoraEnvio.required = false;
             inputHoraEnvio.classList.remove('campo-obrigatorio');
             inputHoraEnvio.classList.add('campo-opcional');
-            
             equipeSelect.classList.remove('campo-obrigatorio');
             equipeSelect.classList.add('campo-opcional');
         } else {
             inputHoraEnvio.required = true;
             inputHoraEnvio.classList.add('campo-obrigatorio');
             inputHoraEnvio.classList.remove('campo-opcional');
-            
             equipeSelect.classList.add('campo-obrigatorio');
             equipeSelect.classList.remove('campo-opcional');
         }
-
         qtcContainer.style.display = (situacao === 'NÃO ATENDIDA') ? 'block' : 'none';
     };
-
-    window.resetContador = () => {
-        if(confirm("Reiniciar para 001?")) {
-            localStorage.setItem('contadorOcorrencia', 0);
-            atualizarNumeroOcorrencia();
-        }
-    };
-
-    function atualizarNumeroOcorrencia() {
-        let ultimo = localStorage.getItem('contadorOcorrencia') || 0;
-        document.getElementById('numRegistro').value = String(parseInt(ultimo) + 1).padStart(3, '0');
-    }
 
     function popularEquipes(selectId) {
         const sel = document.getElementById(selectId);
         sel.innerHTML = '<option value="">+ ADICIONAR...</option>';
-        for(let i=1; i<=80; i++) {
-            let n = i < 10 ? '0'+i : i;
-            sel.add(new Option('MT '+n, 'MT '+n));
-        }
-        for(let i=1; i<=20; i++) {
-            let n = i < 10 ? '0'+i : i;
-            sel.add(new Option('VT '+n, 'VT '+n));
-        }
+        for(let i=1; i<=80; i++) { let n = i < 10 ? '0'+i : i; sel.add(new Option('MT '+n, 'MT '+n)); }
+        for(let i=1; i<=20; i++) { let n = i < 10 ? '0'+i : i; sel.add(new Option('VT '+n, 'VT '+n)); }
         ["EQUIPE SEMAFÓRICA", "SINAL VIDA", "UMT", "SERTELL"].forEach(nome => sel.add(new Option(nome, nome)));
     }
 
@@ -510,7 +480,22 @@
         e.target.value = "";
     };
 
-    const q = query(collection(db, "ocorrencias_sttu"), orderBy("timestamp", "desc"));
+    // --- FILTRO DE DATA ---
+    function getDataHojeISO() {
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        return `${ano}-${mes}-${dia}`;
+    }
+    const dataFiltro = getDataHojeISO();
+
+    const q = query(
+        collection(db, "ocorrencias_sttu"), 
+        where("data_filtro", "==", dataFiltro), 
+        orderBy("timestamp", "desc")
+    );
+
     onSnapshot(q, (snapshot) => {
         const tPendentes = document.getElementById('tabelaPendentes').getElementsByTagName('tbody')[0];
         const tConcluidas = document.getElementById('relatorioTable').getElementsByTagName('tbody')[0];
@@ -526,11 +511,7 @@
             campos.forEach((txt, idx) => {
                 const cell = row.insertCell();
                 let conteudo = String(txt || "").replace(/\n/g, '<br>');
-                
-                if (idx === 6) {
-                    cell.className = obterClasseRegiao(txt);
-                }
-
+                if (idx === 6) cell.className = obterClasseRegiao(txt);
                 if(idx === 9) { 
                     if (txt === 'CONCLUÍDA') cell.className = 'status-concluida';
                     else if (txt === 'ENCAMINHADA') cell.className = 'status-encaminhada';
@@ -541,7 +522,6 @@
 
             const cellHist = row.insertCell();
             cellHist.className = 'col-hist';
-
             const divWrapper = document.createElement('div');
             divWrapper.className = 'hist-wrapper';
             const lista = document.createElement('ul');
@@ -564,11 +544,8 @@
             logsParaExibir.forEach(log => {
                 const item = document.createElement('li');
                 const parts = log.match(/^\[(.*?)\] (.*)/);
-                if(parts) {
-                    item.innerHTML = `<span class="hist-data">${parts[1]}</span><span class="hist-detalhe">${parts[2]}</span>`;
-                } else {
-                    item.innerText = log;
-                }
+                if(parts) item.innerHTML = `<span class="hist-data">${parts[1]}</span><span class="hist-detalhe">${parts[2]}</span>`;
+                else item.innerText = log;
                 lista.appendChild(item);
             });
 
@@ -605,26 +582,20 @@
         document.getElementById('editLocal').value = dados.local;
         document.getElementById('editDetalhamento').value = dados.detalhamento;
         document.getElementById('editZona').value = dados.zona;
-        
         document.getElementById('editSituacao').value = 'ENCAMINHADA';
-        
         equipesModal = dados.equipe ? dados.equipe.split(", ") : [];
         renderizarEquipes('editContainerEquipes', equipesModal, (r) => {
             equipesModal = equipesModal.filter(i => i !== r);
             renderizarEquipes('editContainerEquipes', equipesModal, (r) => equipesModal = equipesModal.filter(i => i !== r));
         });
-
         document.getElementById('modalEncaminhar').style.display = 'flex';
     };
 
-    window.fecharModal = () => {
-        document.getElementById('modalEncaminhar').style.display = 'none';
-    };
+    window.fecharModal = () => document.getElementById('modalEncaminhar').style.display = 'none';
 
     window.confirmarEncaminhamento = async () => {
         const id = document.getElementById('editId').value;
         const novaHora = String(new Date().getHours()).padStart(2,'0') + ":" + String(new Date().getMinutes()).padStart(2,'0');
-        
         const docRef = doc(db, "ocorrencias_sttu", id);
         const docSnap = await getDoc(docRef);
         const antigos = docSnap.data();
@@ -641,7 +612,6 @@
         };
 
         let mudancas = [];
-        
         if (antigos.equipe !== novos.equipe) mudancas.push(`Equipe: ${antigos.equipe || 'SEM EQUIPE'} ➔ ${novos.equipe}`);
         if (antigos.zona !== novos.zona) mudancas.push(`Zona: ${antigos.zona} ➔ ${novos.zona}`);
         if (antigos.local !== novos.local) mudancas.push(`Local alterado`);
@@ -649,37 +619,19 @@
         if (antigos.detalhamento !== novos.detalhamento) mudancas.push(`Detalhe atualizado`);
         if (antigos.solicitante !== novos.solicitante) mudancas.push(`Solicitante alterado`);
         if (antigos.contato !== novos.contato) mudancas.push(`Contato alterado`);
-
         if (mudancas.length === 0) mudancas.push("Reencaminhado sem alterações");
 
-        const logMsg = `[${novaHora}] ${mudancas.join(" | ")}`;
-
-        await updateDoc(docRef, {
-            ...novos, 
-            horaEnvio: novaHora, 
-            historicoLogs: arrayUnion(logMsg)
-        });
-
+        await updateDoc(docRef, { ...novos, horaEnvio: novaHora, historicoLogs: arrayUnion(`[${novaHora}] ${mudancas.join(" | ")}`) });
         alert("✅ Atualizado com sucesso!");
         fecharModal();
     };
 
     async function concluirOcorrencia(id, dadosAntigos) {
         let res = prompt("RESULTADO FINAL / MOTIVO QTC (OBRIGATÓRIO PARA CONCLUIR):", dadosAntigos.resultadoFinal || "");
-
         if (res === null) return;
-
-        if (res.trim() === "") {
-            alert("⚠️ ERRO: Para concluir a ocorrência, é OBRIGATÓRIO escrever o Resultado Final.");
-            return;
-        }
-
+        if (res.trim() === "") { alert("⚠️ ERRO: É OBRIGATÓRIO escrever o Resultado Final."); return; }
         const hF = String(new Date().getHours()).padStart(2,'0') + ":" + String(new Date().getMinutes()).padStart(2,'0');
-        await updateDoc(doc(db, "ocorrencias_sttu", id), {
-            situacao: 'CONCLUÍDA',
-            resultadoFinal: res.toUpperCase(),
-            horaFinal: hF
-        });
+        await updateDoc(doc(db, "ocorrencias_sttu", id), { situacao: 'CONCLUÍDA', resultadoFinal: res.toUpperCase(), horaFinal: hF });
         alert("✅ Ocorrência concluída com sucesso!");
     }
 
@@ -700,35 +652,33 @@
         const divSub = document.getElementById('subtipoContainer');
         if (divSub.style.display === 'block') {
             const subtipo = document.getElementById('subtipoSelect').value;
-            if (subtipo) {
-                ocorrencia = `${ocorrencia} (${subtipo})`;
-            }
+            if (subtipo) ocorrencia = `${ocorrencia} (${subtipo})`;
         }
 
         const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA");
 
         if (!solicitante || !contato || !ocorrencia || !local || !detalhamento || !zona || !situacao) {
-            alert("⚠️ Preencha os campos básicos obrigatórios, incluindo a SITUAÇÃO!"); return;
+            alert("⚠️ Preencha os campos básicos obrigatórios!"); return;
         }
 
         if (!isExcecao) {
-            if (!horaEnvio) { alert("⚠️ Hora de Envio é obrigatória para esta ocorrência!"); return; }
+            if (!horaEnvio) { alert("⚠️ Hora de Envio é obrigatória!"); return; }
             if (equipesSelecionadas.length === 0) { alert("⚠️ Selecione pelo menos uma EQUIPE!"); return; }
         }
 
         if (situacao === 'CONCLUÍDA') {
-            if (!resultadoFinal) {
-                alert("⚠️ Para registrar como CONCLUÍDA, é OBRIGATÓRIO preencher o campo RESULTADO FINAL!");
-                return;
-            }
+            if (!resultadoFinal) { alert("⚠️ Para CONCLUÍDA, preencha o RESULTADO FINAL!"); return; }
             if (!horaFinalValor) {
                 const agora = new Date();
                 horaFinalValor = String(agora.getHours()).padStart(2, '0') + ":" + String(agora.getMinutes()).padStart(2, '0');
             }
         }
 
+        // --- SALVA COM NÚMERO GLOBAL ---
+        const numAtual = document.getElementById('numRegistro').value; // Pega o valor que já foi carregado
+        
         const dados = {
-            numRegistro: document.getElementById('numRegistro').value,
+            numRegistro: numAtual,
             solicitante: solicitante.toUpperCase(),
             contato: contato.toUpperCase(),
             ocorrencia: ocorrencia,
@@ -741,29 +691,31 @@
             horaFinal: horaFinalValor,
             resultadoFinal: resultadoFinal.toUpperCase(),
             timestamp: serverTimestamp(),
+            data_filtro: getDataHojeISO(), 
             historicoLogs: [] 
         };
 
         await addDoc(collection(db, "ocorrencias_sttu"), dados);
-        localStorage.setItem('contadorOcorrencia', dados.numRegistro);
         
+        // ATUALIZA O CONTADOR NO BANCO
+        const contadorRef = doc(db, "config", "contador");
+        await setDoc(contadorRef, { atual: parseInt(numAtual) }, { merge: true });
+
         document.getElementById('registroForm').reset();
         equipesSelecionadas = [];
-        renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => {
-             equipesSelecionadas = equipesSelecionadas.filter(i => i !== r);
-             renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => equipesSelecionadas = equipesSelecionadas.filter(i => i !== r));
-        });
+        renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => equipesSelecionadas = []);
         
-        atualizarNumeroOcorrencia();
         popularEquipes('equipeSelect');
         window.verificarRegrasObrigatoriedade();
+        
+        // Puxa o próximo número para a próxima ocorrência
+        buscarProximoNumero();
     };
 
-    atualizarNumeroOcorrencia();
+    // Inicialização
+    buscarProximoNumero();
     popularEquipes('equipeSelect');
     popularEquipes('editEquipeSelect'); 
-    
-    document.getElementById('btnResetContador').onclick = window.resetContador;
     
     document.getElementById('btnDownloadCSV').onclick = () => {
         const table = document.getElementById('relatorioTable');
