@@ -2,9 +2,12 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório Oficial - STTU</title>
+    <title>Relatório Geral - STTU</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; display: flex; flex-direction: column; align-items: center; padding: 30px; }
@@ -12,8 +15,11 @@
         h1 { color: #2c3e50; margin-bottom: 10px; }
         p { color: #7f8c8d; font-size: 14px; margin-bottom: 30px; }
         
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; text-align: left; }
-        input[type="date"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; margin-bottom: 20px; }
+        .date-group { display: flex; gap: 10px; justify-content: space-between; margin-bottom: 20px; }
+        .date-item { flex: 1; text-align: left; }
+        
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; font-size: 12px; }
+        input[type="date"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
         
         .btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; display: block; margin-bottom: 10px; text-decoration: none; }
         
@@ -25,24 +31,32 @@
 
         .btn-voltar { background-color: #7f8c8d; margin-top: 10px; }
 
-        .loading { display: none; color: #e67e22; font-weight: bold; margin-top: 15px; }
+        .loading { display: none; color: #e67e22; font-weight: bold; margin-top: 15px; font-size: 13px; }
         .aviso-anexo { font-size: 11px; color: #d35400; background: #fae5d3; padding: 5px; border-radius: 4px; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h1>📑 Relatório Oficial</h1>
-        <p>Gera o PDF com timbre da STTU e assinaturas dos responsáveis.</p>
+        <h1>📑 Relatórios Individuais</h1>
+        <p>Gera um arquivo ZIP contendo um PDF separado para cada dia do período.</p>
 
-        <label>Selecione a Data do Relatório:</label>
-        <input type="date" id="dataRelatorio">
+        <div class="date-group">
+            <div class="date-item">
+                <label>DE (Início):</label>
+                <input type="date" id="dataInicio">
+            </div>
+            <div class="date-item">
+                <label>ATÉ (Fim):</label>
+                <input type="date" id="dataFim">
+            </div>
+        </div>
 
-        <button class="btn btn-gerar" id="btnGerarPDF">1º BAIXAR PDF OFICIAL</button>
-        <div id="msgLoading" class="loading">⏳ Processando dados...</div>
+        <button class="btn btn-gerar" id="btnGerarPDF">1º BAIXAR PASTA ZIP</button>
+        <div id="msgLoading" class="loading">⏳ Processando dias...</div>
         
         <div id="areaEmail" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px; display: none;">
-            <div class="aviso-anexo">⚠️ ATENÇÃO: Ao abrir o e-mail, não esqueça de <b>ANEXAR O ARQUIVO PDF</b> que você acabou de baixar.</div>
+            <div class="aviso-anexo">⚠️ ATENÇÃO: Ao abrir o e-mail, anexe o arquivo <b>.ZIP</b> que foi baixado.</div>
             <a id="btnEnviarEmail" class="btn btn-email" target="_blank">2º ENVIAR PARA COTTSTTU@GMAIL.COM</a>
         </div>
 
@@ -51,8 +65,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
@@ -68,188 +82,189 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Data de hoje padrão
         const hoje = new Date().toISOString().split('T')[0];
-        document.getElementById('dataRelatorio').value = hoje;
+        document.getElementById('dataInicio').value = hoje;
+        document.getElementById('dataFim').value = hoje;
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = "login.html";
+        // --- SEGURANÇA + TIMER DE 30 MIN ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    const docRef = doc(db, "usuarios", user.uid);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const dados = docSnap.data();
+
+                        if (dados.cargo !== 'visualizador') {
+                            let tempoInatividade;
+                            const LIMITE_TEMPO = 30 * 60 * 1000; 
+
+                            const resetarTimer = () => {
+                                clearTimeout(tempoInatividade);
+                                tempoInatividade = setTimeout(() => {
+                                    alert("⚠️ Sessão encerrada por inatividade (30min).");
+                                    signOut(auth).then(() => window.location.href = "login.html");
+                                }, LIMITE_TEMPO);
+                            };
+
+                            window.onload = resetarTimer;
+                            document.onmousemove = resetarTimer;
+                            document.onkeypress = resetarTimer;
+                            document.onclick = resetarTimer;
+                            document.onscroll = resetarTimer;
+                            
+                            console.log("⏳ Timer de segurança ativo.");
+                        }
+                    } else {
+                        alert("Erro de cadastro.");
+                        await signOut(auth);
+                        window.location.href = "login.html";
+                    }
+                } catch (error) { console.error(error); }
+            } else {
+                window.location.href = "login.html";
+            }
         });
 
-        document.getElementById('btnGerarPDF').onclick = async () => {
-            const dataInput = document.getElementById('dataRelatorio').value;
-            if(!dataInput) return alert("Selecione uma data.");
+        function formatarDataBR(dataISO) {
+            const partes = dataISO.split('-');
+            return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        }
 
-            const partesData = dataInput.split('-');
-            const dataFormatadaBR = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
+        function getDatesInRange(startDate, endDate) {
+            const date = new Date(startDate);
+            const end = new Date(endDate);
+            const dates = [];
+            date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+            end.setMinutes(end.getMinutes() + end.getTimezoneOffset());
+            while (date <= end) {
+                dates.push(new Date(date).toISOString().split('T')[0]);
+                date.setDate(date.getDate() + 1);
+            }
+            return dates;
+        }
+
+        document.getElementById('btnGerarPDF').onclick = async () => {
+            const dataIni = document.getElementById('dataInicio').value;
+            const dataFim = document.getElementById('dataFim').value;
+
+            if(!dataIni || !dataFim) return alert("Selecione a data inicial e final.");
+            if(dataIni > dataFim) return alert("A data inicial não pode ser maior que a final.");
 
             document.getElementById('msgLoading').style.display = 'block';
             document.getElementById('btnGerarPDF').disabled = true;
             document.getElementById('areaEmail').style.display = 'none';
 
+            const diasParaProcessar = getDatesInRange(dataIni, dataFim);
+            const { jsPDF } = window.jspdf;
+            const zip = new JSZip();
+
             try {
-                // 2. Busca Dados
-                const startOfDay = new Date(dataInput + "T00:00:00");
-                const endOfDay = new Date(dataInput + "T23:59:59");
-                
-                // Ocorrências
-                const qOcorrencias = query(collection(db, "ocorrencias_sttu"), orderBy("timestamp", "desc"));
-                const snapOcorrencias = await getDocs(qOcorrencias);
-                const listaOcorrencias = [];
-                snapOcorrencias.forEach(doc => {
-                    const d = doc.data();
-                    if(d.timestamp) {
-                        const dataDoc = d.timestamp.toDate();
-                        if(dataDoc >= startOfDay && dataDoc <= endOfDay) listaOcorrencias.push(d);
-                    }
-                });
+                for (let i = 0; i < diasParaProcessar.length; i++) {
+                    const diaAtualISO = diasParaProcessar[i];
+                    const diaAtualBR = formatarDataBR(diaAtualISO);
+                    document.getElementById('msgLoading').innerText = `⏳ Gerando PDF do dia ${diaAtualBR}...`;
 
-                // Agentes
-                const qAgentes = query(collection(db, "historico_agentes"), where("dataRelatorio", "==", dataFormatadaBR));
-                const qAgentesAtivos = query(collection(db, "ativos_agentes"), where("dataRelatorio", "==", dataFormatadaBR));
-                const snapAgentes = await getDocs(qAgentes);
-                const snapAgentesAtivos = await getDocs(qAgentesAtivos);
-                let listaAgentes = [];
-                snapAgentes.forEach(doc => listaAgentes.push({ ...doc.data(), status: "ENCERRADO" }));
-                snapAgentesAtivos.forEach(doc => listaAgentes.push({ ...doc.data(), status: "EM OPERAÇÃO" }));
+                    const doc = new jsPDF();
+                    const startOfDay = new Date(diaAtualISO + "T00:00:00");
+                    const endOfDay = new Date(diaAtualISO + "T23:59:59");
 
-                // Observações
-                const qObs = query(collection(db, "observacoes_sttu"), orderBy("timestamp", "desc"));
-                const snapObs = await getDocs(qObs);
-                const listaObs = [];
-                snapObs.forEach(doc => {
-                    const d = doc.data();
-                    if(d.timestamp) {
-                        const dataDoc = d.timestamp.toDate();
-                        if(dataDoc >= startOfDay && dataDoc <= endOfDay) listaObs.push(d);
-                    }
-                });
-
-                // 3. Monta o PDF
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                const pageWidth = doc.internal.pageSize.width;
-                const pageHeight = doc.internal.pageSize.height;
-
-                let finalY = 40; 
-
-                // --- TABELA 1: AGENTES ---
-                doc.setFontSize(12); doc.setTextColor(0); doc.setFont("helvetica", "bold");
-                doc.text("1. CONTROLE DE AGENTES E FROTA", 14, finalY);
-                finalY += 5;
-
-                if (listaAgentes.length > 0) {
-                    const bodyAgentes = listaAgentes.map(a => [a.veiculo, a.agente.replace(/\n/g, ", "), a.horaInicio, a.horaFim || "---", a.zona, a.status]);
-                    doc.autoTable({
-                        startY: finalY,
-                        head: [['VTR', 'Equipe', 'Início', 'Fim', 'Região', 'Situação']],
-                        body: bodyAgentes,
-                        theme: 'grid',
-                        headStyles: { fillColor: [52, 73, 94] },
-                        styles: { fontSize: 8 },
-                        margin: { top: 40, bottom: 40 }
+                    // 1. Ocorrências
+                    const qOcorrencias = query(collection(db, "ocorrencias_sttu"), orderBy("timestamp", "desc"));
+                    const snapOcorrencias = await getDocs(qOcorrencias);
+                    const listaOcorrencias = [];
+                    snapOcorrencias.forEach(doc => {
+                        const d = doc.data();
+                        if(d.timestamp) {
+                            const dataDoc = d.timestamp.toDate();
+                            if(dataDoc >= startOfDay && dataDoc <= endOfDay) listaOcorrencias.push(d);
+                        }
                     });
-                    finalY = doc.lastAutoTable.finalY + 15;
-                } else {
-                    doc.setFontSize(10); doc.setFont("helvetica", "normal");
-                    doc.text("(Sem registros)", 14, finalY + 5); finalY += 15;
-                }
 
-                // --- TABELA 2: OCORRÊNCIAS ---
-                doc.setFontSize(12); doc.setFont("helvetica", "bold");
-                doc.text("2. OCORRÊNCIAS REGISTRADAS", 14, finalY); finalY += 5;
-                if (listaOcorrencias.length > 0) {
-                    const bodyOc = listaOcorrencias.map(o => [o.numRegistro || "-", o.horaEnvio, o.ocorrencia, o.local, o.equipe, o.situacao, o.resultadoFinal || ""]);
-                    doc.autoTable({
-                        startY: finalY,
-                        head: [['Nº', 'Hora', 'Tipo', 'Local', 'VTR', 'Situação', 'Resultado']],
-                        body: bodyOc,
-                        theme: 'grid',
-                        headStyles: { fillColor: [192, 57, 43] },
-                        styles: { fontSize: 7 },
-                        margin: { top: 40, bottom: 40 }
+                    // 2. Agentes
+                    const qAgentes = query(collection(db, "historico_agentes"), where("dataRelatorio", "==", diaAtualBR));
+                    const qAgentesAtivos = query(collection(db, "ativos_agentes"), where("dataRelatorio", "==", diaAtualBR));
+                    const snapAgentes = await getDocs(qAgentes);
+                    const snapAgentesAtivos = await getDocs(qAgentesAtivos);
+                    let listaAgentes = [];
+                    snapAgentes.forEach(doc => listaAgentes.push({ ...doc.data(), status: "ENCERRADO" }));
+                    snapAgentesAtivos.forEach(doc => listaAgentes.push({ ...doc.data(), status: "EM OPERAÇÃO" }));
+
+                    // 3. Observações
+                    const qObs = query(collection(db, "observacoes_sttu"), orderBy("timestamp", "desc"));
+                    const snapObs = await getDocs(qObs);
+                    const listaObs = [];
+                    snapObs.forEach(doc => {
+                        const d = doc.data();
+                        if(d.timestamp) {
+                            const dataDoc = d.timestamp.toDate();
+                            if(dataDoc >= startOfDay && dataDoc <= endOfDay) listaObs.push(d);
+                        }
                     });
-                    finalY = doc.lastAutoTable.finalY + 15;
-                } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15; }
 
-                // --- TABELA 3: OBSERVAÇÕES ---
-                if (finalY > pageHeight - 60) { doc.addPage(); finalY = 40; }
-                
-                doc.setFontSize(12); doc.setFont("helvetica", "bold");
-                doc.text("3. LIVRO DE PLANTÃO", 14, finalY); finalY += 5;
-                if (listaObs.length > 0) {
-                    const bodyObs = listaObs.map(obs => [new Date(obs.timestamp.seconds * 1000).toLocaleTimeString('pt-BR'), obs.texto]);
-                    doc.autoTable({
-                        startY: finalY,
-                        head: [['Hora', 'Descrição']],
-                        body: bodyObs,
-                        theme: 'striped',
-                        headStyles: { fillColor: [127, 140, 141] },
-                        columnStyles: { 0: { cellWidth: 20 } },
-                        styles: { fontSize: 8 },
-                        margin: { top: 40, bottom: 40 }
-                    });
-                } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); }
-
-                // --- ADICIONA CABEÇALHO E RODAPÉ EM TODAS AS PÁGINAS ---
-                const totalPages = doc.internal.getNumberOfPages();
-
-                for (let i = 1; i <= totalPages; i++) {
-                    doc.setPage(i);
-
-                    // === CABEÇALHO (NOVO) ===
-                    doc.setFontSize(14);
-                    doc.setTextColor(44, 62, 80); // Azul escuro
-                    doc.setFont("helvetica", "bold");
-                    
-                    // Texto centralizado e quebrado em duas linhas se precisar
-                    // O splitTextToSize quebra o texto para caber em 180mm (largura da página - margens)
+                    let finalY = 40; 
+                    doc.setFontSize(14); doc.setTextColor(44, 62, 80); doc.setFont("helvetica", "bold");
                     const titulo = "RELATÓRIO DE REGISTROS DA CENTRAL DE OPERAÇÕES DE TRÂNSITO E TRANSPORTE";
                     const linhasTitulo = doc.splitTextToSize(titulo, 180);
-                    
                     doc.text(linhasTitulo, 105, 15, { align: "center" });
-                    
-                    // Subtítulo com a data
-                    doc.setFontSize(10);
-                    doc.setTextColor(100);
-                    doc.setFont("helvetica", "normal");
-                    doc.text(`DATA: ${dataFormatadaBR}`, 105, 28, { align: "center" });
-                    
-                    // Linha separadora
-                    doc.setDrawColor(200, 200, 200);
-                    doc.line(14, 32, 196, 32); 
+                    doc.setFontSize(10); doc.setTextColor(100); doc.setFont("helvetica", "normal");
+                    doc.text(`DATA: ${diaAtualBR}`, 105, 28, { align: "center" });
+                    doc.setDrawColor(200, 200, 200); doc.line(14, 32, 196, 32); 
 
-                    // === RODAPÉ (ASSINATURAS) ===
-                    const footerY = pageHeight - 25;
-                    doc.line(14, footerY - 5, 196, footerY - 5);
+                    doc.setFontSize(12); doc.setTextColor(0); doc.setFont("helvetica", "bold");
+                    doc.text("1. CONTROLE DE AGENTES E FROTA", 14, finalY); finalY += 5;
+                    if (listaAgentes.length > 0) {
+                        const bodyAgentes = listaAgentes.map(a => [a.veiculo, a.agente.replace(/\n/g, ", "), a.horaInicio, a.horaFim || "---", a.zona, a.status]);
+                        doc.autoTable({ startY: finalY, head: [['VTR', 'Equipe', 'Início', 'Fim', 'Região', 'Situação']], body: bodyAgentes, theme: 'grid', headStyles: { fillColor: [52, 73, 94] }, styles: { fontSize: 8 }, margin: { bottom: 40 } });
+                        finalY = doc.lastAutoTable.finalY + 15;
+                    } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15; }
 
-                    doc.setFontSize(8);
-                    doc.setTextColor(0);
-                    
-                    // Esquerda
-                    doc.setFont("helvetica", "bold");
-                    doc.text("Carmozina Dantas", 14, footerY + 5);
-                    doc.setFont("helvetica", "normal");
-                    doc.text("Responsável pelo setor de atendimento da COTT", 14, footerY + 9);
+                    doc.setFontSize(12); doc.setFont("helvetica", "bold");
+                    doc.text("2. OCORRÊNCIAS REGISTRADAS", 14, finalY); finalY += 5;
+                    if (listaOcorrencias.length > 0) {
+                        const bodyOc = listaOcorrencias.map(o => [o.numRegistro || "-", o.horaEnvio, o.ocorrencia, o.local, o.equipe, o.situacao, o.resultadoFinal || ""]);
+                        doc.autoTable({ startY: finalY, head: [['Nº', 'Hora', 'Tipo', 'Local', 'VTR', 'Situação', 'Resultado']], body: bodyOc, theme: 'grid', headStyles: { fillColor: [192, 57, 43] }, styles: { fontSize: 7 }, margin: { bottom: 40 } });
+                        finalY = doc.lastAutoTable.finalY + 15;
+                    } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15; }
 
-                    // Direita
-                    doc.setFont("helvetica", "bold");
-                    doc.text("Kleber Silvestre Lustosa", 196, footerY + 5, { align: 'right' });
-                    doc.setFont("helvetica", "normal");
-                    doc.text("Inspetor da COTT", 196, footerY + 9, { align: 'right' });
+                    const pageHeight = doc.internal.pageSize.height;
+                    if (finalY > pageHeight - 60) { doc.addPage(); finalY = 40; }
+                    doc.setFontSize(12); doc.setFont("helvetica", "bold");
+                    doc.text("3. LIVRO DE PLANTÃO", 14, finalY); finalY += 5;
+                    if (listaObs.length > 0) {
+                        const bodyObs = listaObs.map(obs => [new Date(obs.timestamp.seconds * 1000).toLocaleTimeString('pt-BR'), obs.texto]);
+                        doc.autoTable({ startY: finalY, head: [['Hora', 'Descrição']], body: bodyObs, theme: 'striped', headStyles: { fillColor: [127, 140, 141] }, columnStyles: { 0: { cellWidth: 20 } }, styles: { fontSize: 8 }, margin: { bottom: 40 } });
+                    } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); }
 
-                    // Paginação
-                    doc.setFontSize(7);
-                    doc.setTextColor(150);
-                    doc.text(`Página ${i} de ${totalPages}`, 105, pageHeight - 5, { align: "center" });
+                    const totalPages = doc.internal.getNumberOfPages();
+                    for (let p = 1; p <= totalPages; p++) {
+                        doc.setPage(p);
+                        const footerY = pageHeight - 25;
+                        doc.line(14, footerY - 5, 196, footerY - 5);
+                        doc.setFontSize(8); doc.setTextColor(0);
+                        doc.setFont("helvetica", "bold");
+                        doc.text("Carmozina Régia de Melo Dantas", 14, footerY + 5);
+                        doc.setFont("helvetica", "normal");
+                        doc.text("Responsável pelo setor de atendimento da COTT", 14, footerY + 9);
+                        doc.setFont("helvetica", "bold");
+                        doc.text("Kleber Silvestre Lustosa", 196, footerY + 5, { align: 'right' });
+                        doc.setFont("helvetica", "normal");
+                        doc.text("Inspetor da COTT", 196, footerY + 9, { align: 'right' });
+                        doc.setFontSize(7); doc.setTextColor(150);
+                        doc.text(`Página ${p} de ${totalPages}`, 105, pageHeight - 5, { align: "center" });
+                    }
+                    const nomeArquivo = `Relatorio_STTU_${diaAtualBR.replace(/\//g, '-')}.pdf`;
+                    zip.file(nomeArquivo, doc.output('blob'));
                 }
 
-                // Salvar
-                doc.save(`Relatorio_STTU_${dataInput}.pdf`);
+                document.getElementById('msgLoading').innerText = "⏳ Compactando arquivos...";
+                const content = await zip.generateAsync({type:"blob"});
+                const nomeZip = dataIni === dataFim ? `Relatorio_${formatarDataBR(dataIni).replace(/\//g, '-')}.zip` : `Relatorios_${formatarDataBR(dataIni).replace(/\//g, '-')}_a_${formatarDataBR(dataFim).replace(/\//g, '-')}.zip`;
+                saveAs(content, nomeZip);
 
-                // Preparar botão de email
-                const assunto = `RELATÓRIO STTU - ${dataFormatadaBR}`;
-                const corpo = `Segue em anexo o relatório oficial do dia ${dataFormatadaBR}.\n\nAtt,\nEquipe STTU`;
+                const assunto = `RELATÓRIOS STTU - PERÍODO ${formatarDataBR(dataIni)} A ${formatarDataBR(dataFim)}`;
+                const corpo = `Segue em anexo os relatórios do período (arquivo ZIP).\n\nAtt,\nEquipe STTU`;
                 const linkGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=cottsttu@gmail.com&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
                 
                 document.getElementById('btnEnviarEmail').href = linkGmail;
@@ -257,11 +272,11 @@
                 document.querySelector('.btn-email').style.display = 'block';
                 document.querySelector('.aviso-anexo').style.display = 'block';
 
-                alert("✅ PDF Oficial Gerado!\n\nConfira o arquivo baixado com o título e as assinaturas.");
+                alert("✅ Arquivo ZIP gerado com sucesso!");
 
             } catch (error) {
                 console.error(error);
-                alert("Erro: " + error.message);
+                alert("Erro ao gerar: " + error.message);
             } finally {
                 document.getElementById('msgLoading').style.display = 'none';
                 document.getElementById('btnGerarPDF').disabled = false;
