@@ -92,7 +92,6 @@
             <div style="background: #fff; padding: 10px; border: 2px solid #2c3e50; border-top: none; display: flex; gap: 10px; align-items: center;">
                 <input type="text" id="agente-turno-nome" list="listaAgentes" placeholder="NOME COMPLETO DO AGENTE" style="flex: 3; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
                 <input type="text" id="agente-turno-matricula" placeholder="MATRÍCULA" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;">
-                
                 <datalist id="listaAgentes"></datalist>
             </div>
             
@@ -378,10 +377,11 @@
 
     const dataFiltro = getDataHojeISO();
     
+    // --- QUERY CORRIGIDA: SEM ORDER BY PARA EVITAR ERRO DE ÍNDICE ---
     const q = query(
         collection(db, "observacoes_sttu"), 
-        where("data_filtro", "==", dataFiltro),
-        orderBy("timestamp", "desc")
+        where("data_filtro", "==", dataFiltro)
+        // orderBy("timestamp", "desc") <-- REMOVIDO PARA FUNCIONAR SEM ÍNDICE
     );
 
     onSnapshot(q, (snapshot) => {
@@ -393,9 +393,21 @@
             return;
         }
 
-        snapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const id = docSnap.id;
+        // CONVERTER PARA ARRAY E ORDENAR NO JAVASCRIPT (CLIENT-SIDE)
+        let registros = [];
+        snapshot.forEach(doc => {
+            registros.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Ordenar do mais recente para o mais antigo (Timestamp Descendente)
+        registros.sort((a, b) => {
+            const tA = a.timestamp ? a.timestamp.seconds : 0;
+            const tB = b.timestamp ? b.timestamp.seconds : 0;
+            return tB - tA; // Decrescente
+        });
+
+        registros.forEach(data => {
+            const id = data.id;
             const horaFormatada = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString('pt-BR') : "Processando...";
             
             const item = document.createElement('div');
