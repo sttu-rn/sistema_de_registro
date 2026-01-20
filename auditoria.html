@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Auditoria - STTU</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .header { background: #2c3e50; color: white; padding: 15px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        h2 { margin: 0; }
+        
+        .container { margin-top: 20px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #34495e; color: white; position: sticky; top: 0; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .acao-criar { color: #27ae60; font-weight: bold; }
+        .acao-editar { color: #e67e22; font-weight: bold; }
+        .acao-excluir { color: #c0392b; font-weight: bold; }
+        
+        .filtro-box { margin-bottom: 15px; display: flex; gap: 10px; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 8px 15px; background: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2471a3; }
+        
+        #avisoCarregando { text-align: center; color: #7f8c8d; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>👁️ Auditoria do Sistema (Registro de Logs)</h2>
+        <button onclick="window.location.href='index.html'" style="background:#c0392b;">Voltar</button>
+    </div>
+
+    <div class="container">
+        <div class="filtro-box">
+            <input type="text" id="filtroUsuario" placeholder="Filtrar por Usuário...">
+            <input type="text" id="filtroAcao" placeholder="Filtrar por Ação (Ex: Criar, Editar)...">
+            <button onclick="carregarLogs()">Atualizar Lista</button>
+        </div>
+
+        <div id="avisoCarregando">Carregando histórico completo...</div>
+
+        <table id="tabelaLogs">
+            <thead>
+                <tr>
+                    <th style="width: 150px;">DATA / HORA</th>
+                    <th style="width: 200px;">USUÁRIO (AGENTE)</th>
+                    <th style="width: 150px;">TIPO AÇÃO</th>
+                    <th>DETALHES DA OPERAÇÃO</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
+            authDomain: "sttu-registros.firebaseapp.com",
+            projectId: "sttu-registros",
+            storageBucket: "sttu-registros.firebasestorage.app",
+            messagingSenderId: "785219239564",
+            appId: "1:785219239564:web:4b8175a8d7ccceba06c5a9",
+            measurementId: "G-C7PSE7YFRG"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Verifica se é Admin
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const docSnap = await getDoc(doc(db, "usuarios", user.uid));
+                if (docSnap.exists() && docSnap.data().cargo === 'admin') {
+                    carregarLogs();
+                } else {
+                    alert("Acesso restrito a administradores.");
+                    window.location.href = "index.html";
+                }
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        window.carregarLogs = async () => {
+            const tbody = document.getElementById('tabelaLogs').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = "";
+            document.getElementById('avisoCarregando').style.display = 'block';
+
+            // Pega os últimos 100 logs
+            const q = query(collection(db, "logs_auditoria"), orderBy("timestamp", "desc"), limit(100));
+            const snapshot = await getDocs(q);
+
+            document.getElementById('avisoCarregando').style.display = 'none';
+
+            const filtroUser = document.getElementById('filtroUsuario').value.toUpperCase();
+            const filtroAcao = document.getElementById('filtroAcao').value.toUpperCase();
+
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                
+                // Filtro simples no front
+                if(filtroUser && !d.usuario.toUpperCase().includes(filtroUser)) return;
+                if(filtroAcao && !d.acao.toUpperCase().includes(filtroAcao)) return;
+
+                const row = tbody.insertRow();
+                
+                // Formata Data
+                const dataObj = d.timestamp ? d.timestamp.toDate() : new Date();
+                const dataFmt = dataObj.toLocaleString('pt-BR');
+
+                // Cor da Ação
+                let classeCor = "";
+                if(d.acao.includes("CRIAR") || d.acao.includes("REGISTRAR")) classeCor = "acao-criar";
+                if(d.acao.includes("EDITAR") || d.acao.includes("ENCAMINHAR")) classeCor = "acao-editar";
+                if(d.acao.includes("EXCLUIR") || d.acao.includes("BAIXA")) classeCor = "acao-excluir";
+
+                row.innerHTML = `
+                    <td>${dataFmt}</td>
+                    <td><strong>${d.usuario}</strong></td>
+                    <td class="${classeCor}">${d.acao}</td>
+                    <td>${d.detalhes}</td>
+                `;
+            });
+        };
+    </script>
+</body>
+</html>
