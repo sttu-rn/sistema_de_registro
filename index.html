@@ -72,6 +72,10 @@
         .btn-relatorio { background-color: #8e44ad !important; }
         .btn-relatorio:hover { background-color: #732d91 !important; }
 
+        /* ESTILO DO BOTÃO DE AUDITORIA */
+        .btn-auditoria { background-color: #16a085 !important; display: none; } /* Começa invisível */
+        .btn-auditoria:hover { background-color: #1abc9c !important; }
+
         .user-info {
             position: absolute;
             top: 15px;
@@ -115,6 +119,8 @@
             <a href="observacoes.html">📝 OBSERVAÇÕES</a>
             <a href="relatorio_geral.html" class="btn-relatorio">📑 RELATÓRIOS</a>
             <a href="estatisticas.html" style="background-color: #f39c12;">📊 ESTATÍSTICAS</a>
+            
+            <a href="auditoria.html" id="btnAuditoria" class="btn-auditoria">👁️ AUDITORIA</a>
         </div>
     </div>
 
@@ -153,12 +159,13 @@
             };
         }
 
+        // Função antiga para o painel admin (mantive caso você ainda use o admin.html)
         function habilitarPainelAdmin() {
             const menu = document.getElementById('menu-botoes');
             if (!document.getElementById('btn-admin-link')) {
                 const btnAdmin = document.createElement('button');
                 btnAdmin.id = 'btn-admin-link';
-                btnAdmin.innerText = "⚙️ PAINEL ADMIN";
+                btnAdmin.innerText = "⚙️ PAINEL GESTÃO";
                 btnAdmin.className = "btn-admin"; 
                 btnAdmin.onclick = () => window.location.href = "admin.html";
                 menu.appendChild(btnAdmin);
@@ -182,7 +189,18 @@
                         }
 
                         mostrarUsuarioLogado(user.email);
-                        if (dados.cargo === 'admin') habilitarPainelAdmin();
+
+                        // --- VERIFICAÇÃO DE ADMIN ---
+                        if (dados.cargo === 'admin') {
+                            // Habilita o botão de Painel Admin (se existir a página admin.html)
+                            habilitarPainelAdmin();
+                            
+                            // HABILITA O BOTÃO DE AUDITORIA
+                            const btnAuditoria = document.getElementById('btnAuditoria');
+                            if (btnAuditoria) {
+                                btnAuditoria.style.display = 'inline-block'; // Torna visível
+                            }
+                        }
 
                         if (dados.cargo !== 'visualizador') {
                             let tempoInatividade;
@@ -222,4 +240,3 @@
     </script>
 </body>
 </html>
-
