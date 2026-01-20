@@ -309,7 +309,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let veiculosOcupados = new Set(); // ARMAZENA VEÍCULOS "ENCAMINHADA"
+    let veiculosOcupados = new Set(); 
 
     // --- SEGURANÇA + TIMER DE 30 MIN ---
     onAuthStateChanged(auth, async (user) => {
@@ -358,6 +358,12 @@
         if (docSnap.exists()) proximo = (docSnap.data().atual || 0) + 1;
         document.getElementById('numRegistro').value = String(proximo).padStart(3, '0');
         return proximo;
+    }
+
+    // --- FUNÇÃO PARA PEGAR HORA ATUAL FORMATADA ---
+    function getHoraAtual() {
+        const agora = new Date();
+        return String(agora.getHours()).padStart(2, '0') + ":" + String(agora.getMinutes()).padStart(2, '0');
     }
 
     function obterClasseRegiao(zona) {
@@ -419,7 +425,6 @@
         
         const adicionarOpcao = (valor) => {
             const opt = new Option(valor, valor);
-            // BLOQUEIO VISUAL: Se estiver ocupado, desabilita e avisa
             if (veiculosOcupados.has(valor)) {
                 opt.disabled = true;
                 opt.text += " (EM USO)";
@@ -468,7 +473,6 @@
         e.target.value = "";
     };
 
-    // --- FILTRO DE DATA ---
     function getDataHojeISO() {
         const hoje = new Date();
         const ano = hoje.getFullYear();
@@ -487,7 +491,7 @@
         const tPendentes = document.getElementById('tabelaPendentes').getElementsByTagName('tbody')[0];
         const tConcluidas = document.getElementById('relatorioTable').getElementsByTagName('tbody')[0];
         tPendentes.innerHTML = ""; tConcluidas.innerHTML = "";
-        veiculosOcupados.clear(); // Limpa a lista para recriar
+        veiculosOcupados.clear(); 
 
         let listaDocs = [];
         snapshot.forEach((doc) => listaDocs.push({ id: doc.id, ...doc.data() }));
@@ -501,10 +505,8 @@
         listaDocs.forEach((d) => {
             const id = d.id;
             
-            // --- LÓGICA DE BLOQUEIO ---
-            // Se a ocorrência está ENCAMINHADA, as viaturas dela ficam bloqueadas
             if (d.situacao === 'ENCAMINHADA' && d.equipe) {
-                const vtrs = d.equipe.split(', '); // "VT 01, MT 02"
+                const vtrs = d.equipe.split(', '); 
                 vtrs.forEach(v => veiculosOcupados.add(v.trim()));
             }
 
@@ -538,7 +540,9 @@
                 const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
                 const hora = String(dataObj.getHours()).padStart(2, '0');
                 const min = String(dataObj.getMinutes()).padStart(2, '0');
-                logCriacao = `[${dia}/${mes} - ${hora}:${min}] Registro recebido`;
+                // Se a hora de envio já foi salva, usa ela, senão usa a do timestamp
+                const horaEnvioFinal = d.horaEnvio && d.horaEnvio !== "--:--" ? d.horaEnvio : `${hora}:${min}`;
+                logCriacao = `[${horaEnvioFinal}] Registro recebido`;
             }
 
             const logsParaExibir = d.historicoLogs ? [...d.historicoLogs] : [];
@@ -577,7 +581,6 @@
             }
         });
 
-        // ATUALIZA A LISTA DE VIATURAS (BLOQUEANDO AS USADAS)
         popularEquipes('equipeSelect');
         popularEquipes('editEquipeSelect'); 
     });
@@ -603,7 +606,7 @@
 
     window.confirmarEncaminhamento = async () => {
         const id = document.getElementById('editId').value;
-        const novaHora = String(new Date().getHours()).padStart(2,'0') + ":" + String(new Date().getMinutes()).padStart(2,'0');
+        const novaHora = getHoraAtual();
         const docRef = doc(db, "ocorrencias_sttu", id);
         const docSnap = await getDoc(docRef);
         const antigos = docSnap.data();
@@ -629,7 +632,12 @@
         if (antigos.contato !== novos.contato) mudancas.push(`Contato alterado`);
         if (mudancas.length === 0) mudancas.push("Reencaminhado sem alterações");
 
-        await updateDoc(docRef, { ...novos, horaEnvio: novaHora, historicoLogs: arrayUnion(`[${novaHora}] ${mudancas.join(" | ")}`) });
+        // CORREÇÃO: Removemos 'horaEnvio: novaHora' para não sobrescrever o horário original
+        await updateDoc(docRef, { 
+            ...novos, 
+            historicoLogs: arrayUnion(`[${novaHora}] ${mudancas.join(" | ")}`) 
+        });
+        
         alert("✅ Atualizado com sucesso!");
         fecharModal();
     };
@@ -638,7 +646,8 @@
         let res = prompt("RESULTADO FINAL / MOTIVO QTC (OBRIGATÓRIO PARA CONCLUIR):", dadosAntigos.resultadoFinal || "");
         if (res === null) return;
         if (res.trim() === "") { alert("⚠️ ERRO: É OBRIGATÓRIO escrever o Resultado Final."); return; }
-        const hF = String(new Date().getHours()).padStart(2,'0') + ":" + String(new Date().getMinutes()).padStart(2,'0');
+        
+        const hF = getHoraAtual();
         await updateDoc(doc(db, "ocorrencias_sttu", id), { situacao: 'CONCLUÍDA', resultadoFinal: res.toUpperCase(), horaFinal: hF });
         alert("✅ Ocorrência concluída com sucesso!");
     }
@@ -652,7 +661,7 @@
         const local = document.getElementById('local').value.trim();
         const detalhamento = document.getElementById('detalhamento').value.trim();
         const zona = document.getElementById('zona').value;
-        const horaEnvio = document.getElementById('horaEnvio').value;
+        let horaEnvio = document.getElementById('horaEnvio').value;
         const situacao = document.getElementById('situacao').value;
         const resultadoFinal = document.getElementById('resultadoFinal').value.trim();
         let horaFinalValor = document.getElementById('horaFinal').value;
@@ -670,15 +679,17 @@
         }
 
         if (!isExcecao) {
-            if (!horaEnvio) { alert("⚠️ Hora de Envio é obrigatória!"); return; }
+            // CORREÇÃO: Se não preencheu hora, usa a atual
+            if (!horaEnvio) { 
+                horaEnvio = getHoraAtual();
+            }
             if (equipesSelecionadas.length === 0) { alert("⚠️ Selecione pelo menos uma EQUIPE!"); return; }
         }
 
         if (situacao === 'CONCLUÍDA') {
             if (!resultadoFinal) { alert("⚠️ Para CONCLUÍDA, preencha o RESULTADO FINAL!"); return; }
             if (!horaFinalValor) {
-                const agora = new Date();
-                horaFinalValor = String(agora.getHours()).padStart(2, '0') + ":" + String(agora.getMinutes()).padStart(2, '0');
+                horaFinalValor = getHoraAtual();
             }
         }
 
