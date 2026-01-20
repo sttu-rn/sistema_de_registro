@@ -35,8 +35,8 @@
 <body>
 
     <div class="card">
-        <h1>📑 Relatório Detalhado</h1>
-        <p>Gera PDF com histórico completo, incluindo horários de todas as alterações.</p>
+        <h1>📑 Relatório Completo (Espelho)</h1>
+        <p>Gera um PDF contendo exatamente as mesmas informações e históricos vistos nas telas de registro.</p>
 
         <div class="date-group">
             <div class="date-item">
@@ -50,7 +50,7 @@
         </div>
 
         <button class="btn btn-gerar" id="btnGerarPDF">1º BAIXAR PDF COMPLETO</button>
-        <div id="msgLoading" class="loading">⏳ Processando dias...</div>
+        <div id="msgLoading" class="loading">⏳ Processando dados...</div>
         
         <div id="areaEmail" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px; display: none;">
             <div class="aviso-anexo">⚠️ ATENÇÃO: Ao abrir o e-mail, anexe o arquivo <b>PDF</b> que foi baixado.</div>
@@ -79,33 +79,32 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- 1. COLE AQUI O CÓDIGO DA SUA IMAGEM ---
-        const imgData = "data:image/jpeg;base64,/9j/4AAQSkZJRgAB..."; // MANTENHA O SEU CÓDIGO AQUI
+        // --- 1. COLE AQUI O CÓDIGO DA SUA IMAGEM (BRASÃO) ---
+        // Se estiver vazio, o PDF sai sem imagem, mas funciona.
+        const imgData = "data:image/jpeg;base64,/9j/4AAQSkZJRgAB..."; 
 
         const hoje = new Date().toISOString().split('T')[0];
         document.getElementById('dataInicio').value = hoje;
         document.getElementById('dataFim').value = hoje;
 
-        // --- SEGURANÇA + TIMER (30 MIN) ---
+        // --- SEGURANÇA ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
                     const docRef = doc(db, "usuarios", user.uid);
                     const docSnap = await getDoc(docRef);
-
                     if (docSnap.exists()) {
                         const dados = docSnap.data();
                         if (dados.cargo !== 'visualizador') {
                             let tempoInatividade;
-                            const LIMITE_TEMPO = 30 * 60 * 1000; 
                             const resetarTimer = () => {
                                 clearTimeout(tempoInatividade);
                                 tempoInatividade = setTimeout(() => {
-                                    alert("⚠️ Sessão encerrada por inatividade (30min).");
+                                    alert("⚠️ Sessão encerrada.");
                                     signOut(auth).then(() => window.location.href = "login.html");
-                                }, LIMITE_TEMPO);
+                                }, 30 * 60 * 1000);
                             };
-                            window.onload = resetarTimer; document.onmousemove = resetarTimer; document.onkeypress = resetarTimer; document.onclick = resetarTimer; document.onscroll = resetarTimer;
+                            window.onload = resetarTimer; document.onmousemove = resetarTimer; document.onclick = resetarTimer;
                         }
                     } else {
                         alert("Erro de cadastro."); await signOut(auth); window.location.href = "login.html";
@@ -138,9 +137,8 @@
             const dataIni = document.getElementById('dataInicio').value;
             const dataFim = document.getElementById('dataFim').value;
 
-            if(!dataIni || !dataFim) return alert("Selecione a data inicial e final.");
-            if(dataIni > dataFim) return alert("A data inicial não pode ser maior que a final.");
-
+            if(!dataIni || !dataFim) return alert("Selecione as datas.");
+            
             document.getElementById('msgLoading').style.display = 'block';
             document.getElementById('btnGerarPDF').disabled = true;
             document.getElementById('areaEmail').style.display = 'none';
@@ -148,11 +146,8 @@
             const diasParaProcessar = getDatesInRange(dataIni, dataFim);
             const { jsPDF } = window.jspdf;
             
-            if (imgData.length < 50 && !imgData.includes("base64")) {
-                alert("⚠️ AVISO: O código da imagem parece vazio. O PDF pode sair sem brasão.");
-            }
-
-            const doc = new jsPDF('l', 'mm', 'a4'); // Paisagem
+            // 'l' = Landscape (Paisagem) - Essencial para caber todas as colunas
+            const doc = new jsPDF('l', 'mm', 'a4'); 
 
             try {
                 for (let i = 0; i < diasParaProcessar.length; i++) {
@@ -166,7 +161,7 @@
                     const startOfDay = new Date(diaAtualISO + "T00:00:00");
                     const endOfDay = new Date(diaAtualISO + "T23:59:59");
 
-                    // 1. Ocorrências
+                    // --- BUSCA DE DADOS ---
                     const qOcorrencias = query(collection(db, "ocorrencias_sttu"), orderBy("timestamp", "desc"));
                     const snapOcorrencias = await getDocs(qOcorrencias);
                     const listaOcorrencias = [];
@@ -178,7 +173,6 @@
                         }
                     });
 
-                    // 2. Agentes
                     const qAgentes = query(collection(db, "historico_agentes"), where("dataRelatorio", "==", diaAtualBR));
                     const qAgentesAtivos = query(collection(db, "ativos_agentes"), where("dataRelatorio", "==", diaAtualBR));
                     const snapAgentes = await getDocs(qAgentes);
@@ -187,34 +181,17 @@
                     snapAgentes.forEach(doc => listaAgentes.push({ ...doc.data(), status: "ENCERRADO" }));
                     snapAgentesAtivos.forEach(doc => listaAgentes.push({ ...doc.data(), status: "EM OPERAÇÃO" }));
 
-                    // 3. Observações
-                    const qObs = query(collection(db, "observacoes_sttu"), orderBy("timestamp", "desc"));
-                    const snapObs = await getDocs(qObs);
-                    const listaObs = [];
-                    snapObs.forEach(doc => {
-                        const d = doc.data();
-                        if(d.timestamp) {
-                            const dataDoc = d.timestamp.toDate();
-                            if(dataDoc >= startOfDay && dataDoc <= endOfDay) listaObs.push(d);
-                        }
-                    });
-
                     // --- CABEÇALHO ---
                     if (imgData.length > 50) {
-                        try { doc.addImage(imgData, 'JPEG', 14, 10, 25, 25); } catch(e) { console.log(e); }
+                        try { doc.addImage(imgData, 'JPEG', 14, 10, 25, 25); } catch(e) {}
                     }
 
                     const larguraPagina = doc.internal.pageSize.width;
                     
-                    doc.setFontSize(14); 
-                    doc.setTextColor(44, 62, 80); 
-                    doc.setFont("helvetica", "bold");
-                    const titulo = "CENTRAL DE OPERAÇÕES DE TRÂNSITO E TRANSPORTE - COTT";
-                    doc.text(titulo, larguraPagina - 14, 20, { align: "right" });
+                    doc.setFontSize(14); doc.setTextColor(44, 62, 80); doc.setFont("helvetica", "bold");
+                    doc.text("CENTRAL DE OPERAÇÕES DE TRÂNSITO E TRANSPORTE - COTT", larguraPagina - 14, 20, { align: "right" });
                     
-                    doc.setFontSize(10); 
-                    doc.setTextColor(100); 
-                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(10); doc.setTextColor(100); doc.setFont("helvetica", "normal");
                     doc.text(`DATA: ${diaAtualBR}`, larguraPagina - 14, 32, { align: "right" });
                     
                     doc.setDrawColor(200, 200, 200); 
@@ -222,113 +199,112 @@
 
                     let finalY = 45;
 
-                    // --- TABELA 1: AGENTES ---
+                    // --- TABELA 1: AGENTES (Idêntica à tela de Agentes) ---
                     doc.setFontSize(12); doc.setTextColor(0); doc.setFont("helvetica", "bold");
                     doc.text("1. CONTROLE DE AGENTES E FROTA", 14, finalY); finalY += 5;
+                    
                     if (listaAgentes.length > 0) {
-                        const bodyAgentes = listaAgentes.map(a => [a.veiculo, a.agente.replace(/\n/g, ", "), a.horaInicio, a.horaFim || "---", a.zona, a.status]);
+                        const bodyAgentes = listaAgentes.map(a => [
+                            a.veiculo, 
+                            a.agente.replace(/\n/g, ", "), // Remove quebras de linha do nome
+                            a.ht || "-",
+                            a.ase || "-",
+                            a.situacao || "-", // Função
+                            a.maletas || "-",
+                            a.zona, 
+                            a.horaInicio, 
+                            a.horaFim || "EM ANDAMENTO",
+                            a.pontoBase || "-"
+                        ]);
+                        
                         doc.autoTable({ 
                             startY: finalY, 
-                            head: [['VTR', 'Equipe', 'Início', 'Fim', 'Região', 'Situação']], 
+                            head: [['VTR', 'Equipe', 'HT', 'ASE', 'Função', 'Maletas', 'Região', 'Início', 'Fim', 'Ponto Base']], 
                             body: bodyAgentes, 
                             theme: 'grid', 
                             headStyles: { fillColor: [52, 73, 94] }, 
-                            styles: { fontSize: 8 }, 
+                            styles: { fontSize: 7 }, 
+                            columnStyles: { 1: { cellWidth: 40 }, 9: { cellWidth: 40 } }, // Aumenta coluna equipe e ponto base
                             margin: { bottom: 40 } 
                         });
                         finalY = doc.lastAutoTable.finalY + 15;
                     } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15; }
 
-                    // --- TABELA 2: OCORRÊNCIAS COM LINHA DO TEMPO NO HISTÓRICO ---
+                    // --- TABELA 2: OCORRÊNCIAS (Idêntica à tela de Ocorrências + Histórico) ---
                     doc.setFontSize(12); doc.setFont("helvetica", "bold");
-                    doc.text("2. OCORRÊNCIAS REGISTRADAS (HISTÓRICO DETALHADO)", 14, finalY); finalY += 5;
+                    doc.text("2. OCORRÊNCIAS REGISTRADAS (DETALHADO)", 14, finalY); finalY += 5;
                     
                     if (listaOcorrencias.length > 0) {
                         const bodyOc = listaOcorrencias.map(o => {
-                            // --- CONSTRUTOR DA LINHA DO TEMPO ---
-                            let listaHistorico = [];
-
-                            // 1. Hora do Registro Inicial (Sempre o primeiro)
-                            if (o.horaEnvio) {
-                                listaHistorico.push(`[${o.horaEnvio}] REGISTRO INICIAL`);
-                            }
-
-                            // 2. Histórico de Alterações (Vindos do banco)
+                            // --- FORMATAÇÃO DO HISTÓRICO PARA EVITAR ERROS ---
+                            let historicoFormatado = "";
+                            // 1. Adiciona criação se houver horaEnvio
+                            if(o.horaEnvio) historicoFormatado += `[${o.horaEnvio}] Registro Inicial\n`;
+                            
+                            // 2. Adiciona logs do array
                             if (o.historicoLogs && Array.isArray(o.historicoLogs)) {
-                                o.historicoLogs.forEach(log => {
-                                    // Limpa caracteres ilegais e adiciona à lista
-                                    listaHistorico.push(String(log).replace(/[^\x20-\x7E\xA0-\xFF]/g, ""));
-                                });
+                                historicoFormatado += o.historicoLogs.map(log => 
+                                    String(log).replace(/[^\x20-\x7E\xA0-\xFF]/g, "") // Limpa caracteres inválidos
+                                ).join("\n");
                             }
-
-                            // Junta tudo com quebra de linha
-                            let historicoFinal = listaHistorico.length > 0 ? listaHistorico.join("\n") : "-";
+                            if(!historicoFormatado) historicoFormatado = "-";
 
                             return [
                                 o.numRegistro || "-",
-                                o.horaEnvio,
+                                o.solicitante + "\n" + o.contato, // Junta para economizar espaço
                                 o.ocorrencia,
-                                o.local,
+                                o.local + "\n(" + o.detalhamento + ")", // Local + Detalhe
+                                o.zona,
                                 o.equipe,
+                                o.horaEnvio,
                                 o.situacao,
-                                historicoFinal, // COLUNA DE HISTÓRICO COM HORÁRIOS
-                                o.resultadoFinal || ""
+                                o.horaFinal || "-",
+                                o.resultadoFinal || "-",
+                                historicoFormatado // HISTÓRICO COMPLETO
                             ];
                         });
 
                         doc.autoTable({ 
                             startY: finalY, 
-                            head: [['Nº', 'Hora', 'Tipo', 'Local', 'VTR', 'Situação', 'HISTÓRICO (HORÁRIO E AÇÃO)', 'Resultado']], 
+                            head: [['Nº', 'Solicitante/Ct', 'Ocorrência', 'Local (Detalhe)', 'Região', 'Equipe', 'Envio', 'Situação', 'Fim', 'Resultado', 'HISTÓRICO']], 
                             body: bodyOc, 
                             theme: 'grid', 
                             headStyles: { fillColor: [192, 57, 43] }, 
                             styles: { 
-                                fontSize: 7, 
-                                cellPadding: 2,
-                                overflow: 'linebreak', 
-                                font: "helvetica",
-                                valign: 'top' // Alinha texto ao topo para facilitar leitura da lista
+                                fontSize: 6, // Fonte menor para caber tudo
+                                cellPadding: 1,
+                                overflow: 'linebreak',
+                                valign: 'top',
+                                font: "helvetica" 
                             },
                             columnStyles: {
-                                0: { cellWidth: 10 },
-                                1: { cellWidth: 12 },
-                                2: { cellWidth: 25 },
-                                3: { cellWidth: 35 },
-                                4: { cellWidth: 18 },
-                                5: { cellWidth: 18 },
-                                6: { cellWidth: 90 }, // Histórico bem largo para caber a linha do tempo
-                                7: { cellWidth: 'auto' }
+                                0: { cellWidth: 8 },  // Nº
+                                1: { cellWidth: 20 }, // Solicitante
+                                2: { cellWidth: 20 }, // Ocorrência
+                                3: { cellWidth: 35 }, // Local
+                                4: { cellWidth: 15 }, // Região
+                                5: { cellWidth: 15 }, // Equipe
+                                6: { cellWidth: 10 }, // Envio
+                                7: { cellWidth: 15 }, // Situação
+                                8: { cellWidth: 10 }, // Fim
+                                9: { cellWidth: 25 }, // Resultado
+                                10: { cellWidth: 'auto' } // Histórico (pega o resto)
                             },
                             margin: { bottom: 40 } 
                         });
                         finalY = doc.lastAutoTable.finalY + 15;
                     } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15; }
 
-                    const pageHeight = doc.internal.pageSize.height;
-                    if (finalY > pageHeight - 60) { doc.addPage(); finalY = 40; }
-                    
-                    // --- TABELA 3: OBSERVAÇÕES ---
-                    doc.setFontSize(12); doc.setFont("helvetica", "bold");
-                    doc.text("3. LIVRO DE PLANTÃO", 14, finalY); finalY += 5;
-                    if (listaObs.length > 0) {
-                        const bodyObs = listaObs.map(obs => [new Date(obs.timestamp.seconds * 1000).toLocaleTimeString('pt-BR'), obs.texto]);
-                        doc.autoTable({ startY: finalY, head: [['Hora', 'Descrição']], body: bodyObs, theme: 'striped', headStyles: { fillColor: [127, 140, 141] }, columnStyles: { 0: { cellWidth: 20 } }, styles: { fontSize: 8 }, margin: { bottom: 40 } });
-                    } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); }
-
-                    // Rodapé (Assinaturas)
+                    // Rodapé
                     const totalPages = doc.internal.getNumberOfPages();
                     for (let p = 1; p <= totalPages; p++) {
                         doc.setPage(p);
-                        const footerY = pageHeight - 25;
+                        const footerY = doc.internal.pageSize.height - 25;
                         doc.line(14, footerY - 5, larguraPagina - 14, footerY - 5);
-                        doc.setFontSize(8); doc.setTextColor(0);
-                        doc.setFont("helvetica", "bold");
+                        doc.setFontSize(8); 
                         doc.text("Carmozina Régia de Melo Dantas", 14, footerY + 5);
-                        doc.setFont("helvetica", "normal");
                         doc.text("Responsável pelo setor de atendimento da COTT", 14, footerY + 9);
-                        doc.setFont("helvetica", "bold");
                         doc.text("Kleber Silvestre Lustosa", larguraPagina - 14, footerY + 5, { align: 'right' });
-                        doc.setFont("helvetica", "normal");
                         doc.text("Inspetor da COTT", larguraPagina - 14, footerY + 9, { align: 'right' });
                     }
                 }
@@ -341,8 +317,9 @@
                 
                 doc.save(nomeArquivo);
 
+                // Link email
                 const assunto = `RELATÓRIO STTU - ${formatarDataBR(dataIni)} A ${formatarDataBR(dataFim)}`;
-                const corpo = `Segue em anexo o relatório unificado (com histórico de encaminhamentos).\n\nAtt,\nEquipe STTU`;
+                const corpo = `Segue em anexo o relatório.\n\nAtt,\nEquipe STTU`;
                 const linkGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=cottsttu@gmail.com&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
                 
                 document.getElementById('btnEnviarEmail').href = linkGmail;
@@ -350,7 +327,7 @@
                 document.querySelector('.btn-email').style.display = 'block';
                 document.querySelector('.aviso-anexo').style.display = 'block';
 
-                alert("✅ PDF Detalhado gerado com sucesso!");
+                alert("✅ PDF Completo gerado com sucesso!");
 
             } catch (error) {
                 console.error(error);
