@@ -8,54 +8,68 @@
     
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f4f4f4; display: flex; flex-direction: column; align-items: center; padding: 30px; }
-        .card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; text-align: center; }
+        
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 1200px; text-align: center; margin-bottom: 30px; }
+        
         h1 { color: #2c3e50; margin-bottom: 10px; }
-        p { color: #7f8c8d; font-size: 14px; margin-bottom: 30px; }
+        p { color: #7f8c8d; font-size: 14px; margin-bottom: 20px; }
         
-        .date-group { display: flex; gap: 10px; justify-content: space-between; margin-bottom: 20px; }
-        .date-item { flex: 1; text-align: left; }
+        .controls { display: flex; gap: 10px; justify-content: center; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
+        .input-group { text-align: left; }
+        label { display: block; font-weight: bold; font-size: 12px; color: #333; margin-bottom: 5px; }
+        input[type="date"] { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; font-size: 12px; }
-        input[type="date"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
-        
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; display: block; margin-bottom: 10px; text-decoration: none; }
-        
-        .btn-gerar { background-color: #c0392b; }
-        .btn-gerar:hover { background-color: #a93226; }
-        
-        .btn-email { background-color: #2980b9; display: none; }
-        .btn-email:hover { background-color: #2471a3; }
-
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; transition: 0.3s; }
+        .btn-carregar { background-color: #2980b9; }
+        .btn-pdf { background-color: #c0392b; display: none; } /* Escondido até carregar */
+        .btn-email { background-color: #27ae60; display: none; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 14px; font-weight: bold; color: white; }
         .btn-voltar { background-color: #7f8c8d; margin-top: 10px; }
 
-        .loading { display: none; color: #e67e22; font-weight: bold; margin-top: 15px; font-size: 13px; }
-        .aviso-anexo { font-size: 11px; color: #d35400; background: #fae5d3; padding: 5px; border-radius: 4px; margin-bottom: 10px; display: none; }
+        /* ESTILOS DA PRÉ-VISUALIZAÇÃO */
+        #previewContainer { display: none; width: 100%; text-align: left; margin-top: 20px; }
+        .tabela-preview { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 11px; background: white; }
+        .tabela-preview th { background-color: #2c3e50; color: white; padding: 8px; text-align: left; }
+        .tabela-preview td { border: 1px solid #ddd; padding: 6px; vertical-align: top; }
+        
+        /* Célula Editável (Apenas Admin) */
+        .editavel { background-color: #fff9c4; cursor: text; outline: none; border: 1px dashed #f1c40f; }
+        .editavel:focus { background-color: #fff; border: 1px solid #2980b9; }
+        
+        .titulo-secao { background-color: #ecf0f1; padding: 10px; font-weight: bold; color: #2c3e50; border-left: 5px solid #2980b9; margin-top: 20px; margin-bottom: 10px; }
+        
+        .loading { display: none; color: #e67e22; font-weight: bold; margin-top: 10px; }
+        .aviso-admin { font-size: 12px; color: #c0392b; margin-bottom: 10px; display: none; background: #fadbd8; padding: 5px; border-radius: 4px;}
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h1>📑 Relatório Completo (Espelho)</h1>
-        <p>Gera um PDF contendo exatamente as mesmas informações e históricos vistos nas telas de registro.</p>
+        <h1>📑 Relatório Geral Editável</h1>
+        <p>Selecione o período, carregue os dados, edite se necessário (apenas Admin) e baixe o PDF.</p>
 
-        <div class="date-group">
-            <div class="date-item">
-                <label>DE (Início):</label>
+        <div id="msgAdmin" class="aviso-admin">🔓 MODO ADMINISTRADOR: Você pode clicar nas células amarelas para editar o conteúdo antes de gerar o PDF.</div>
+
+        <div class="controls">
+            <div class="input-group">
+                <label>Início:</label>
                 <input type="date" id="dataInicio">
             </div>
-            <div class="date-item">
-                <label>ATÉ (Fim):</label>
+            <div class="input-group">
+                <label>Fim:</label>
                 <input type="date" id="dataFim">
             </div>
+            <button class="btn btn-carregar" id="btnCarregar">1º CARREGAR DADOS</button>
+            <button class="btn btn-pdf" id="btnGerarPDF">2º BAIXAR PDF</button>
+        </div>
+        
+        <div id="msgLoading" class="loading">⏳ Buscando informações...</div>
+
+        <div id="areaEmail" style="margin-top: 15px; display: none;">
+            <a id="btnEnviarEmail" class="btn-email" target="_blank">✉️ PREPARAR E-MAIL</a>
         </div>
 
-        <button class="btn btn-gerar" id="btnGerarPDF">1º BAIXAR PDF COMPLETO</button>
-        <div id="msgLoading" class="loading">⏳ Processando dados...</div>
-        
-        <div id="areaEmail" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px; display: none;">
-            <div class="aviso-anexo">⚠️ ATENÇÃO: Ao abrir o e-mail, anexe o arquivo <b>PDF</b> que foi baixado.</div>
-            <a id="btnEnviarEmail" class="btn btn-email" target="_blank">2º ENVIAR PARA COTTSTTU@GMAIL.COM</a>
-        </div>
+        <div id="previewContainer">
+            </div>
 
         <button class="btn btn-voltar" onclick="window.location.href='index.html'">VOLTAR AO INÍCIO</button>
     </div>
@@ -79,37 +93,28 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- 1. COLE AQUI O CÓDIGO DA SUA IMAGEM (BRASÃO) ---
-        // Se estiver vazio, o PDF sai sem imagem, mas funciona.
-        const imgData = "data:image/jpeg;base64,/9j/4AAQSkZJRgAB..."; 
+        // --- IMAGEM (BRASÃO) ---
+        const imgData = "data:image/jpeg;base64,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"; // COLE SEU CÓDIGO AQUI
 
         const hoje = new Date().toISOString().split('T')[0];
         document.getElementById('dataInicio').value = hoje;
         document.getElementById('dataFim').value = hoje;
 
-        // --- SEGURANÇA ---
+        let isAdmin = false; // Variável de controle
+
+        // --- SEGURANÇA E VERIFICAÇÃO DE ADMIN ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                try {
-                    const docRef = doc(db, "usuarios", user.uid);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const dados = docSnap.data();
-                        if (dados.cargo !== 'visualizador') {
-                            let tempoInatividade;
-                            const resetarTimer = () => {
-                                clearTimeout(tempoInatividade);
-                                tempoInatividade = setTimeout(() => {
-                                    alert("⚠️ Sessão encerrada.");
-                                    signOut(auth).then(() => window.location.href = "login.html");
-                                }, 30 * 60 * 1000);
-                            };
-                            window.onload = resetarTimer; document.onmousemove = resetarTimer; document.onclick = resetarTimer;
-                        }
-                    } else {
-                        alert("Erro de cadastro."); await signOut(auth); window.location.href = "login.html";
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+                    // Verifica se é admin
+                    if (dados.cargo === 'admin') {
+                        isAdmin = true;
+                        document.getElementById('msgAdmin').style.display = 'block';
                     }
-                } catch (error) { console.error("Erro:", error); }
+                }
             } else {
                 window.location.href = "login.html";
             }
@@ -133,35 +138,34 @@
             return dates;
         }
 
-        document.getElementById('btnGerarPDF').onclick = async () => {
+        // --- FUNÇÃO 1: CARREGAR DADOS NA TELA (HTML) ---
+        document.getElementById('btnCarregar').onclick = async () => {
             const dataIni = document.getElementById('dataInicio').value;
             const dataFim = document.getElementById('dataFim').value;
-
+            const container = document.getElementById('previewContainer');
+            
             if(!dataIni || !dataFim) return alert("Selecione as datas.");
             
             document.getElementById('msgLoading').style.display = 'block';
-            document.getElementById('btnGerarPDF').disabled = true;
-            document.getElementById('areaEmail').style.display = 'none';
+            container.innerHTML = ""; // Limpa anterior
+            container.style.display = 'none';
+            document.getElementById('btnGerarPDF').style.display = 'none';
 
             const diasParaProcessar = getDatesInRange(dataIni, dataFim);
-            const { jsPDF } = window.jspdf;
-            
-            // 'l' = Landscape (Paisagem) - Essencial para caber todas as colunas
-            const doc = new jsPDF('l', 'mm', 'a4'); 
 
             try {
                 for (let i = 0; i < diasParaProcessar.length; i++) {
                     const diaAtualISO = diasParaProcessar[i];
                     const diaAtualBR = formatarDataBR(diaAtualISO);
                     
-                    document.getElementById('msgLoading').innerText = `⏳ Processando dia ${diaAtualBR}...`;
-
-                    if (i > 0) doc.addPage();
-
+                    // Cria Container do Dia
+                    const divDia = document.createElement('div');
+                    divDia.innerHTML = `<h2 style="text-align:center; border-bottom: 2px solid #333; margin-top:40px;">DATA: ${diaAtualBR}</h2>`;
+                    
                     const startOfDay = new Date(diaAtualISO + "T00:00:00");
                     const endOfDay = new Date(diaAtualISO + "T23:59:59");
 
-                    // --- BUSCA DE DADOS ---
+                    // --- BUSCA DADOS ---
                     const qOcorrencias = query(collection(db, "ocorrencias_sttu"), orderBy("timestamp", "desc"));
                     const snapOcorrencias = await getDocs(qOcorrencias);
                     const listaOcorrencias = [];
@@ -178,164 +182,252 @@
                     const snapAgentes = await getDocs(qAgentes);
                     const snapAgentesAtivos = await getDocs(qAgentesAtivos);
                     let listaAgentes = [];
-                    snapAgentes.forEach(doc => listaAgentes.push({ ...doc.data(), status: "ENCERRADO" }));
-                    snapAgentesAtivos.forEach(doc => listaAgentes.push({ ...doc.data(), status: "EM OPERAÇÃO" }));
+                    snapAgentes.forEach(doc => listaAgentes.push({ ...doc.data(), statusFinal: doc.data().tipo || "ENCERRADO" }));
+                    snapAgentesAtivos.forEach(doc => listaAgentes.push({ ...doc.data(), statusFinal: "EM OPERAÇÃO" }));
 
-                    // --- CABEÇALHO ---
-                    if (imgData.length > 50) {
-                        try { doc.addImage(imgData, 'JPEG', 14, 10, 25, 25); } catch(e) {}
-                    }
+                    const qObs = query(collection(db, "observacoes_sttu"), orderBy("timestamp", "desc"));
+                    const snapObs = await getDocs(qObs);
+                    const listaObs = [];
+                    snapObs.forEach(doc => {
+                        const d = doc.data();
+                        if(d.timestamp) {
+                            const dataDoc = d.timestamp.toDate();
+                            if(dataDoc >= startOfDay && dataDoc <= endOfDay) listaObs.push(d);
+                        }
+                    });
 
-                    const larguraPagina = doc.internal.pageSize.width;
+                    // --- RENDERIZA TABELAS HTML ---
                     
-                    doc.setFontSize(14); doc.setTextColor(44, 62, 80); doc.setFont("helvetica", "bold");
-                    doc.text("CENTRAL DE OPERAÇÕES DE TRÂNSITO E TRANSPORTE - COTT", larguraPagina - 14, 20, { align: "right" });
+                    // 1. AGENTES
+                    let htmlAgentes = `
+                        <div class="titulo-secao">1. CONTROLE DE AGENTES E FROTA</div>
+                        <table class="tabela-preview" id="tblAgentes_${i}">
+                            <thead>
+                                <tr>
+                                    <th>VEÍCULO</th><th>AGENTE</th><th>HT</th><th>ASE</th><th>FUNÇÃO</th>
+                                    <th>MALETAS</th><th>REGIÃO</th><th>INÍCIO</th><th>FIM</th><th>STATUS</th><th>PONTO BASE</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
                     
-                    doc.setFontSize(10); doc.setTextColor(100); doc.setFont("helvetica", "normal");
-                    doc.text(`DATA: ${diaAtualBR}`, larguraPagina - 14, 32, { align: "right" });
+                    if (listaAgentes.length === 0) htmlAgentes += `<tr><td colspan="11" style="text-align:center;">(Sem registros)</td></tr>`;
                     
-                    doc.setDrawColor(200, 200, 200); 
-                    doc.line(14, 38, larguraPagina - 14, 38); 
+                    listaAgentes.forEach(a => {
+                        htmlAgentes += `<tr>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.veiculo || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.agente ? a.agente.replace(/\n/g, ", ") : '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.ht || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.ase || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.situacao || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.maletas || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.zona || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.horaInicio || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.horaFim || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.statusFinal}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${a.pontoBase || '-'}</td>
+                        </tr>`;
+                    });
+                    htmlAgentes += `</tbody></table>`;
+                    divDia.innerHTML += htmlAgentes;
 
-                    let finalY = 45;
+                    // 2. OCORRÊNCIAS
+                    let htmlOc = `
+                        <div class="titulo-secao">2. OCORRÊNCIAS REGISTRADAS</div>
+                        <table class="tabela-preview" id="tblOc_${i}">
+                            <thead>
+                                <tr>
+                                    <th>Nº</th><th>SOLICITANTE</th><th>OCORRÊNCIA</th><th>LOCAL/DETALHE</th>
+                                    <th>REGIÃO</th><th>EQUIPE</th><th>ENVIO</th><th>SITUAÇÃO</th><th>FIM</th>
+                                    <th>RESULTADO</th><th>HISTÓRICO</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
 
-                    // --- TABELA 1: AGENTES (Idêntica à tela de Agentes) ---
-                    doc.setFontSize(12); doc.setTextColor(0); doc.setFont("helvetica", "bold");
-                    doc.text("1. CONTROLE DE AGENTES E FROTA", 14, finalY); finalY += 5;
+                    if (listaOcorrencias.length === 0) htmlOc += `<tr><td colspan="11" style="text-align:center;">(Sem registros)</td></tr>`;
+
+                    listaOcorrencias.forEach(o => {
+                        // Formata Histórico
+                        let hist = "";
+                        if(o.horaEnvio) hist += `[${o.horaEnvio}] Registro Inicial\n`;
+                        if (o.historicoLogs && Array.isArray(o.historicoLogs)) {
+                            hist += o.historicoLogs.map(l => String(l).replace(/[^\x20-\x7E\xA0-\xFF]/g, "")).join("\n");
+                        }
+                        if(!hist) hist = "-";
+
+                        htmlOc += `<tr>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.numRegistro || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.solicitante}<br>${o.contato}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.ocorrencia}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.local}<br>(${o.detalhamento})</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.zona}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.equipe}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.horaEnvio}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.situacao}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.horaFinal || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${o.resultadoFinal || '-'}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''} style="white-space: pre-wrap;">${hist}</td>
+                        </tr>`;
+                    });
+                    htmlOc += `</tbody></table>`;
+                    divDia.innerHTML += htmlOc;
+
+                    // 3. OBSERVAÇÕES
+                    let htmlObs = `
+                        <div class="titulo-secao">3. LIVRO DE PLANTÃO</div>
+                        <table class="tabela-preview" id="tblObs_${i}">
+                            <thead><tr><th style="width:15%">HORA</th><th>DESCRIÇÃO</th></tr></thead>
+                            <tbody>`;
                     
-                    if (listaAgentes.length > 0) {
-                        const bodyAgentes = listaAgentes.map(a => [
-                            a.veiculo, 
-                            a.agente.replace(/\n/g, ", "), // Remove quebras de linha do nome
-                            a.ht || "-",
-                            a.ase || "-",
-                            a.situacao || "-", // Função
-                            a.maletas || "-",
-                            a.zona, 
-                            a.horaInicio, 
-                            a.horaFim || "EM ANDAMENTO",
-                            a.pontoBase || "-"
-                        ]);
-                        
-                        doc.autoTable({ 
-                            startY: finalY, 
-                            head: [['VTR', 'Equipe', 'HT', 'ASE', 'Função', 'Maletas', 'Região', 'Início', 'Fim', 'Ponto Base']], 
-                            body: bodyAgentes, 
-                            theme: 'grid', 
-                            headStyles: { fillColor: [52, 73, 94] }, 
-                            styles: { fontSize: 7 }, 
-                            columnStyles: { 1: { cellWidth: 40 }, 9: { cellWidth: 40 } }, // Aumenta coluna equipe e ponto base
-                            margin: { bottom: 40 } 
-                        });
-                        finalY = doc.lastAutoTable.finalY + 15;
-                    } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15; }
+                    if (listaObs.length === 0) htmlObs += `<tr><td colspan="2" style="text-align:center;">(Sem registros)</td></tr>`;
 
-                    // --- TABELA 2: OCORRÊNCIAS (Idêntica à tela de Ocorrências + Histórico) ---
-                    doc.setFontSize(12); doc.setFont("helvetica", "bold");
-                    doc.text("2. OCORRÊNCIAS REGISTRADAS (DETALHADO)", 14, finalY); finalY += 5;
-                    
-                    if (listaOcorrencias.length > 0) {
-                        const bodyOc = listaOcorrencias.map(o => {
-                            // --- FORMATAÇÃO DO HISTÓRICO PARA EVITAR ERROS ---
-                            let historicoFormatado = "";
-                            // 1. Adiciona criação se houver horaEnvio
-                            if(o.horaEnvio) historicoFormatado += `[${o.horaEnvio}] Registro Inicial\n`;
-                            
-                            // 2. Adiciona logs do array
-                            if (o.historicoLogs && Array.isArray(o.historicoLogs)) {
-                                historicoFormatado += o.historicoLogs.map(log => 
-                                    String(log).replace(/[^\x20-\x7E\xA0-\xFF]/g, "") // Limpa caracteres inválidos
-                                ).join("\n");
-                            }
-                            if(!historicoFormatado) historicoFormatado = "-";
+                    listaObs.forEach(obs => {
+                        const hora = new Date(obs.timestamp.seconds * 1000).toLocaleTimeString('pt-BR');
+                        htmlObs += `<tr>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${hora}</td>
+                            <td ${isAdmin ? 'contenteditable="true" class="editavel"' : ''}>${obs.texto}</td>
+                        </tr>`;
+                    });
+                    htmlObs += `</tbody></table>`;
+                    divDia.innerHTML += htmlObs;
 
-                            return [
-                                o.numRegistro || "-",
-                                o.solicitante + "\n" + o.contato, // Junta para economizar espaço
-                                o.ocorrencia,
-                                o.local + "\n(" + o.detalhamento + ")", // Local + Detalhe
-                                o.zona,
-                                o.equipe,
-                                o.horaEnvio,
-                                o.situacao,
-                                o.horaFinal || "-",
-                                o.resultadoFinal || "-",
-                                historicoFormatado // HISTÓRICO COMPLETO
-                            ];
-                        });
-
-                        doc.autoTable({ 
-                            startY: finalY, 
-                            head: [['Nº', 'Solicitante/Ct', 'Ocorrência', 'Local (Detalhe)', 'Região', 'Equipe', 'Envio', 'Situação', 'Fim', 'Resultado', 'HISTÓRICO']], 
-                            body: bodyOc, 
-                            theme: 'grid', 
-                            headStyles: { fillColor: [192, 57, 43] }, 
-                            styles: { 
-                                fontSize: 6, // Fonte menor para caber tudo
-                                cellPadding: 1,
-                                overflow: 'linebreak',
-                                valign: 'top',
-                                font: "helvetica" 
-                            },
-                            columnStyles: {
-                                0: { cellWidth: 8 },  // Nº
-                                1: { cellWidth: 20 }, // Solicitante
-                                2: { cellWidth: 20 }, // Ocorrência
-                                3: { cellWidth: 35 }, // Local
-                                4: { cellWidth: 15 }, // Região
-                                5: { cellWidth: 15 }, // Equipe
-                                6: { cellWidth: 10 }, // Envio
-                                7: { cellWidth: 15 }, // Situação
-                                8: { cellWidth: 10 }, // Fim
-                                9: { cellWidth: 25 }, // Resultado
-                                10: { cellWidth: 'auto' } // Histórico (pega o resto)
-                            },
-                            margin: { bottom: 40 } 
-                        });
-                        finalY = doc.lastAutoTable.finalY + 15;
-                    } else { doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15; }
-
-                    // Rodapé
-                    const totalPages = doc.internal.getNumberOfPages();
-                    for (let p = 1; p <= totalPages; p++) {
-                        doc.setPage(p);
-                        const footerY = doc.internal.pageSize.height - 25;
-                        doc.line(14, footerY - 5, larguraPagina - 14, footerY - 5);
-                        doc.setFontSize(8); 
-                        doc.text("Carmozina Régia de Melo Dantas", 14, footerY + 5);
-                        doc.text("Responsável pelo setor de atendimento da COTT", 14, footerY + 9);
-                        doc.text("Kleber Silvestre Lustosa", larguraPagina - 14, footerY + 5, { align: 'right' });
-                        doc.text("Inspetor da COTT", larguraPagina - 14, footerY + 9, { align: 'right' });
-                    }
+                    container.appendChild(divDia);
                 }
 
-                document.getElementById('msgLoading').innerText = "⏳ Finalizando PDF...";
-                
-                const nomeArquivo = dataIni === dataFim ? 
-                    `Relatorio_STTU_${formatarDataBR(dataIni).replace(/\//g, '-')}.pdf` : 
-                    `Relatorio_STTU_${formatarDataBR(dataIni).replace(/\//g, '-')}_a_${formatarDataBR(dataFim).replace(/\//g, '-')}.pdf`;
-                
-                doc.save(nomeArquivo);
-
-                // Link email
-                const assunto = `RELATÓRIO STTU - ${formatarDataBR(dataIni)} A ${formatarDataBR(dataFim)}`;
-                const corpo = `Segue em anexo o relatório.\n\nAtt,\nEquipe STTU`;
-                const linkGmail = `https://mail.google.com/mail/?view=cm&fs=1&to=cottsttu@gmail.com&su=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
-                
-                document.getElementById('btnEnviarEmail').href = linkGmail;
+                container.style.display = 'block';
+                document.getElementById('btnGerarPDF').style.display = 'inline-block';
                 document.getElementById('areaEmail').style.display = 'block';
-                document.querySelector('.btn-email').style.display = 'block';
-                document.querySelector('.aviso-anexo').style.display = 'block';
-
-                alert("✅ PDF Completo gerado com sucesso!");
 
             } catch (error) {
                 console.error(error);
-                alert("Erro ao gerar: " + error.message);
+                alert("Erro: " + error.message);
             } finally {
                 document.getElementById('msgLoading').style.display = 'none';
-                document.getElementById('btnGerarPDF').disabled = false;
             }
+        };
+
+        // --- FUNÇÃO 2: GERAR PDF A PARTIR DA TELA (COM AS EDIÇÕES) ---
+        document.getElementById('btnGerarPDF').onclick = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4');
+            const dataIni = document.getElementById('dataInicio').value;
+            const dataFim = document.getElementById('dataFim').value;
+            const dias = getDatesInRange(dataIni, dataFim);
+
+            document.getElementById('msgLoading').style.display = 'block';
+            document.getElementById('msgLoading').innerText = "Gerando PDF com suas edições...";
+
+            // Função para ler dados da tabela HTML
+            const lerTabelaHTML = (idTabela) => {
+                const tabela = document.getElementById(idTabela);
+                if (!tabela) return [];
+                const dados = [];
+                // Pula o cabeçalho (rows[0])
+                for (let i = 1; i < tabela.rows.length; i++) {
+                    const linha = tabela.rows[i];
+                    if (linha.cells.length < 2) continue; // Ignora "Sem registros"
+                    const linhaDados = [];
+                    for (let j = 0; j < linha.cells.length; j++) {
+                        linhaDados.push(linha.cells[j].innerText); // Pega o texto (editado ou não)
+                    }
+                    dados.push(linhaDados);
+                }
+                return dados;
+            };
+
+            let paginaAtual = 1;
+
+            for (let i = 0; i < dias.length; i++) {
+                if (i > 0) { doc.addPage(); paginaAtual++; }
+
+                // --- CABEÇALHO ---
+                if (imgData.length > 50) { try { doc.addImage(imgData, 'JPEG', 14, 10, 25, 25); } catch(e){} }
+                
+                const larguraPagina = doc.internal.pageSize.width;
+                doc.setFontSize(14); doc.setTextColor(44, 62, 80); doc.setFont("helvetica", "bold");
+                doc.text("CENTRAL DE OPERAÇÕES DE TRÂNSITO E TRANSPORTE - COTT", larguraPagina - 14, 20, { align: "right" });
+                doc.setFontSize(10); doc.setTextColor(100); doc.setFont("helvetica", "normal");
+                doc.text(`DATA: ${formatarDataBR(dias[i])}`, larguraPagina - 14, 32, { align: "right" });
+                doc.setDrawColor(200); doc.line(14, 38, larguraPagina - 14, 38); 
+
+                let finalY = 45;
+
+                // 1. AGENTES (Lê do HTML)
+                doc.setFontSize(12); doc.setTextColor(0); doc.setFont("helvetica", "bold");
+                doc.text("1. CONTROLE DE AGENTES E FROTA", 14, finalY); finalY += 5;
+                const dadosAgentes = lerTabelaHTML(`tblAgentes_${i}`);
+                
+                if (dadosAgentes.length > 0) {
+                    doc.autoTable({
+                        startY: finalY,
+                        head: [['VTR', 'AGENTE', 'HT', 'ASE', 'FUNÇÃO', 'MALETAS', 'REGIÃO', 'INÍCIO', 'FIM', 'STATUS', 'BASE']],
+                        body: dadosAgentes,
+                        theme: 'grid',
+                        headStyles: { fillColor: [52, 73, 94] },
+                        styles: { fontSize: 6, cellPadding: 1 },
+                        columnStyles: { 1: { cellWidth: 40 }, 10: { cellWidth: 'auto' } },
+                        margin: { bottom: 40 }
+                    });
+                    finalY = doc.lastAutoTable.finalY + 15;
+                } else {
+                    doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15;
+                }
+
+                // 2. OCORRÊNCIAS (Lê do HTML)
+                doc.setFontSize(12); doc.setFont("helvetica", "bold");
+                doc.text("2. OCORRÊNCIAS REGISTRADAS", 14, finalY); finalY += 5;
+                const dadosOc = lerTabelaHTML(`tblOc_${i}`);
+
+                if (dadosOc.length > 0) {
+                    doc.autoTable({
+                        startY: finalY,
+                        head: [['Nº', 'SOLICITANTE', 'OCORRÊNCIA', 'LOCAL', 'REGIÃO', 'EQUIPE', 'ENVIO', 'SITUAÇÃO', 'FIM', 'RESULTADO', 'HISTÓRICO']],
+                        body: dadosOc,
+                        theme: 'grid',
+                        headStyles: { fillColor: [192, 57, 43] },
+                        styles: { fontSize: 6, cellPadding: 1, overflow: 'linebreak' },
+                        columnStyles: { 0: { cellWidth: 8 }, 10: { cellWidth: 'auto' } },
+                        margin: { bottom: 40 }
+                    });
+                    finalY = doc.lastAutoTable.finalY + 15;
+                } else {
+                    doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5); finalY += 15;
+                }
+
+                // Quebra de página se necessário
+                const pageHeight = doc.internal.pageSize.height;
+                if (finalY > pageHeight - 60) { doc.addPage(); finalY = 40; }
+
+                // 3. OBSERVAÇÕES (Lê do HTML)
+                doc.setFontSize(12); doc.setFont("helvetica", "bold");
+                doc.text("3. LIVRO DE PLANTÃO", 14, finalY); finalY += 5;
+                const dadosObs = lerTabelaHTML(`tblObs_${i}`);
+
+                if (dadosObs.length > 0) {
+                    doc.autoTable({
+                        startY: finalY,
+                        head: [['HORA', 'DESCRIÇÃO']],
+                        body: dadosObs,
+                        theme: 'striped',
+                        headStyles: { fillColor: [127, 140, 141] },
+                        columnStyles: { 0: { cellWidth: 20 } },
+                        styles: { fontSize: 7 },
+                        margin: { bottom: 40 }
+                    });
+                } else {
+                    doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("(Sem registros)", 14, finalY + 5);
+                }
+
+                // Rodapé
+                doc.line(14, pageHeight - 25, larguraPagina - 14, pageHeight - 25);
+                doc.setFontSize(8);
+                doc.text("Carmozina Régia de Melo Dantas", 14, pageHeight - 20);
+                doc.text("Responsável pelo setor de atendimento", 14, pageHeight - 16);
+                doc.text("Kleber Silvestre Lustosa", larguraPagina - 14, pageHeight - 20, { align: 'right' });
+                doc.text("Inspetor da COTT", larguraPagina - 14, pageHeight - 16, { align: 'right' });
+            }
+
+            document.getElementById('msgLoading').style.display = 'none';
+            doc.save("Relatorio_Editado.pdf");
         };
     </script>
 </body>
