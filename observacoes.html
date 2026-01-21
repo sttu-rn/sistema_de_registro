@@ -233,13 +233,13 @@
                     </div>
 
                     <div style="flex: 1; min-width: 80px;">
-                        <label style="font-size: 10px; font-weight: bold; color: #00e213; display: block; text-align: center;">COLOCADOS (-)</label>
-                        <input type="number" id="cone-colocado" placeholder="0" style="width: 100%; padding: 8px; border: 2px solid #00e213; border-radius: 4px; text-align: center; font-weight: bold;">
+                        <label style="font-size: 10px; font-weight: bold; color: #c0392b; display: block; text-align: center;">COLOCADOS (-)</label>
+                        <input type="number" id="cone-colocado" placeholder="0" style="width: 100%; padding: 8px; border: 2px solid #c0392b; border-radius: 4px; text-align: center; font-weight: bold;">
                     </div>
 
                     <div style="flex: 1; min-width: 80px;">
-                        <label style="font-size: 10px; font-weight: bold; color: #ec0505; display: block; text-align: center;">RECOLHIDOS (+)</label>
-                        <input type="number" id="cone-recolhido" placeholder="0" style="width: 100%; padding: 8px; border: 2px solid #ec0505; border-radius: 4px; text-align: center; font-weight: bold;">
+                        <label style="font-size: 10px; font-weight: bold; color: #27ae60; display: block; text-align: center;">RECOLHIDOS (+)</label>
+                        <input type="number" id="cone-recolhido" placeholder="0" style="width: 100%; padding: 8px; border: 2px solid #27ae60; border-radius: 4px; text-align: center; font-weight: bold;">
                     </div>
 
                     <div style="flex: 1; min-width: 80px;">
@@ -254,7 +254,10 @@
 
             <div class="config-turno" style="background-color: #16a085;"><strong>EQUIPE COMPLEMENTAR:</strong></div>
             <div style="border: 2px solid #16a085; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
-                <textarea id="texto-complementar" class="tentante-input" placeholder="Registre aqui os dados da equipe complementar..." autocomplete="off"></textarea>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="comp-nome" placeholder="NOME DO AGENTE..." style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
+                    <input type="text" id="comp-funcao" placeholder="FUNÇÃO..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
+                </div>
                 <div class="btn-group"><button class="btn" id="btn-registrar-complementar" style="background-color: #16a085;">REGISTRAR EQUIPE</button></div>
             </div>
 
@@ -736,12 +739,20 @@
         document.getElementById('cone-obs').value = "";
     };
 
-    // --- NOVO CÓDIGO: BOTÃO EQUIPE COMPLEMENTAR ---
+    // --- CÓDIGO ATUALIZADO: BOTÃO EQUIPE COMPLEMENTAR ---
     document.getElementById('btn-registrar-complementar').onclick = () => {
-        const texto = document.getElementById('texto-complementar').value.trim();
-        if (texto) {
-            salvarObservacao(`EQUIPE COMPLEMENTAR: ${texto}`);
-            document.getElementById('texto-complementar').value = "";
+        const nome = document.getElementById('comp-nome').value.trim().toUpperCase();
+        const funcao = document.getElementById('comp-funcao').value.trim().toUpperCase();
+
+        if (nome && funcao) {
+            const textoFinal = `EQUIPE COMPLEMENTAR: AGENTE ${nome} - FUNÇÃO: ${funcao}`;
+            salvarObservacao(textoFinal);
+            
+            // Limpa os campos após salvar
+            document.getElementById('comp-nome').value = "";
+            document.getElementById('comp-funcao').value = "";
+        } else {
+            alert("Preencha o nome e a função!");
         }
     };
 
