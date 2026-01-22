@@ -20,18 +20,17 @@
         .config-turno { background: #2c3e50; color: white; padding: 10px; border-radius: 5px 5px 0 0; display: flex; align-items: center; justify-content: space-between; margin-top: 15px; }
         .grid-equipamentos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; border: 2px solid #2c3e50; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 5px; background: #fff; }
         
-        /* --- AJUSTE AQUI: APROXIMAÇÃO DO TEXTO E INPUT --- */
+        /* APROXIMAÇÃO DO TEXTO E INPUT */
         .item-conferencia { 
             display: flex; 
             align-items: center; 
-            justify-content: flex-end; /* Alinha tudo à direita da célula */
-            gap: 10px; /* Define a distância fixa entre o texto e a caixa */
+            justify-content: flex-end; 
+            gap: 10px; 
             font-size: 12px; 
             font-weight: bold; 
             color: #2c3e50; 
-            text-align: right; /* Garante que o texto fique alinhado junto ao input */
+            text-align: right; 
         }
-        /* ------------------------------------------------ */
 
         .item-conferencia input { width: 45px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
 
@@ -702,13 +701,31 @@
         const obs = document.getElementById('obs-extras').value.trim();
 
         if (maleta) {
+            // VERIFICAÇÃO DE SEGURANÇA: Se já está em uso
             const qCheck = query(collection(db, "observacoes_sttu"), 
                 where("tipo_registro", "==", "ENTREGA_MALETA"),
                 where("numero_maleta", "==", maleta),
                 where("baixa", "==", null) 
             );
             const snapshot = await getDocs(qCheck);
-            if (!snapshot.empty) return alert(`MALETA ${maleta} JÁ ESTÁ EM USO!`);
+            
+            if (!snapshot.empty) {
+                // SE JÁ ESTIVER EM USO, VAMOS PERMITIR FORÇAR A DEVOLUÇÃO DO REGISTRO ANTIGO
+                // ISSO CORRIGE O BUG DE "MALETA PRESA"
+                const docPreso = snapshot.docs[0];
+                const confirmar = confirm(`ERRO: A maleta ${maleta} consta como EM USO por outro agente desde ${new Date(docPreso.data().timestamp.seconds * 1000).toLocaleString()}.\n\nDeseja FORÇAR a devolução da anterior para liberar esta nova entrega?`);
+                
+                if (confirmar) {
+                   await updateDoc(doc(db, "observacoes_sttu", docPreso.id), { 
+                       baixa: new Date().toLocaleTimeString('pt-BR') + " (FORÇADO)", 
+                       texto: docPreso.data().texto + " | BAIXA FORÇADA PELO SISTEMA PARA NOVA ENTREGA" 
+                   });
+                   alert("Registro anterior baixado. Tente registrar novamente agora.");
+                   return;
+                } else {
+                   return; // Cancela se não quiser forçar
+                }
+            }
         }
 
         const qtdEtil = document.getElementById('qtd-etil').value;
@@ -840,4 +857,4 @@
     });
 </script>
 </body>
-</html>```
+</html>
