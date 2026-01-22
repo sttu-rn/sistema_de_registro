@@ -27,9 +27,12 @@
         .user-item:hover { background: #f1f1f1; border-color: #bbb; }
         
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
-        .bg-admin { background-color: #c0392b; }
-        .bg-agente { background-color: #27ae60; }
-        .bg-visualizador { background-color: #f39c12; }
+        
+        /* CORES DOS CARGOS */
+        .bg-admin { background-color: #c0392b; }       /* Vermelho */
+        .bg-agente { background-color: #27ae60; }      /* Verde */
+        .bg-visualizador { background-color: #f39c12; }/* Laranja */
+        .bg-ciosp { background-color: #2980b9; }       /* Azul (NOVO) */
 
         /* Card do Contador */
         .card-contador { margin-top: 30px; padding: 20px; background: #fff8e1; border-left: 5px solid #f39c12; border-radius: 4px; }
@@ -67,8 +70,8 @@
         <div class="form-group">
             <label>Cargo / Permissão:</label>
             <select id="cargoUser">
-                <option value="agente">AGENTE</option>
-                <option value="admin">ADMINISTRADOR</option>
+                <option value="agente">AGENTE (PADRÃO)</option>
+                <option value="ciosp">CIOSP (SÓ OCORRÊNCIAS)</option> <option value="admin">ADMINISTRADOR</option>
                 <option value="visualizador">VISUALIZADOR</option>
             </select>
         </div>
@@ -258,6 +261,7 @@
             let corBadge = "bg-agente";
             if (data.cargo === "admin") corBadge = "bg-admin";
             if (data.cargo === "visualizador") corBadge = "bg-visualizador";
+            if (data.cargo === "ciosp") corBadge = "bg-ciosp"; // NOVA COR AZUL
 
             // Se estiver pendente
             let statusHtml = "";
