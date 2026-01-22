@@ -43,10 +43,39 @@
         .btn-sair { background-color: #c0392b; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px; font-size: 12px; cursor: pointer; border: none; }
         .btn-acao-tabela { width: 100%; margin: 2px 0; padding: 4px 0; font-size: 10px; text-align: center; }
 
-        /* STATUS */
-        .status-concluida { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; text-align: center; }
-        .status-pendente { background-color: #ffebee; color: #c62828; font-weight: bold; text-align: center; }
-        .status-encaminhada { background-color: #fff3e0; color: #e67e22; font-weight: bold; text-align: center; }
+        /* --- STATUS --- */
+        .status-concluida { 
+            background-color: #e8f5e9; 
+            color: #2e7d32; 
+            font-weight: bold; 
+            text-align: center; 
+            white-space: nowrap; 
+        }
+        .status-pendente { 
+            background-color: #ffebee; 
+            color: #c62828; 
+            font-weight: bold; 
+            text-align: center; 
+            white-space: nowrap; 
+        }
+        .status-encaminhada { 
+            background-color: #fff3e0; 
+            color: #e67e22; 
+            font-weight: bold; 
+            text-align: center;
+            font-size: 10px; 
+            white-space: nowrap; 
+            padding: 4px; 
+        }
+        .status-despacho { 
+            background-color: #fff3e0; 
+            color: #c0392b; 
+            font-weight: bold; 
+            text-align: center;
+            font-size: 10px; 
+            white-space: nowrap; 
+            padding: 4px; 
+         }
         
         /* EXTRAS */
         .qtc-container { margin-top: 8px; display: none; }
@@ -67,8 +96,6 @@
         .hist-autor { color: #d35400; font-weight: bold; text-transform: uppercase; } 
         .hist-detalhe { display: block; color: #555; font-style: italic; margin-left: 5px; border-left: 2px solid #ddd; padding-left: 4px; }
         
-        .hist-restrito { color: #95a5a6; font-style: italic; text-align: center; margin-top: 10px; font-weight: bold; }
-
         /* MODAL */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
@@ -115,6 +142,7 @@
                         <th class="data-header">SITUAÇÃO</th>
                         <th class="data-header">H. FINAL</th>
                         <th class="data-header">RESULTADO FINAL</th>
+                        <th class="data-header col-hist">HISTÓRICO</th>
                         <th class="data-header">AÇÃO</th>
                     </tr>
                 </thead>
@@ -168,6 +196,7 @@
                                 <option value="ENCAMINHADA">ENCAMINHADA</option>
                                 <option value="CONCLUÍDA">CONCLUÍDA</option>
                                 <option value="NÃO ATENDIDA">NÃO ATENDIDA</option>
+                                <option value="PARA O DESPACHO">PARA O DESPACHO</option>
                                 <option value="PARA O PRÓXIMO TURNO">PARA O PRÓXIMO TURNO</option>
                             </select>
                             <div id="qtcContainer" class="qtc-container">
@@ -211,7 +240,7 @@
                     <th class="data-header">SITUAÇÃO</th>
                     <th class="data-header">H. FINAL</th>
                     <th class="data-header">RESULTADO</th>
-                    <th class="data-header col-hist">HISTÓRICO / AUDITORIA</th>
+                    <th class="data-header col-hist">HISTÓRICO</th>
                     <th class="data-header">AÇÃO</th>
                 </tr>
             </thead>
@@ -236,7 +265,7 @@
                     <th class="data-header">SITUAÇÃO</th>
                     <th class="data-header">H. FINAL</th>
                     <th class="data-header">RESULTADO</th>
-                    <th class="data-header col-hist">HISTÓRICO / AUDITORIA</th>
+                    <th class="data-header col-hist">HISTÓRICO</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -316,7 +345,7 @@
 
     let veiculosOcupados = new Set();
     let nomeUsuarioLogado = "ANÔNIMO"; 
-    let usuarioEhAdmin = false; // VARIÁVEL QUE CONTROLA A VISÃO DO HISTÓRICO
+    let usuarioEhAdmin = false; 
 
     // --- SEGURANÇA + TIMER DE 30 MIN ---
     onAuthStateChanged(auth, async (user) => {
@@ -328,9 +357,11 @@
                 if (docSnap.exists()) {
                     const dados = docSnap.data();
                     
-                    // NOME E PERMISSÃO
+                    // NOME
                     nomeUsuarioLogado = dados.nome || "Usuário";
-                    usuarioEhAdmin = (dados.cargo === 'admin'); // Define se é admin
+                    
+                    // --- VERIFICAÇÃO DE ADMIN (ESSENCIAL) ---
+                    usuarioEhAdmin = (dados.cargo === 'admin'); 
                     
                     document.getElementById('nomeUsuarioDisplay').innerText = "Olá, " + nomeUsuarioLogado + (usuarioEhAdmin ? " (ADMIN)" : "");
 
@@ -397,6 +428,7 @@
         });
     });
 
+    // --- FUNÇÃO MODIFICADA PARA PERMITIR 'PARA O DESPACHO' SEM EQUIPE/HORA ---
     window.verificarRegrasObrigatoriedade = function() {
         const ocorrencia = document.getElementById('ocorrencia').value;
         const situacao = document.getElementById('situacao').value;
@@ -417,7 +449,8 @@
             divSub.style.display = "none";
         }
 
-        const isExcecao = (ocorrencia === "VEÍCULO ABANDONADO" || situacao === "NÃO ATENDIDA");
+        // --- ADICIONADO 'PARA O DESPACHO' NA EXCEÇÃO ---
+        const isExcecao = (ocorrencia === "VEÍCULO ABANDONADO" || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO");
 
         if (isExcecao) {
             inputHoraEnvio.required = false;
@@ -431,13 +464,13 @@
         qtcContainer.style.display = (situacao === 'NÃO ATENDIDA') ? 'block' : 'none';
     };
 
-    function popularEquipes(selectId) {
+    function popularEquipes(selectId, equipesDaOcorrenciaAtual = []) {
         const sel = document.getElementById(selectId);
         sel.innerHTML = '<option value="">+ ADICIONAR...</option>';
         
         const adicionarOpcao = (valor) => {
             const opt = new Option(valor, valor);
-            if (veiculosOcupados.has(valor)) {
+            if (veiculosOcupados.has(valor) && !equipesDaOcorrenciaAtual.includes(valor)) {
                 opt.disabled = true;
                 opt.text += " (EM USO)";
             }
@@ -446,7 +479,7 @@
 
         for(let i=1; i<=80; i++) { let n = i < 10 ? '0'+i : i; adicionarOpcao('MT '+n); }
         for(let i=1; i<=20; i++) { let n = i < 10 ? '0'+i : i; adicionarOpcao('VT '+n); }
-        ["EQUIPE SEMAFÓRICA", "SINAL VIDA", "UMT", "SERTELL", "VÍDEOMONITORAMENTO"].forEach(nome => adicionarOpcao(nome));
+        ["EQUIPE SEMAFÓRICA", "SINAL VIDA", "UMT", "SERTELL", "VÍDEO MONITORAMENTO"].forEach(nome => adicionarOpcao(nome));
     }
 
     function renderizarEquipes(targetContainer, lista, removeCallback) {
@@ -530,48 +563,56 @@
                 const cell = row.insertCell();
                 let conteudo = String(txt || "").replace(/\n/g, '<br>');
                 if (idx === 6) cell.className = obterClasseRegiao(txt);
+                
                 if(idx === 9) { 
                     if (txt === 'CONCLUÍDA') cell.className = 'status-concluida';
                     else if (txt === 'ENCAMINHADA') cell.className = 'status-encaminhada';
+                    else if (txt === 'PARA O DESPACHO') cell.className = 'status-despacho'; 
                     else cell.className = 'status-pendente';
                 }
                 cell.innerHTML = conteudo;
             });
 
-            // --- LÓGICA DE HISTÓRICO RESTRITO ---
             const cellHist = row.insertCell();
             cellHist.className = 'col-hist';
             
-            if (usuarioEhAdmin) {
-                const divWrapper = document.createElement('div');
-                divWrapper.className = 'hist-wrapper';
-                const lista = document.createElement('ul');
-                lista.className = 'lista-historico';
+            const divWrapper = document.createElement('div');
+            divWrapper.className = 'hist-wrapper';
+            const lista = document.createElement('ul');
+            lista.className = 'lista-historico';
 
-                const logsParaExibir = d.historicoLogs ? [...d.historicoLogs] : [];
-                logsParaExibir.reverse(); 
-                
-                logsParaExibir.forEach(log => {
-                    const item = document.createElement('li');
-                    const parts = log.match(/^\[(.*?)\] (.*?) por (.*?) (\|.*)?$/); 
+            const logsParaExibir = d.historicoLogs ? [...d.historicoLogs] : [];
+            logsParaExibir.reverse(); 
+            
+            logsParaExibir.forEach(log => {
+                const item = document.createElement('li');
+                if (log.includes(" por ")) {
+                    const partes = log.split(" por ");
+                    const primeiraParte = partes[0]; 
+                    let resto = partes.slice(1).join(" por "); 
                     
-                    if(parts) {
-                        const hora = parts[1];
-                        const acao = parts[2];
-                        const nome = parts[3];
-                        const resto = parts[4] || ""; 
-                        item.innerHTML = `<span class="hist-meta">[${hora}]</span><span class="hist-acao">${acao}</span><span class="hist-autor">${nome}</span><span class="hist-detalhe">${resto.replace('|', '')}</span>`;
+                    if (usuarioEhAdmin) {
+                        let nome = resto;
+                        let detalhes = "";
+                        if (resto.includes(" | ")) {
+                            nome = resto.substring(0, resto.indexOf(" | "));
+                            detalhes = resto.substring(resto.indexOf(" | ")); 
+                        }
+                        item.innerHTML = `<span class="hist-meta">${primeiraParte}</span> <span class="hist-autor">por ${nome}</span><span class="hist-detalhe">${detalhes.replace('|', '')}</span>`;
                     } else {
-                        item.innerText = log;
+                        let detalhes = "";
+                        if (resto.includes(" | ")) {
+                            detalhes = resto.substring(resto.indexOf("|")); 
+                        }
+                        item.innerHTML = `<span class="hist-meta">${primeiraParte}</span> <span class="hist-detalhe">${detalhes.replace('|', '')}</span>`;
                     }
-                    lista.appendChild(item);
-                });
-                divWrapper.appendChild(lista);
-                cellHist.appendChild(divWrapper);
-            } else {
-                // SE NÃO FOR ADMIN:
-                cellHist.innerHTML = '<div class="hist-restrito">🔒 Restrito a Admins</div>';
-            }
+                } else {
+                    item.innerText = log;
+                }
+                lista.appendChild(item);
+            });
+            divWrapper.appendChild(lista);
+            cellHist.appendChild(divWrapper);
 
             if (d.situacao !== 'CONCLUÍDA' && d.situacao !== 'NÃO ATENDIDA') {
                 const acCell = row.insertCell();
@@ -595,7 +636,6 @@
         });
 
         popularEquipes('equipeSelect');
-        popularEquipes('editEquipeSelect'); 
     });
 
     window.abrirModalEncaminhar = (id, dados) => {
@@ -607,7 +647,11 @@
         document.getElementById('editDetalhamento').value = dados.detalhamento;
         document.getElementById('editZona').value = dados.zona;
         document.getElementById('editSituacao').value = 'ENCAMINHADA';
+        
         equipesModal = dados.equipe ? dados.equipe.split(", ") : [];
+        
+        popularEquipes('editEquipeSelect', equipesModal);
+
         renderizarEquipes('editContainerEquipes', equipesModal, (r) => {
             equipesModal = equipesModal.filter(i => i !== r);
             renderizarEquipes('editContainerEquipes', equipesModal, (r) => equipesModal = equipesModal.filter(i => i !== r));
@@ -645,7 +689,6 @@
         if (antigos.contato !== novos.contato) mudancas.push(`Contato alterado`);
         if (mudancas.length === 0) mudancas.push("Reencaminhado sem alterações");
 
-        // --- GATILHO DE AUDITORIA NO ENCAMINHAMENTO ---
         await updateDoc(docRef, { 
             ...novos, 
             historicoLogs: arrayUnion(`[${novaHora}] Alterado por ${nomeUsuarioLogado} | ${mudancas.join(" | ")}`) 
@@ -670,7 +713,6 @@
             historicoLogs: arrayUnion(`[${hF}] Concluído por ${nomeUsuarioLogado}`)
         });
 
-        // --- GATILHO DE AUDITORIA NA CONCLUSÃO ---
         registrarLogAuditoria("CONCLUIR OCORRÊNCIA", `Registro nº ${dadosAntigos.numRegistro} finalizado por ${nomeUsuarioLogado}. Resultado: ${res}`);
 
         alert("✅ Ocorrência concluída com sucesso!");
@@ -696,7 +738,8 @@
             if (subtipo) ocorrencia = `${ocorrencia} (${subtipo})`;
         }
 
-        const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA");
+        // --- ALTERADO AQUI: Adicionado 'PARA O DESPACHO' como exceção ---
+        const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO");
 
         if (!solicitante || !contato || !ocorrencia || !local || !detalhamento || !zona || !situacao) {
             alert("⚠️ Preencha os campos básicos obrigatórios!"); return;
@@ -734,7 +777,6 @@
 
         await addDoc(collection(db, "ocorrencias_sttu"), dados);
         
-        // --- GATILHO DE AUDITORIA NO REGISTRO ---
         registrarLogAuditoria("CRIAR OCORRÊNCIA", `Registro nº ${numAtual} criado por ${nomeUsuarioLogado}. Tipo: ${ocorrencia} em ${local}`);
 
         const contadorRef = doc(db, "config", "contador");
@@ -749,7 +791,6 @@
         buscarProximoNumero();
     };
 
-    // --- FUNÇÃO DE AUDITORIA (ADICIONE NO FINAL DO SCRIPT) ---
     async function registrarLogAuditoria(acao, detalhes) {
         try {
             await addDoc(collection(db, "logs_auditoria"), {
@@ -763,7 +804,6 @@
         }
     }
 
-    // Inicialização
     buscarProximoNumero();
     popularEquipes('equipeSelect');
     popularEquipes('editEquipeSelect'); 
