@@ -41,6 +41,7 @@
             justify-content: center;
             gap: 15px;
         }
+        /* IMPORTANTE: Adicionei IDs aos botões no HTML abaixo para controle via JS */
         .button-group a, .button-group button {
             display: inline-block;
             padding: 15px 30px;
@@ -72,8 +73,8 @@
         .btn-relatorio { background-color: #8e44ad !important; }
         .btn-relatorio:hover { background-color: #732d91 !important; }
 
-        /* ESTILO DO BOTÃO DE AUDITORIA */
-        .btn-auditoria { background-color: #16a085 !important; display: none; } /* Começa invisível */
+        /* Botão Auditoria (Invisível por padrão) */
+        .btn-auditoria { background-color: #16a085 !important; display: none; } 
         .btn-auditoria:hover { background-color: #1abc9c !important; }
 
         .user-info {
@@ -111,16 +112,16 @@
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 
         <h1>Painel de Controle</h1>
-        <p>Selecione uma opção para continuar:</p>
+        <p id="msgBoasVindas">Selecione uma opção para continuar:</p>
         
         <div class="button-group" id="menu-botoes">
-            <a href="agentes.html">👮 AGENTES</a> 
-            <a href="ocorrencias.html">🚨 OCORRÊNCIAS</a>
-            <a href="observacoes.html">📝 OBSERVAÇÕES</a>
-            <a href="relatorio_geral.html" class="btn-relatorio">📑 RELATÓRIOS</a>
-            <a href="estatisticas.html" style="background-color: #f39c12;">📊 ESTATÍSTICAS</a>
+            <a href="agentes.html" id="btnAgentes">👮 AGENTES</a> 
+            <a href="ocorrencias.html" id="btnOcorrencias">🚨 OCORRÊNCIAS</a>
+            <a href="observacoes.html" id="btnObservacoes">📝 OBSERVAÇÕES</a>
+            <a href="relatorio_geral.html" id="btnRelatorios" class="btn-relatorio">📑 RELATÓRIOS</a>
+            <a href="estatisticas.html" id="btnEstatisticas" style="background-color: #f39c12;">📊 ESTATÍSTICAS</a>
             
-            <a href="auditoria.html" id="btnAuditoria" class="btn-auditoria">👁️ AUDITORIA</a>
+            <a href="auditoria.html" id="btnAuditoria" class="btn-auditoria" style="display: none;">👁️ AUDITORIA</a>
         </div>
     </div>
 
@@ -159,7 +160,6 @@
             };
         }
 
-        // Função antiga para o painel admin (mantive caso você ainda use o admin.html)
         function habilitarPainelAdmin() {
             const menu = document.getElementById('menu-botoes');
             if (!document.getElementById('btn-admin-link')) {
@@ -181,6 +181,7 @@
                     if (docSnap.exists()) {
                         const dados = docSnap.data();
 
+                        // Bloqueia quem não está aprovado
                         if (dados.cargo !== 'admin' && dados.status !== 'aprovado') {
                             alert("🚫 ACESSO BLOQUEADO\n\nSeu cadastro aguarda aprovação do administrador.");
                             await signOut(auth);
@@ -190,18 +191,27 @@
 
                         mostrarUsuarioLogado(user.email);
 
-                        // --- VERIFICAÇÃO DE ADMIN ---
-                        if (dados.cargo === 'admin') {
-                            // Habilita o botão de Painel Admin (se existir a página admin.html)
-                            habilitarPainelAdmin();
+                        // --- LÓGICA DE BLOQUEIO DO CIOSP ---
+                        if (dados.cargo === 'ciosp') {
+                            // Esconde tudo, exceto Ocorrências
+                            document.getElementById('btnAgentes').style.display = 'none';
+                            document.getElementById('btnObservacoes').style.display = 'none';
+                            document.getElementById('btnRelatorios').style.display = 'none';
+                            document.getElementById('btnEstatisticas').style.display = 'none';
                             
-                            // HABILITA O BOTÃO DE AUDITORIA
+                            // Ajusta mensagem
+                            document.querySelector('h1').innerText = "Painel CIOSP";
+                            document.getElementById('msgBoasVindas').innerText = "Acesso restrito a Ocorrências.";
+                        } 
+                        
+                        // --- LÓGICA DE ADMIN ---
+                        if (dados.cargo === 'admin') {
+                            habilitarPainelAdmin();
                             const btnAuditoria = document.getElementById('btnAuditoria');
-                            if (btnAuditoria) {
-                                btnAuditoria.style.display = 'inline-block'; // Torna visível
-                            }
+                            if (btnAuditoria) btnAuditoria.style.display = 'inline-block'; 
                         }
 
+                        // Timer de inatividade (Comum a todos menos Visualizador)
                         if (dados.cargo !== 'visualizador') {
                             let tempoInatividade;
                             const LIMITE_TEMPO = 30 * 60 * 1000; 
