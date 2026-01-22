@@ -33,8 +33,15 @@
 
         /* Card do Contador */
         .card-contador { margin-top: 30px; padding: 20px; background: #fff8e1; border-left: 5px solid #f39c12; border-radius: 4px; }
-        .btn-zerar { background-color: #e67e22; width: 100%; margin-top: 10px; padding: 10px; }
+        
+        .contador-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; }
+        @media (max-width: 600px) { .contador-grid { grid-template-columns: 1fr; } }
+
+        .btn-zerar { background-color: #e67e22; width: 100%; padding: 10px; }
         .btn-zerar:hover { background-color: #d35400; }
+
+        .btn-definir { background-color: #2980b9; width: 100%; padding: 10px; }
+        .btn-definir:hover { background-color: #1a5276; }
     </style>
 </head>
 <body>
@@ -76,8 +83,24 @@
 
         <div class="card-contador">
             <h3 style="margin-top:0; color:#e67e22;">🔢 Controle Global de Ocorrências</h3>
-            <p style="font-size:14px; color:#555;">Use este botão apenas na virada do ano ou quando for necessário reiniciar a numeração para 001.</p>
-            <button class="btn btn-zerar" id="btnZerarContador">ZERAR CONTADOR PARA 000</button>
+            <p style="font-size:14px; color:#555;">Gerencie a numeração automática das ocorrências.</p>
+            
+            <div class="contador-grid">
+                <div style="text-align: center; border-right: 1px solid #ddd; padding-right: 10px;">
+                    <label style="font-size: 12px;">REINICIAR TUDO</label>
+                    <button class="btn btn-zerar" id="btnZerarContador">ZERAR PARA 000</button>
+                    <small style="display:block; margin-top:5px; color:#777;">Usar na virada do ano</small>
+                </div>
+
+                <div>
+                    <label style="font-size: 12px;">DEFINIR INÍCIO MANUAL</label>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="number" id="inputNovoContador" placeholder="Ex: 500" style="padding: 8px;">
+                        <button class="btn btn-definir" id="btnDefinirContador" style="margin-top: 0;">DEFINIR</button>
+                    </div>
+                    <small style="display:block; margin-top:5px; color:#777;">A próxima será o valor + 1</small>
+                </div>
+            </div>
         </div>
 
         <button class="btn btn-voltar" onclick="window.location.href='index.html'">VOLTAR AO INÍCIO</button>
@@ -144,13 +167,32 @@
 
     // --- FUNÇÃO PARA ZERAR CONTADOR GLOBAL ---
     document.getElementById('btnZerarContador').onclick = async () => {
-        if(confirm("ATENÇÃO: Isso reiniciará o contador de ocorrências para 001 para TODOS os usuários do sistema.\n\nDeseja continuar?")) {
+        if(confirm("ATENÇÃO: Isso reiniciará o contador de ocorrências para 001 para TODOS os usuários.\n\nDeseja continuar?")) {
             try {
-                // Seta o valor 'atual' como 0. A próxima ocorrência será 0 + 1 = 1 (001).
                 await setDoc(doc(db, "config", "contador"), { atual: 0 });
                 alert("✅ Contador reiniciado com sucesso!");
             } catch (e) {
                 alert("Erro ao zerar: " + e.message);
+            }
+        }
+    };
+
+    // --- FUNÇÃO PARA DEFINIR CONTADOR MANUALMENTE ---
+    document.getElementById('btnDefinirContador').onclick = async () => {
+        const valorInput = document.getElementById('inputNovoContador').value;
+        const valorNumerico = parseInt(valorInput);
+
+        if (!valorInput || isNaN(valorNumerico) || valorNumerico < 0) {
+            return alert("Por favor, digite um número válido.");
+        }
+
+        if(confirm(`CONFIRMAÇÃO:\n\nVocê vai definir o contador para ${valorNumerico}.\nIsso significa que a PRÓXIMA ocorrência será a número ${valorNumerico + 1}.\n\nDeseja aplicar?`)) {
+            try {
+                await setDoc(doc(db, "config", "contador"), { atual: valorNumerico });
+                alert(`✅ Contador ajustado! Próximo registro será: ${valorNumerico + 1}`);
+                document.getElementById('inputNovoContador').value = "";
+            } catch (e) {
+                alert("Erro ao definir: " + e.message);
             }
         }
     };
