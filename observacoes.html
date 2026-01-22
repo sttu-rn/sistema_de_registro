@@ -19,7 +19,20 @@
 
         .config-turno { background: #2c3e50; color: white; padding: 10px; border-radius: 5px 5px 0 0; display: flex; align-items: center; justify-content: space-between; margin-top: 15px; }
         .grid-equipamentos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; border: 2px solid #2c3e50; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 5px; background: #fff; }
-        .item-conferencia { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: bold; color: #2c3e50; }
+        
+        /* --- AJUSTE AQUI: APROXIMAÇÃO DO TEXTO E INPUT --- */
+        .item-conferencia { 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end; /* Alinha tudo à direita da célula */
+            gap: 10px; /* Define a distância fixa entre o texto e a caixa */
+            font-size: 12px; 
+            font-weight: bold; 
+            color: #2c3e50; 
+            text-align: right; /* Garante que o texto fique alinhado junto ao input */
+        }
+        /* ------------------------------------------------ */
+
         .item-conferencia input { width: 45px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
 
         .grid-linhas { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #ecf0f1; border-left: 2px solid #2c3e50; border-right: 2px solid #2c3e50; margin-bottom: 0; }
@@ -63,6 +76,22 @@
         .btn-sair-topo { background-color: #c0392b; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: bold; }
         
         #nomeUsuarioDisplay { font-size: 11px; color: #bdc3c7; font-weight: bold; margin-right: 10px; }
+
+        /* ESTILO PARA A ÁREA DAS OPERADORAS */
+        .area-operadoras {
+            background: #fff;
+            padding: 10px;
+            border-left: 2px solid #2c3e50;
+            border-right: 2px solid #2c3e50;
+            border-bottom: 2px solid #2c3e50; /* Fecha a borda que vinha da grid-linhas */
+        }
+        .titulo-operadora {
+            font-size: 11px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -92,9 +121,9 @@
                     <option value="MADRUGADA">MADRUGADA</option>
                 </select>
             </div>
+            
             <div style="background: #fff; padding: 10px; border: 2px solid #2c3e50; border-top: none; display: flex; gap: 10px; align-items: center;">
-                <input type="text" id="agente-turno-nome" list="listaAgentes" placeholder="NOME COMPLETO DO AGENTE" style="flex: 3; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
-                <input type="text" id="agente-turno-matricula" placeholder="MATRÍCULA" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
+                <input type="text" id="agente-turno-nome" list="listaAgentes" placeholder="NOME COMPLETO DO AGENTE" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
                 <datalist id="listaAgentes"></datalist>
             </div>
             
@@ -107,6 +136,14 @@
                 <button class="btn-linha" data-num="3232-9105">3232-9105</button>
                 <button class="btn-linha" data-num="3232-9107">3232-9107</button>
                 <button class="btn-linha" data-num="98870-3862">98870-3862</button>
+            </div>
+
+            <div class="area-operadoras">
+                <span class="titulo-operadora">OPERADORAS:</span>
+                <div style="display: flex; gap: 10px;">
+                    <textarea id="texto-operadora" class="tentante-input" style="margin-top: 0; min-height: 50px;" placeholder="Relate a situação das operadoras..." autocomplete="off"></textarea>
+                    <button id="btn-registrar-operadora" class="btn" style="background-color: #34495e; width: auto; font-size: 11px; padding: 0 15px;">REGISTRAR</button>
+                </div>
             </div>
 
             <div class="grid-equipamentos" style="border-top: none; border-radius: 0 0 5px 5px;">
@@ -255,7 +292,7 @@
             <div class="config-turno" style="background-color: #16a085;"><strong>EQUIPE COMPLEMENTAR:</strong></div>
             <div style="border: 2px solid #16a085; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <input type="text" id="comp-nome" placeholder="NOME" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
+                    <input type="text" id="comp-nome" placeholder="NOME DO AGENTE..." style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
                     <input type="text" id="comp-funcao" placeholder="FUNÇÃO..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
                 </div>
                 <div class="btn-group"><button class="btn" id="btn-registrar-complementar" style="background-color: #16a085;">REGISTRAR EQUIPE</button></div>
@@ -587,9 +624,26 @@
     document.getElementById('btn-registrar-inicio').onclick = async () => {
         const turno = document.getElementById('turno-select').value;
         const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
-        const matAgente = document.getElementById('agente-turno-matricula').value.trim().toUpperCase();
+        // REMOVIDO: const matAgente = ...
 
-        if (turno === "SELECIONE" || !nomeAgente || !matAgente) return alert("Preencha Turno, Nome e Matrícula.");
+        // VERIFICAÇÃO 1: Campos básicos
+        if (turno === "SELECIONE" || !nomeAgente) {
+             return alert("Preencha Turno e Nome do Agente.");
+        }
+
+        // VERIFICAÇÃO 2: Teste de Telefones
+        const btnLinhas = document.querySelectorAll('.btn-linha');
+        let todosTestados = true;
+        btnLinhas.forEach(btn => {
+            // Se NÃO tem 'ok' E NÃO tem 'nok', então não foi testado
+            if (!btn.classList.contains('ok') && !btn.classList.contains('nok')) {
+                todosTestados = false;
+            }
+        });
+
+        if (!todosTestados) {
+            return alert("⚠️ ATENÇÃO: É OBRIGATÓRIO testar todas as linhas telefônicas (marque Verde ou Vermelho) antes de iniciar o turno!");
+        }
 
         const qVerificacao = query(
             collection(db, "observacoes_sttu"), 
@@ -601,13 +655,14 @@
         if (!snapshot.empty) return alert(`Turno ${turno} já registrado hoje!`);
 
         let statusLinhas = [];
-        document.querySelectorAll('.btn-linha').forEach(btn => {
+        btnLinhas.forEach(btn => {
             if (btn.classList.contains('ok')) statusLinhas.push(`${btn.getAttribute('data-num')}: OK`);
             else if (btn.classList.contains('nok')) statusLinhas.push(`${btn.getAttribute('data-num')}: INOPERANTE`);
         });
         const textoLinhas = statusLinhas.length > 0 ? ` | LINHAS: ${statusLinhas.join(', ')}` : "";
 
-        const detalhes = `SERVIÇO INICIADO TURNO ${turno} - AGENTE: ${nomeAgente} (MAT: ${matAgente})${textoLinhas}. CONFERÊNCIA: ` +
+        // REMOVIDO MATRICULA DA STRING DETALHES
+        const detalhes = `SERVIÇO INICIADO TURNO ${turno} - AGENTE: ${nomeAgente}${textoLinhas}. CONFERÊNCIA: ` +
             `CEL.ATEND:${document.getElementById('qtd-cel-atend').value}, ` +
             `FONTE:${document.getElementById('qtd-fonte-cel').value}, ` +
             `CABO:${document.getElementById('qtd-cabo-cel').value}, ` +
@@ -636,9 +691,9 @@
 
     document.getElementById('btn-registrar-maleta').onclick = async () => {
         const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
-        const matAgente = document.getElementById('agente-turno-matricula').value.trim().toUpperCase();
-        if (!nomeAgente || !matAgente) {
-            alert("Preencha Nome e Matrícula no topo primeiro.");
+        // REMOVIDO: const matAgente = ...
+        if (!nomeAgente) {
+            alert("Preencha o Nome do Agente no topo primeiro.");
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
@@ -666,8 +721,9 @@
         const qtdTc = document.getElementById('qtd-tc').value;
         const qtdMan = document.getElementById('qtd-manual').value;
 
+        // REMOVIDO MATRICULA DA STRING DETALHES
         const detalhes = `ENTREGA ${maleta ? 'DA MALETA '+maleta : 'DE EQUIPAMENTOS'}. ` +
-            `RETIRADO POR: ${nomeAgente} (${matAgente}). ` + 
+            `RETIRADO POR: ${nomeAgente}. ` + 
             `ITENS: ETIL:${qtdEtil}, PITEIRA:${qtdPiteira}, IMP:${qtdImp}, CARR:${qtdCar}, BOB:${qtdBob}, ` +
             `BOAT:${qtdBoat}, CERT:${qtdCert}, TC:${qtdTc}, MAN:${qtdMan} ${obs ? '| OBS: '+obs : ''}`;
         
@@ -756,6 +812,20 @@
         }
     };
 
+    // --- NOVO CÓDIGO: BOTÃO REGISTRAR OPERADORA ---
+    document.getElementById('btn-registrar-operadora').onclick = () => {
+        const textoOp = document.getElementById('texto-operadora').value.trim();
+        if (textoOp) {
+            // Salva no banco com um prefixo claro
+            salvarObservacao(`SITUAÇÃO OPERADORAS: ${textoOp}`);
+            
+            // Limpa o campo
+            document.getElementById('texto-operadora').value = "";
+        } else {
+            alert("Digite a observação da operadora antes de registrar.");
+        }
+    };
+
     document.querySelectorAll('.btn-maleta').forEach(botao => {
         botao.onclick = () => {
             const selecionada = botao.classList.contains('selecionada');
@@ -770,6 +840,4 @@
     });
 </script>
 </body>
-</html>
-
-
+</html>```
