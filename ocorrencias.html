@@ -365,6 +365,58 @@
                     
                     document.getElementById('nomeUsuarioDisplay').innerText = "Olá, " + nomeUsuarioLogado + (usuarioEhAdmin ? " (ADMIN)" : "");
 
+                    // --- BLOQUEIO PARA VISUALIZADOR (COLE ISSO NO SCRIPT) ---
+                    if (dados.cargo === 'visualizador') {
+                        console.log("🔒 Modo Apenas Leitura Ativado");
+
+                        // 1. Injeta CSS para esconder botões de ação e travar inputs
+                        const styleBlock = document.createElement('style');
+                        styleBlock.innerHTML = `
+                            /* Esconde formulários de registro e botões de salvar/ação */
+                            #registroForm, .input-section, .btn-group, 
+                            .btn-salvar, .btn-registrar, .btn-encaminhar, .btn-concluir, 
+                            .btn-devolver, .btn-acao-tabela, .btn-baixa, .btn-baixa-falta,
+                            .area-operadoras button, .selecao-maleta {
+                                display: none !important;
+                            }
+                            
+                            /* Esconde a última coluna das tabelas (geralmente é a coluna AÇÃO) */
+                            table th:last-child, table td:last-child {
+                                display: none !important;
+                            }
+
+                            /* Deixa campos de input com cara de "bloqueado" */
+                            input, select, textarea {
+                                pointer-events: none !important;
+                                background-color: #eee !important;
+                                border: 1px solid #ccc !important;
+                            }
+
+                            /* Garante que botões de navegação e download continuem visíveis */
+                            .btn-nav, .btn-home, .btn-download, #btnSair, #btnCSV, #btnDownloadCSV {
+                                display: inline-block !important;
+                                pointer-events: auto !important;
+                            }
+                        `;
+                        document.head.appendChild(styleBlock);
+
+                        // 2. Desativa interações via JS (força bruta)
+                        setTimeout(() => {
+                            const inputs = document.querySelectorAll('input, select, textarea, button');
+                            inputs.forEach(el => {
+                                // Se NÃO for botão de sair, download ou navegação, desabilita
+                                if (!el.id.includes('Sair') && 
+                                    !el.classList.contains('btn-nav') && 
+                                    !el.classList.contains('btn-home') &&
+                                    !el.classList.contains('btn-download')) {
+                                    el.disabled = true;
+                                    el.onclick = null;
+                                }
+                            });
+                        }, 500); // Pequeno delay para garantir que a tela carregou
+                    }
+                    // --- FIM DO BLOQUEIO ---
+
                     if (dados.cargo !== 'visualizador') {
                         let tempoInatividade;
                         const LIMITE_TEMPO = 30 * 60 * 1000; 
@@ -835,6 +887,5 @@
 </script>
 </body>
 </html>
-
 
 
