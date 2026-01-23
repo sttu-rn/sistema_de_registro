@@ -34,19 +34,8 @@
         .item-conferencia input { width: 45px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
 
         /* --- ESTILOS DE VALIDAÇÃO DOS ITENS --- */
-        .input-pendente {
-            border: 2px solid #e74c3c !important; /* Vermelho */
-            background-color: #fadbd8;
-            color: #c0392b;
-            font-weight: bold;
-        }
-        .input-ok {
-            border: 2px solid #27ae60 !important; /* Verde */
-            background-color: #fff;
-            color: #27ae60;
-            font-weight: bold;
-        }
-        /* -------------------------------------- */
+        .input-pendente { border: 2px solid #e74c3c !important; background-color: #fadbd8; color: #c0392b; font-weight: bold; }
+        .input-ok { border: 2px solid #27ae60 !important; background-color: #fff; color: #27ae60; font-weight: bold; }
 
         .grid-linhas { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #ecf0f1; border-left: 2px solid #2c3e50; border-right: 2px solid #2c3e50; margin-bottom: 0; }
         .btn-linha { flex: 1; min-width: 100px; padding: 8px; border: 1px solid #bdc3c7; background-color: #fff; color: #7f8c8d; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; transition: all 0.2s; text-align: center; }
@@ -64,14 +53,10 @@
         .btn-group { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
         .btn { border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: background 0.3s; color: white; }
         .btn-registrar { background-color: #27ae60; }
-        /* Classe para botão desativado */
         .btn:disabled { background-color: #95a5a6 !important; cursor: not-allowed; opacity: 0.7; }
-        
         .btn-entrega { background-color: #3498db; }
-        
         .btn-baixa { background-color: #e67e22; font-size: 10px; padding: 4px 8px; white-space: nowrap; }
         .btn-baixa-falta { background-color: #c0392b; font-size: 10px; padding: 4px 8px; white-space: nowrap; }
-        
         .btn-tentante { background-color: #2c3e50; margin-top: 10px; }
         .btn-remocao { background-color: #c0392b; }
         .btn-inspetor { background-color: #34495e; }
@@ -93,21 +78,8 @@
         
         #nomeUsuarioDisplay { font-size: 11px; color: #bdc3c7; font-weight: bold; margin-right: 10px; }
 
-        /* ESTILO PARA A ÁREA DAS OPERADORAS */
-        .area-operadoras {
-            background: #fff;
-            padding: 10px;
-            border-left: 2px solid #2c3e50;
-            border-right: 2px solid #2c3e50;
-            border-bottom: 2px solid #2c3e50;
-        }
-        .titulo-operadora {
-            font-size: 11px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            display: block;
-        }
+        .area-operadoras { background: #fff; padding: 10px; border-left: 2px solid #2c3e50; border-right: 2px solid #2c3e50; border-bottom: 2px solid #2c3e50; }
+        .titulo-operadora { font-size: 11px; font-weight: bold; color: #2c3e50; margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
@@ -371,6 +343,7 @@
     const agentesDB = ["ADRIANA GOMES DA SILVA - 43.071-4", "ADRIANO ANDRÉ GUEDES COSTA - 43.079-0", "ADRIANO NASCIMENTO DA FONSECA - 49.991-9", "AFRÂNIO MEDEIROS DA COSTA - 43.151-6", "AGRICIO BELCHIOR BANDEIRA NETO - 43.127-3", "AILTON ANDRADE - 62.095-5", "ALCINEIDE JUSTO SIQUEIRA - 62.100-5", "ALDREY LUIZ MORAIS DA SILVA - 62.549-3", "ALDRIN MAGNO DANTAS SIQUEIRA - 43.080-3", "ALESSANDRA DORA DA SILVA COSTA - 43.199-1", "ALEX SERAFIM DA SILVA - 15.231-5", "ALEXANDRA BARROS DO NASCIMENTO - 49.953-6", "ALEXANDRE DE SOUZA - 13.174-1", "ALEXANDRE MAGNO FREITAS COSMO - 61.947-7", "ALEXSANDRO NASCIMENTO BARBOSA - 43.072-2", "ALYENE PATRICIA CRUZ BRITO ALVES - 64.545-0", "ALISSON EMANOEL DE OLIVEIRA FAGUNDES - 49.995-1", "ALLAN ARAÚJO DE MEDEIROS - 43.073-1", "ANA MARIA DA SILVA ALVES - 13.141-5", "ANDERSON RODRIGO DO NASCIMENTO - 63.802-1", "ANDRE CORCINO DE LIMA FILHO - 00.387-5", "ANDREA CASTRO GALVÃO - 62.097-1", "ANDREIA CARLA SILVA FONSECA E SOUZA - 14.071-6", "ANDREZA CABRAL CÂMARA NUNES - 61.710-5", "ANNE CAROLINE MACEDO DE ARAÚJO - 60.233-7", "ANTÃO LOPES DE ARAÚJO FILHO - 43.100-1", "ANTONIO CLEMENTINO DA ROCHA - 13.632-8", "ANTONIO GUILHERME DOS SANTOS - 14.206-9", "ANTONIO SARMENTO RODRIGUES FILHO - 13.634-4", "BARBARA KALYANA DOS SANTOS GOMES - 43.102-8", "CARLOS EUBER DE FREITAS NEVES - 43.077-3", "CARLOS EUGÊNIO BARBOSA DE OLIVEIRA - 00.282-8", "CARLOS VALENTIM ALVES - 13.140-7", "CARLYLE CÂMARA DOS SANTOS - 43.150-8", "CARMOZINA REGIA DE MELO DANTAS - 43.084-6", "CAROLINA DE CÁSSIA DEFENTE - 43.101-0", "CASSIO CLAY PEREIRA - 14.190-9", "CASTRICIANO BRAZ DOS SANTOS - 13.593-3", "CHIARA LUCIA DE GUMÃO GONÇALVES COSTA - 43.096-0", "CLAUDIA JACQUELINE GALVÃO SOUZA - 14.937-3", "CLEIDE MARIA DOS SANTOS SILVA - 13.614-0", "CLEONEIDE CORREIA RAMALHO RIBEIRO - 13.609-3", "CRISTIANE DE MACEDO E SILVA - 62.873-5", "DANIEL ALBURQUERQUE EMERENCIANO GONÇALVES - 43.090-1", "DANIELLE PEREIRA DE OLIVEIRA - 60.072-5", "DANILSON BENTES MARINHO - 13.116-4", "DAVI FIRMINO DE LIMA - 14.953-5", "DENÍLSON ARAÚJO DA COSTA - 60.090-3", "DIONISIO CARDOSO DA COSTA - 13.659-0", "DANILO CLAUDIO LIRA DOS SANTOS - 72.245-7", "EDÍLSON FERREIRA DOS SANTOS - 00.417-1", "EDILSON OLIVEIRA DA SILVA - 13.147-4", "EDINALVA DUARTE LEAL DE MEDEIROS - 00.463-4", "EDINÁSIO COSTA SOARES - 49.986-2", "EDJA DE PAULA MAIA - 45.570-9", "EDSON RAIMUNDO DA SILVA - 13.463-5", "EDVALDO MANOEL DA SILVA - 00.465-1", "EDVALDO SOARES DA SILVA - 09.325-4", "ELIZABETE RANYELA MORAIS DE MOURA - 43.198-2", "ERNESTO MORAIS VIANA - 14.930-6", "EVALDO FELIX FERREIRA - 00.518-5", "EVERALDO ALEXANDRE FREIRE - 14.043-1", "FERNANDA FREITAS DE HOLANDA - 60.066-1", "FRANCISCO GILSON LEONIDAS DA SILVA - 13.679-4", "FRANZ BIAGGIO FULCO GAAG - 65.247-4", "GENALDO AZEVEDO TRINDADE - 43.086-2", "GILDIBERTO DE SOUZA ALVES - 08.646-1", "GILMAR GOMES DO NASCIMENTO - 06.726-1", "GUTEMBERG PEREIRA - 08.015-2", "HAILSON CABRAL DO NASCIMENTO - 00.375-1", "HARLLEY CAMPOS MARQUES - 65.420-5", "HEITOR RODRIGUES DE LIMA - 43.097-8", "HEMERSON MELO DA SILVA - 49.952-8", "HERANDY DE ARAÚJO CABRAL - 49.950-1", "HERQUILES LIMA DOS SANTOS - 43.149-4", "HEWERTON MOURA DA SILVA - 43.098-6", "ISABELA SILVA NICÁCIO DE BRITO - 60.234-5", "ISRAEL FERREIRA PEREIRA - 13.110-5", "IVAN DE CARVALHO MEDEIROS - 00.431-6", "IVES SILVA DE SOUZA - 62.151-0", "JAIR JEFFERSON DE CARVALHO - 13.896-7", "JARDEL BEZERRA DE ANDRADE - 62.189-7", "JARDS MEDEIROS DE OLIVEIRA - 62.826-3", "JATSON FRANCISCO DA SILVA BANDEIRA - 13.727-8", "JEFFERSON STANLEY DA SILVA - 62.919-7", "JOÃO BATISTA MONTEIRO DE AQUINO - 00.482-1", "JOÃO BATISTA ROCHA FILHO - 49.994-3", "JOÃO BATISTA VARELA BARCA - 15.710-4", "JOÃO CLAUDIO OLIVEIRA DE FARIAS - 00.383-2", "JOÃO FERREIRA - 06.644-3", "JOÃO MARIA ALMEIDA DE MOURA - 43.070-6", "JOÃO MARIA MACEDO ROCHA - 43.201-6", "JOÃO PAULO DE OLIVEIRA - 43.082-0", "JOÃO WILLAMS DA SILVA - 62.253-2", "JONAS CRISTINO DA SILVA - 14.931-4", "JORGE LUIZ BARROS DO NASCIMENTO - 62.431-4", "JORGE LUIZ SIQUEIRA DE OLIVEIRA - 62.191-9", "JOSÉ EUDES BEZERRA - 49.985-4", "JOSÉ ALBERTO FREIRE DA COSTA - 42.766-7", "JOSE ALVES DE SOUZA NETO - 00.544-4", "JOSE AUTEMAR RICARDO - 00.475-8", "JOSE DINIZ RAMOS - 00.575-4", "JOSE EBER DA SILVA - 13.105-9", "JOSÉ GONÇALVES MANGABEIRA DE MEDEIROS - 43.083-8", "JOSÉ RICARDO GOMES CAVALCANTE - 13.102-4", "JOSE ROBERTO DA SILVA DE OLIVEIRA - 14.922-5", "JOSÉ ROOSEVELT MEDEIROS JÚNIOR - 62.416-1", "JOSEMAR DA SILVA DAMASCENO - 60.068-7", "JOSEMAR TAVARES CÂMARA JUNIOR - 43.152-4", "JOSENILSON TEIXEIRA DE SOUZA - 00.386-7", "KASTEEN CARLOS DE AQUINO E SILVA - 43.076-5", "KLEBER SILVESTRE LUSTOSA - 49.825-4", "LAILTON RIBEIRO DA COSTA - 43.078-1", "LEONARDO BATISTA DE SOUZA SILVA - 64.542-7", "LEONARDO DA SILVEIRA LUCENA - 43.122-2", "MADSON LIMA CAVALCANTI DE OLIVEIRA - 49.989-7", "MANOEL NOBREGA DE OLIVEIRA - 13.758-8", "MARA LUCIA BARROS DE SOUZA - 70.665-5", "MARCELO BATISTA DE ANDRADE - 61.952-3", "MARCELO FRANÇA DA SILVA - 60.073-3", "MARCELO ZAERDSON LINS MEDEIROS - 62.184-6", "MARCILIO DE OLIVEIRA RODRIGUES - 49.951-0", "MÁRCIO JOSÉ DA SILVA - 68.159-8", "MARCOS ANTONIO DE OLIVEIRA - 07.326-1", "MARIA DE LOURDES DA SILVA FILHA - 43.200-8", "MARIA DO CARMO DA SILVA - 00.571-1", "MARIA DO SOCORRO LIMA MARTINS - 14.070-8", "MARIA DO SOCORRO SILVA DE ANDRADE - 14.114-3", "MARIA GORETE DUTRA DE OLIVEIRA - 13.988-2", "MARIA JANEIDE BEZERRA DA SILVA - 00.536-3", "MARIA SANTANA BORGES DA SILVA - 00.561-4", "MARIO JOSE DA SILVA LEMOS - 14.944-6", "MARISA GILVANEIDE BERTO - 00.538-0", "MARYANE CRISTINA LOPES PEREIRA - 43.112-5", "MAXIMIANO CAPIM DE MIRANDA - 13.462-7", "MAXWELL FERNANDES DA SILVA - 13.136-9", "MIGUEL ÂNGELO DE SANTANA - 62.092-1", "MOISES PEREIRA DE ARAUJO - 08.229-5", "NADJANIA MARIA DAMASCENO VALLE - 62.368-7", "NAOMI SUASSUNA DOS SANTOS - 60.237-0", "NEUZELIDES PRISCILA SILVA ANDRADE - 49.949-8", "NEWDENBERG FERREIRA GALVÃO - 43.081-1", "NEWTON DE SOUZA PEREIRA FILHO - 60.064-4", "NUBIA SILENE DA SILVA COSTA - 14.109-7", "PATRÍCIA CRISTINA CAVALCANTE - 45.990-9", "RAIMUNDO NONATO DE MEDEIROS NETO - 00.249-6", "RAPHAELLE CAVALCANTE R. DE ARAUJO - 62.149-8", "RECIO RONALDO ANDRADE DE PAIVA - 09.532-0", "REGINA VICÊNCIA CRISPIM - 62.250-8", "RICARDO SERGIO GOMES DA SILVA - 13.477-5", "RITA DE CÁSSIA SILVA - 49.992-7", "ROBSON LUIZ DE AZEVEDO - 00.184-8", "RODRIGO COSTA - 43.087-1", "ROGELIO FERNANDES DE MELO - 13.095-8", "RONALDO JORGE DA SILVA - 13.096-6", "RONALDO MARINHO DE SOUZA - 62.825-5", "RONALDO TEIXEIRA DE ARAÚJO - 62.257-5", "ROSEMBERG PEREIRA - 00.137-6", "SANDRA DA SILVA BEZERRIL BACELAR - 61.712-1", "SARAH POLYANA DIAS DOS SANTOS - 43.154-1", "SEVERINA SOARES NETA CARNEIRO - 00.327-1", "SEVERINO FERNANDES MAIA - 00.192-9", "SEVERINO SOLANO DA SILVA - 00.486-3", "SOLANO LOPES DANTAS - 00.663-7", "SYBELLE DE ARAÚJO DANTAS - 63.386-1", "TALITHA LOUISE FORTUNATO BEZERRA - 49.990-1", "THALES GALVÃO DE ARAUJO - 63.803-0", "THALLES THIAGO MEDEIROS DE SOUZA - 49.988-9", "THIAGO DE LIRA BEZERRA - 43.075-7", "THIAGO HENRIQUE FERREIRA DA SILVA - 60.275-2", "VALDELICE FERREIRA DE OLIVEIRA - 00.507-0", "VANESSA GALDINO DA SILVA - 61.955-8", "WALDICK GUERRA DE MEDEIROS - 13.281-1", "WALTER PEDRO DA SILVA - 00.358-1", "WANDERCLEY SILVA NEVES - 70.563-2", "WANDRÉ WAGNER DA SILVA - 62.367-9", "ZELIO CUNHA - 13.400-7"];
 
     let nomeUsuarioLogado = "ANÔNIMO";
+    let isVisualizador = false;
 
     // --- POPULATE AGENT LIST ON LOAD ---
     window.onload = () => {
@@ -409,11 +382,8 @@
                 this.classList.remove('input-pendente');
                 this.classList.add('input-ok');
             });
-            // Also handle click/focus if needed, but input covers typing
         });
     };
-
-    // ... (AUTH AND OTHER FUNCTIONS REMAIN UNCHANGED UNTIL btn-registrar-inicio) ...
 
     // --- RESET FUNCTION ---
     function resetarEquipamentos() {
@@ -439,67 +409,42 @@
                 if (docSnap.exists()) {
                     const dados = docSnap.data();
                     
-                    // --- CAPTURA O NOME DO USUÁRIO ---
                     nomeUsuarioLogado = dados.nome || "Usuário";
                     document.getElementById('nomeUsuarioDisplay').innerText = "OLÁ, " + nomeUsuarioLogado;
 
-                    // --- BLOQUEIO PARA VISUALIZADOR (COLE ISSO NO SCRIPT) ---
-                    if (dados.cargo === 'visualizador') {
-                        console.log("🔒 Modo Apenas Leitura Ativado");
+                    // --- TRAVA DE SEGURANÇA: MODO VISUALIZADOR ---
+                    // Lógica Unificada: Visualizador por Cargo OU por Nível de Acesso
+                    const nivel = dados.nivel_acesso || 'total';
+                    const cargo = dados.cargo || '';
+                    
+                    // É visualizador se: Nivel for leitura OU cargo for visualizador (e não for admin)
+                    isVisualizador = (nivel === 'leitura' || cargo === 'visualizador') && cargo !== 'admin';
 
-                        // 1. Injeta CSS para esconder botões de ação e travar inputs
-                        const styleBlock = document.createElement('style');
-                        styleBlock.innerHTML = `
-                            /* Esconde formulários de registro e botões de salvar/ação */
-                            #registroForm, .input-section, .btn-group, 
-                            .btn-salvar, .btn-registrar, .btn-encaminhar, .btn-concluir, 
-                            .btn-devolver, .btn-acao-tabela, .btn-baixa, .btn-baixa-falta,
-                            .area-operadoras button, .selecao-maleta {
-                                display: none !important;
-                            }
-                            
-                            /* Esconde a última coluna das tabelas (geralmente é a coluna AÇÃO) */
-                            table th:last-child, table td:last-child {
-                                display: none !important;
-                            }
+                    if (isVisualizador) {
+                        console.log("🔒 MODO APENAS LEITURA ATIVADO (NUCLEAR)");
+                        
+                        // 1. DESTRUIR A ÁREA DE INPUTS (Não apenas esconder)
+                        const areaInputs = document.querySelector('.input-section');
+                        if(areaInputs) areaInputs.remove();
 
-                            /* Deixa campos de input com cara de "bloqueado" */
-                            input, select, textarea {
-                                pointer-events: none !important;
-                                background-color: #eee !important;
-                                border: 1px solid #ccc !important;
-                            }
+                        // 2. DESTRUIR O MODAL
+                        const areaModal = document.getElementById('modalDevolucao');
+                        if(areaModal) areaModal.remove();
 
-                            /* Garante que botões de navegação e download continuem visíveis */
-                            .btn-nav, .btn-home, .btn-download, #btnSair, #btnCSV, #btnDownloadCSV {
-                                display: inline-block !important;
-                                pointer-events: auto !important;
-                            }
-                        `;
-                        document.head.appendChild(styleBlock);
-
-                        // 2. Desativa interações via JS (força bruta)
-                        setTimeout(() => {
-                            const inputs = document.querySelectorAll('input, select, textarea, button');
-                            inputs.forEach(el => {
-                                // Se NÃO for botão de sair, download ou navegação, desabilita
-                                if (!el.id.includes('Sair') && 
-                                    !el.classList.contains('btn-nav') && 
-                                    !el.classList.contains('btn-home') &&
-                                    !el.classList.contains('btn-download')) {
-                                    el.disabled = true;
-                                    el.onclick = null;
-                                }
-                            });
-                        }, 500); // Pequeno delay para garantir que a tela carregou
+                        // 3. INJETAR CSS para garantir que botões de tabela sumam
+                        const style = document.createElement('style');
+                        style.innerHTML = '.btn-baixa, .btn-baixa-falta { display: none !important; }';
+                        document.head.appendChild(style);
+                        
+                        // 4. Desativa lógica de salvar (caso sobre algo)
+                        window.darBaixaNoFirebase = () => alert("Acesso Negado: Modo Visualizador.");
+                        window.abrirModalFalta = () => alert("Acesso Negado: Modo Visualizador.");
                     }
-                    // --- FIM DO BLOQUEIO ---
+                    // ----------------------------------------------
 
-                    // --- TEMPORIZADOR DE SEGURANÇA (30 MIN) ---
                     if (dados.cargo !== 'visualizador') {
                         let tempoInatividade;
-                        const LIMITE_TEMPO = 30 * 60 * 1000; // 30 minutos
-
+                        const LIMITE_TEMPO = 30 * 60 * 1000; 
                         const resetarTimer = () => {
                             clearTimeout(tempoInatividade);
                             tempoInatividade = setTimeout(() => {
@@ -507,25 +452,14 @@
                                 signOut(auth).then(() => window.location.href = "login.html");
                             }, LIMITE_TEMPO);
                         };
-
-                        window.onload = resetarTimer;
-                        document.onmousemove = resetarTimer;
-                        document.onkeypress = resetarTimer;
-                        document.onclick = resetarTimer;
-                        document.onscroll = resetarTimer;
-                        
-                        console.log("⏳ Timer de segurança ativo.");
-                    } else {
-                        console.log("👁️ Modo Visualizador: Timer DESATIVADO.");
+                        window.onload = resetarTimer; document.onmousemove = resetarTimer; document.onkeypress = resetarTimer; document.onclick = resetarTimer; document.onscroll = resetarTimer;
                     }
                 } else {
                     alert("Erro de cadastro. Contate o suporte.");
                     await signOut(auth);
                     window.location.href = "login.html";
                 }
-            } catch (error) {
-                console.error("Erro:", error);
-            }
+            } catch (error) { console.error("Erro:", error); }
         } else {
             window.location.href = "login.html";
         }
@@ -533,11 +467,7 @@
 
     const btnSair = document.getElementById('btnSair');
     if(btnSair) {
-        btnSair.onclick = () => {
-            signOut(auth).then(() => {
-                window.location.href = "login.html";
-            });
-        }
+        btnSair.onclick = () => { signOut(auth).then(() => { window.location.href = "login.html"; }); }
     }
 
     function getDataHojeISO() {
@@ -555,11 +485,9 @@
 
     const dataFiltro = getDataHojeISO();
     
-    // --- QUERY CORRIGIDA: SEM ORDER BY PARA EVITAR ERRO DE ÍNDICE ---
     const q = query(
         collection(db, "observacoes_sttu"), 
         where("data_filtro", "==", dataFiltro)
-        // orderBy("timestamp", "desc") <-- REMOVIDO PARA FUNCIONAR SEM ÍNDICE
     );
 
     onSnapshot(q, (snapshot) => {
@@ -571,17 +499,13 @@
             return;
         }
 
-        // CONVERTER PARA ARRAY E ORDENAR NO JAVASCRIPT (CLIENT-SIDE)
         let registros = [];
-        snapshot.forEach(doc => {
-            registros.push({ id: doc.id, ...doc.data() });
-        });
+        snapshot.forEach(doc => { registros.push({ id: doc.id, ...doc.data() }); });
 
-        // Ordenar do mais recente para o mais antigo (Timestamp Descendente)
         registros.sort((a, b) => {
             const tA = a.timestamp ? a.timestamp.seconds : 0;
             const tB = b.timestamp ? b.timestamp.seconds : 0;
-            return tB - tA; // Decrescente
+            return tB - tA; 
         });
 
         registros.forEach(data => {
@@ -599,7 +523,8 @@
                 </div>
             `;
 
-            if (data.requerBaixa && !data.baixa) {
+            // Só mostra botões de baixa se NÃO for visualizador
+            if (data.requerBaixa && !data.baixa && !isVisualizador) {
                 const btnContainer = document.createElement('div');
                 btnContainer.style.display = 'flex';
                 btnContainer.style.flexDirection = 'column';
@@ -629,6 +554,8 @@
     });
 
     async function salvarObservacao(texto, requerBaixa = false, extras = {}) {
+        if (isVisualizador) return alert("Acesso Negado: Modo Visualizador.");
+
         try {
             const dados = {
                 texto: texto.toUpperCase(),
@@ -640,8 +567,6 @@
             };
 
             await addDoc(collection(db, "observacoes_sttu"), dados);
-            
-            // --- GATILHO DE AUDITORIA ---
             registrarLogAuditoria("NOVA OBSERVAÇÃO", `Texto: "${texto.substring(0, 50)}..."`);
 
         } catch (e) {
@@ -650,8 +575,8 @@
         }
     }
 
-    // --- FUNÇÃO DE AUDITORIA (ADICIONE NO FINAL DO SCRIPT) ---
     async function registrarLogAuditoria(acao, detalhes) {
+        if (isVisualizador) return; 
         try {
             await addDoc(collection(db, "logs_auditoria"), {
                 usuario: nomeUsuarioLogado || "DESCONHECIDO",
@@ -659,12 +584,11 @@
                 detalhes: detalhes,
                 timestamp: serverTimestamp()
             });
-        } catch (e) {
-            console.error("Erro ao gerar log:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     window.darBaixaNoFirebase = async (idDoc) => {
+        if (isVisualizador) return alert("Acesso Negado.");
         const conferente = prompt("POR FAVOR, DIGITE O NOME DO AGENTE QUE ESTÁ CONFERINDO A DEVOLUÇÃO:");
         if (!conferente || conferente.trim() === "") return;
 
@@ -674,18 +598,18 @@
         const textoComConferencia = docSnap.data().texto + ` | CONFERIDO POR: ${conferente.toUpperCase()}`;
 
         await updateDoc(docRef, { baixa: agora, texto: textoComConferencia });
-
-        // --- GATILHO DE AUDITORIA ---
         registrarLogAuditoria("BAIXA DE MATERIAL", `Item devolvido (ID: ${idDoc}). Conferido por: ${conferente}`);
     }
 
     window.abrirModalFalta = (id) => {
+        if (isVisualizador) return alert("Acesso Negado.");
         document.getElementById('id-devolucao-atual').value = id;
         document.getElementById('modalDevolucao').style.display = 'flex';
     };
     window.fecharModal = () => document.getElementById('modalDevolucao').style.display = 'none';
 
     window.confirmarBaixaComFalta = async () => {
+        if (isVisualizador) return alert("Acesso Negado.");
         const idDoc = document.getElementById('id-devolucao-atual').value;
         const conferente = document.getElementById('dev-responsavel').value.trim().toUpperCase();
         if (!conferente) return alert("Informe quem conferiu.");
@@ -693,6 +617,7 @@
         const agora = new Date().toLocaleTimeString('pt-BR');
         const docRef = doc(db, "observacoes_sttu", idDoc);
         
+        // Coleta inputs do modal
         const etil = document.getElementById('dev-etil').value;
         const piteira = document.getElementById('dev-piteira').value;
         const imp = document.getElementById('dev-impressora').value;
@@ -707,8 +632,6 @@
         const obsFalta = `\n[DEVOLUÇÃO C/ PENDÊNCIA: ETIL:${etil}, PITEIRA:${piteira}, IMP:${imp}, CARR:${car}, BOB:${bob}, BOAT:${boat}, CERT:${cert}, TC:${tc}, MAN:${manual}] | CONFERIDO POR: ${conferente}`;
 
         await updateDoc(docRef, { baixa: agora, texto: docSnap.data().texto + obsFalta });
-        
-        // --- GATILHO DE AUDITORIA ---
         registrarLogAuditoria("BAIXA COM FALTA", `Item devolvido com pendências (ID: ${idDoc}). Conferido por: ${conferente}`);
 
         fecharModal();
@@ -716,25 +639,25 @@
 
     document.querySelectorAll('.btn-linha').forEach(btn => {
         btn.onclick = () => {
+            if (isVisualizador) return;
             if (btn.classList.contains('ok')) { btn.classList.remove('ok'); btn.classList.add('nok'); }
             else if (btn.classList.contains('nok')) { btn.classList.remove('nok'); }
             else { btn.classList.add('ok'); }
         };
     });
 
-    // --- NOVA FUNÇÃO: VERIFICAR STATUS DO TURNO AO MUDAR O SELECT ---
     document.getElementById('turno-select').addEventListener('change', async function() {
+        if (isVisualizador) return;
         const turno = this.value;
         const btn = document.getElementById('btn-registrar-inicio');
 
         if (turno === "SELECIONE") {
             btn.disabled = false;
             btn.innerText = "REGISTRAR INÍCIO DE TURNO";
-            btn.style.backgroundColor = "#27ae60"; // Volta pro verde
+            btn.style.backgroundColor = "#27ae60"; 
             return;
         }
 
-        // Feedback Visual de Carregamento
         btn.disabled = true;
         btn.innerText = "VERIFICANDO DISPONIBILIDADE...";
 
@@ -748,25 +671,21 @@
         const snapshot = await getDocs(qVerificacao);
 
         if (!snapshot.empty) {
-            // SE JÁ EXISTE, TRAVA O BOTÃO
             btn.innerText = `TURNO ${turno} JÁ REGISTRADO!`;
-            btn.style.backgroundColor = "#95a5a6"; // Cinza
+            btn.style.backgroundColor = "#95a5a6"; 
             btn.disabled = true;
         } else {
-            // SE NÃO EXISTE, LIBERA
             btn.innerText = "REGISTRAR INÍCIO DE TURNO";
-            btn.style.backgroundColor = "#27ae60"; // Verde
+            btn.style.backgroundColor = "#27ae60"; 
             btn.disabled = false;
         }
     });
 
     document.getElementById('btn-registrar-inicio').onclick = async () => {
+        if (isVisualizador) return;
         const btn = document.getElementById('btn-registrar-inicio');
-        
-        // 1. TRAVA IMEDIATA
         btn.disabled = true;
 
-        // 2. VALIDAÇÃO DE CAMPOS BÁSICOS
         const turno = document.getElementById('turno-select').value;
         const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
 
@@ -775,7 +694,6 @@
              btn.disabled = false; return;
         }
 
-        // 3. VALIDAÇÃO DE OPERADORAS (NOVA)
         const textoOperadora = document.getElementById('texto-operadora').value.trim();
         if (!textoOperadora) {
             alert("⚠️ É obrigatório preencher a situação das OPERADORAS.");
@@ -783,7 +701,6 @@
             btn.disabled = false; return;
         }
 
-        // 4. VALIDAÇÃO DE TELEFONES
         const btnLinhas = document.querySelectorAll('.btn-linha');
         let todosTestados = true;
         btnLinhas.forEach(b => {
@@ -791,11 +708,10 @@
         });
 
         if (!todosTestados) {
-            alert("⚠️ É OBRIGATÓRIO verificar todos os números de telefone (Marque Verde ou Vermelho).");
+            alert("⚠️ É OBRIGATÓRIO verificar todos os números de telefone.");
             btn.disabled = false; return;
         }
 
-        // 5. VALIDAÇÃO DE EQUIPAMENTOS (RIGOROSA)
         const inputsEquip = document.querySelectorAll('.verificar-item');
         let equipPendente = false;
         inputsEquip.forEach(el => {
@@ -809,7 +725,6 @@
             btn.disabled = false; return;
         }
 
-        // 6. VERIFICAÇÃO FINAL NO BANCO (JUST IN CASE)
         const qVerificacao = query(
             collection(db, "observacoes_sttu"), 
             where("tipo_registro", "==", "INICIO_TURNO"),
@@ -819,7 +734,7 @@
         const snapshot = await getDocs(qVerificacao);
         
         if (!snapshot.empty) {
-            alert(`ERRO: O turno ${turno} já foi registrado por outro usuário agora mesmo!`);
+            alert(`ERRO: O turno ${turno} já foi registrado!`);
             btn.innerText = `TURNO ${turno} JÁ REGISTRADO!`;
             btn.style.backgroundColor = "#95a5a6";
             return;
@@ -833,7 +748,7 @@
         const textoLinhas = statusLinhas.length > 0 ? ` | LINHAS: ${statusLinhas.join(', ')}` : "";
 
         const detalhes = `SERVIÇO INICIADO TURNO ${turno} - AGENTE: ${nomeAgente}${textoLinhas}. ` +
-            `OPERADORAS: ${textoOperadora.toUpperCase()}. ` + // ADICIONADO AQUI
+            `OPERADORAS: ${textoOperadora.toUpperCase()}. ` + 
             `CONFERÊNCIA: ` +
             `CEL.ATEND:${document.getElementById('qtd-cel-atend').value}, ` +
             `FONTE:${document.getElementById('qtd-fonte-cel').value}, ` +
@@ -856,29 +771,21 @@
         });
         
         registrarLogAuditoria("INÍCIO DE TURNO", `Turno ${turno} iniciado por ${nomeAgente}`);
-
         alert("Início registrado com sucesso!");
         btn.innerText = "REGISTRADO COM SUCESSO";
-        
-        // RESETAR TUDO PARA O PRÓXIMO
         resetarEquipamentos();
         document.getElementById('texto-operadora').value = "";
     };
 
     document.getElementById('btn-registrar-maleta').onclick = async () => {
+        if (isVisualizador) return;
         const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
-        // REMOVIDO: const matAgente = ...
-        if (!nomeAgente) {
-            alert("Preencha o Nome do Agente no topo primeiro.");
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
+        if (!nomeAgente) { alert("Preencha o Nome do Agente no topo primeiro."); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
 
         const maleta = document.getElementById('maleta-selecionada').value;
         const obs = document.getElementById('obs-extras').value.trim();
 
         if (maleta) {
-            // VERIFICAÇÃO DE SEGURANÇA: Se já está em uso
             const qCheck = query(collection(db, "observacoes_sttu"), 
                 where("tipo_registro", "==", "ENTREGA_MALETA"),
                 where("numero_maleta", "==", maleta),
@@ -887,11 +794,8 @@
             const snapshot = await getDocs(qCheck);
             
             if (!snapshot.empty) {
-                // SE JÁ ESTIVER EM USO, VAMOS PERMITIR FORÇAR A DEVOLUÇÃO DO REGISTRO ANTIGO
-                // ISSO CORRIGE O BUG DE "MALETA PRESA"
                 const docPreso = snapshot.docs[0];
                 const confirmar = confirm(`ERRO: A maleta ${maleta} consta como EM USO por outro agente desde ${new Date(docPreso.data().timestamp.seconds * 1000).toLocaleString()}.\n\nDeseja FORÇAR a devolução da anterior para liberar esta nova entrega?`);
-                
                 if (confirmar) {
                    await updateDoc(doc(db, "observacoes_sttu", docPreso.id), { 
                        baixa: new Date().toLocaleTimeString('pt-BR') + " (FORÇADO)", 
@@ -899,9 +803,7 @@
                    });
                    alert("Registro anterior baixado. Tente registrar novamente agora.");
                    return;
-                } else {
-                   return; // Cancela se não quiser forçar
-                }
+                } else { return; }
             }
         }
 
@@ -915,7 +817,6 @@
         const qtdTc = document.getElementById('qtd-tc').value;
         const qtdMan = document.getElementById('qtd-manual').value;
 
-        // REMOVIDO MATRICULA DA STRING DETALHES
         const detalhes = `ENTREGA ${maleta ? 'DA MALETA '+maleta : 'DE EQUIPAMENTOS'}. ` +
             `RETIRADO POR: ${nomeAgente}. ` + 
             `ITENS: ETIL:${qtdEtil}, PITEIRA:${qtdPiteira}, IMP:${qtdImp}, CARR:${qtdCar}, BOB:${qtdBob}, ` +
@@ -932,11 +833,13 @@
     };
 
     document.getElementById('btn-registrar-tentante').onclick = () => {
+        if (isVisualizador) return;
         const campo = document.getElementById('texto-tentante');
         if (campo.value.trim()) { salvarObservacao(`REGISTRO DE TENTANTE: ${campo.value.trim()}`); campo.value = ""; }
     };
 
     document.getElementById('btn-registrar-afastamento').onclick = () => {
+        if (isVisualizador) return;
         const nomeLista = document.getElementById('afast-lista-agentes').value;
         const nomeDigitado = document.getElementById('afast-nome').value.trim();
         const nomeFinal = nomeLista || nomeDigitado;
@@ -951,6 +854,7 @@
     };
 
     document.getElementById('btn-registrar-remocao').onclick = () => {
+        if (isVisualizador) return;
         const placa = document.getElementById('rem-placa').value.trim().toUpperCase();
         const equipe = document.getElementById('rem-equipe').value.trim().toUpperCase();
         const local = document.getElementById('rem-local').value.trim().toUpperCase();
@@ -962,16 +866,19 @@
     };
 
     document.getElementById('btn-registrar-inspetor').onclick = () => {
+        if (isVisualizador) return;
         const relato = document.getElementById('texto-inspetor').value.trim();
         if (relato) { salvarObservacao(`RELATO DO INSPETOR: ${relato}`); document.getElementById('texto-inspetor').value = ""; }
     };
 
     document.getElementById('btn-registrar-obs-geral').onclick = () => {
+        if (isVisualizador) return;
         const obs = document.getElementById('texto-obs-geral').value.trim();
         if (obs) { salvarObservacao(`OBSERVAÇÃO GERAL: ${obs}`); document.getElementById('texto-obs-geral').value = ""; }
     };
 
     document.getElementById('btn-registrar-cones').onclick = () => {
+        if (isVisualizador) return;
         const equipe = document.getElementById('cone-equipe').value;
         const local = document.getElementById('cone-local').value.trim().toUpperCase();
         let col = parseInt(document.getElementById('cone-colocado').value) || 0;
@@ -989,36 +896,19 @@
         document.getElementById('cone-obs').value = "";
     };
 
-    // --- CÓDIGO ATUALIZADO: BOTÃO EQUIPE COMPLEMENTAR ---
     document.getElementById('btn-registrar-complementar').onclick = () => {
+        if (isVisualizador) return;
         const nome = document.getElementById('comp-nome').value.trim().toUpperCase();
         const funcao = document.getElementById('comp-funcao').value.trim().toUpperCase();
-
         if (nome && funcao) {
             const textoFinal = `EQUIPE COMPLEMENTAR: AGENTE ${nome} - FUNÇÃO: ${funcao}`;
             salvarObservacao(textoFinal);
-            
-            // Limpa os campos após salvar
             document.getElementById('comp-nome').value = "";
             document.getElementById('comp-funcao').value = "";
         } else {
             alert("Preencha o nome e a função!");
         }
     };
-
-    // --- NOVO CÓDIGO: BOTÃO REGISTRAR OPERADORA (FUNCIONALIDADE INTEGRADA NO REGISTRO GERAL, MAS MANTIDA PARA AVULSO) ---
-    // Removi a necessidade do botão individual, mas mantive a lógica de validação no registro geral
-    /*
-    document.getElementById('btn-registrar-operadora').onclick = () => {
-        const textoOp = document.getElementById('texto-operadora').value.trim();
-        if (textoOp) {
-            salvarObservacao(`SITUAÇÃO OPERADORAS: ${textoOp}`);
-            document.getElementById('texto-operadora').value = "";
-        } else {
-            alert("Digite a observação da operadora antes de registrar.");
-        }
-    };
-    */
 
     document.querySelectorAll('.btn-maleta').forEach(botao => {
         botao.onclick = () => {
