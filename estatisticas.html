@@ -37,7 +37,7 @@
         .btn-atalho { background-color: #e67e22; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-atalho:hover { background-color: #d35400; }
 
-        /* KPI CONTAINER (GRID PARA MUITOS ITENS) */
+        /* KPI CONTAINER */
         .kpi-container { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
@@ -64,12 +64,12 @@
         /* CORES ESPECÍFICAS PARA OS KPIS */
         .color-total { color: #2c3e50; }
         .color-agentes { color: #2980b9; }
-        .color-danger { color: #c0392b; } /* Vermelho */
-        .color-warning { color: #d35400; } /* Laranja Escuro */
-        .color-attention { color: #f39c12; } /* Laranja Claro */
-        .color-info { color: #16a085; } /* Verde Água */
-        .color-support { color: #8e44ad; } /* Roxo */
-        .color-grey { color: #7f8c8d; } /* Cinza */
+        .color-danger { color: #c0392b; } 
+        .color-warning { color: #d35400; } 
+        .color-attention { color: #f39c12; } 
+        .color-info { color: #16a085; } 
+        .color-support { color: #8e44ad; } 
+        .color-grey { color: #7f8c8d; } 
 
 
         /* GRÁFICOS */
@@ -87,7 +87,24 @@
         .table-condutores th, .table-condutores td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         .table-condutores th { background-color: #34495e; color: white; }
         .table-condutores tr:nth-child(even) { background-color: #f9f9f9; }
-        .veiculo-tag { background: #3498db; color: white; padding: 2px 6px; border-radius: 4px; margin-right: 4px; display: inline-block; margin-bottom: 2px; font-size: 10px; }
+        
+        /* Tag atualizada para mostrar data */
+        .veiculo-tag { 
+            background: #3498db; 
+            color: white; 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            margin-right: 5px; 
+            display: inline-block; 
+            margin-bottom: 4px; 
+            font-size: 11px; 
+            border: 1px solid #2980b9;
+        }
+        .tag-data {
+            font-size: 10px;
+            color: #d6eaf8;
+            margin-left: 3px;
+        }
 
         .btn-voltar { background-color: #7f8c8d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; margin-top: 20px; }
         .btn-sair { background-color: #c0392b; color: white; padding: 5px 10px; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; font-size: 12px; }
@@ -140,7 +157,7 @@
                         <thead>
                             <tr>
                                 <th>NOME DO CONDUTOR</th>
-                                <th>VEÍCULOS CONDUZIDOS</th>
+                                <th>VEÍCULOS E DATAS</th>
                                 <th style="width: 80px; text-align: center;">TOTAL</th>
                             </tr>
                         </thead>
@@ -205,8 +222,6 @@
     let RAW_AGENTES = [];
     let charts = {};
 
-    // --- CONFIGURAÇÃO DOS CARDS DO TOPO ---
-    // Defina aqui a ordem e a cor de cada tipo que você quer mostrar
     const CONFIG_KPIS = [
         { key: 'TOTAL', label: 'Total Geral', colorClass: 'color-total' },
         { key: 'AGENTES', label: 'Agentes (Escalas)', colorClass: 'color-agentes' },
@@ -228,7 +243,6 @@
                 const docRef = doc(db, "usuarios", user.uid);
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists() && docSnap.data().cargo !== 'visualizador') {
-                    // Timer de segurança
                     let tempoInatividade;
                     const resetarTimer = () => {
                         clearTimeout(tempoInatividade);
@@ -263,7 +277,6 @@
 
             document.getElementById('loading').style.display = 'none';
 
-            // Configura filtro inicial (Hoje)
             filtrarHoje();
 
         } catch (e) {
@@ -337,9 +350,8 @@
         const dadosViaturas = {};
         const dadosAcidentesZona = {}; 
         const mapaDetalhes = {}; 
-        const contagemPorTipo = {}; // Objeto chave para os KPIs
+        const contagemPorTipo = {}; 
 
-        // Inicializa contagem zero para todos os tipos configurados
         CONFIG_KPIS.forEach(cfg => {
             if(cfg.key !== 'TOTAL' && cfg.key !== 'AGENTES') {
                 contagemPorTipo[cfg.key] = 0;
@@ -347,20 +359,13 @@
         });
 
         ocorrencias.forEach(d => {
-            // Status
             const status = d.situacao || "OUTROS";
             dadosStatus[status] = (dadosStatus[status] || 0) + 1;
 
-            // Tipos
             const tipoCru = d.ocorrencia || "NÃO INFORMADO";
-            // Normaliza o tipo (remove parênteses de subtipos se houver para contagem geral)
-            // Mas para os KPIs específicos, verificamos a string principal
             let tipoPrincipal = tipoCru.split('(')[0].trim();
-            
-            // Incrementa no objeto de contagem geral
             contagemPorTipo[tipoPrincipal] = (contagemPorTipo[tipoPrincipal] || 0) + 1;
 
-            // Detalhes para Tooltip
             if (d.detalhamento) {
                 if (!mapaDetalhes[tipoPrincipal]) mapaDetalhes[tipoPrincipal] = [];
                 if (mapaDetalhes[tipoPrincipal].length < 5) {
@@ -370,7 +375,6 @@
                 }
             }
 
-            // Zonas & Acidentes
             const zona = d.zona || "N/I";
             dadosZonas[zona] = (dadosZonas[zona] || 0) + 1;
 
@@ -382,7 +386,6 @@
                 dadosAcidentesZona[zona].sem++;
             }
 
-            // Viaturas
             if (d.equipe) {
                 const listaVtrs = d.equipe.split(',');
                 listaVtrs.forEach(vtr => {
@@ -392,24 +395,33 @@
             }
         });
 
-        // 2. Processar Agentes (para KPI e Gráficos)
+        // 2. Processar Agentes (para KPI e Gráficos e Tabela de Condutores)
         const statsAgentes = {}; 
-        const mapaCondutores = {}; 
+        const mapaCondutores = {}; // { "JOÃO": [ {v: "VT 01", d: "20/01/2024"}, ... ] }
 
         agentes.forEach(d => {
             if (d.agente) {
                 const linhas = d.agente.split('\n');
                 
-                // Condutor
+                // --- LÓGICA DO CONDUTOR (ATUALIZADA COM DATA) ---
                 const linhaCondutor = linhas.find(l => l.includes('(C)'));
                 if (linhaCondutor) {
                     let nomeCondutor = linhaCondutor.replace('(C)', '').trim();
                     if (nomeCondutor.includes('-')) nomeCondutor = nomeCondutor.split('-')[0].trim();
-                    if (!mapaCondutores[nomeCondutor]) mapaCondutores[nomeCondutor] = new Set();
-                    if (d.veiculo) mapaCondutores[nomeCondutor].add(d.veiculo);
+                    
+                    if (!mapaCondutores[nomeCondutor]) {
+                        mapaCondutores[nomeCondutor] = [];
+                    }
+                    
+                    // Adiciona objeto { veículo, data }
+                    // Evita duplicatas exatas do mesmo dia e veículo
+                    const existe = mapaCondutores[nomeCondutor].some(item => item.v === d.veiculo && item.d === d.dataRelatorio);
+                    if (!existe) {
+                        mapaCondutores[nomeCondutor].push({ v: d.veiculo, d: d.dataRelatorio || "??/??/????" });
+                    }
                 }
 
-                // Todos Agentes
+                // Todos Agentes (Gráfico Geral)
                 linhas.forEach(linha => {
                     let nomeLimpo = linha.replace('(C)', '').trim();
                     if (nomeLimpo.includes('-')) nomeLimpo = nomeLimpo.split('-')[0].trim();
@@ -429,9 +441,9 @@
             }
         });
 
-        // 3. RENDERIZAR OS KPIs DO TOPO
+        // 3. RENDERIZAR TUDO
         const kpiContainer = document.getElementById('kpiContainer');
-        kpiContainer.innerHTML = ''; // Limpa tudo
+        kpiContainer.innerHTML = ''; 
 
         CONFIG_KPIS.forEach(cfg => {
             let valor = 0;
@@ -445,7 +457,6 @@
             kpiContainer.appendChild(div);
         });
 
-        // 4. Renderizar Gráficos e Tabelas
         renderizarTabelaCondutores(mapaCondutores);
         gerarGraficoStatus(dadosStatus);
         gerarGraficoZonas(dadosZonas);
@@ -458,6 +469,7 @@
     function renderizarTabelaCondutores(mapa) {
         const tbody = document.getElementById('tbodyCondutores');
         tbody.innerHTML = "";
+        
         const nomesOrdenados = Object.keys(mapa).sort();
 
         if (nomesOrdenados.length === 0) {
@@ -466,12 +478,23 @@
         }
 
         nomesOrdenados.forEach(nome => {
-            const veiculosSet = mapa[nome];
-            const veiculosArr = Array.from(veiculosSet).sort();
-            const veiculosHTML = veiculosArr.map(v => `<span class="veiculo-tag">${v}</span>`).join(" ");
+            const listaConducoes = mapa[nome];
+            
+            // Ordena por data
+            listaConducoes.sort((a, b) => {
+                 // Converte DD/MM/YYYY para YYYYMMDD para comparar strings
+                 const dataA = a.d.split('/').reverse().join('');
+                 const dataB = b.d.split('/').reverse().join('');
+                 return dataB.localeCompare(dataA); // Mais recente primeiro
+            });
+
+            // Cria as tags com data
+            const veiculosHTML = listaConducoes.map(item => 
+                `<span class="veiculo-tag">${item.v} <span class="tag-data">(${item.d.substring(0,5)})</span></span>`
+            ).join(" ");
 
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td><strong>${nome}</strong></td><td>${veiculosHTML}</td><td style="text-align:center;">${veiculosArr.length}</td>`;
+            tr.innerHTML = `<td><strong>${nome}</strong></td><td>${veiculosHTML}</td><td style="text-align:center;">${listaConducoes.length}</td>`;
             tbody.appendChild(tr);
         });
     }
