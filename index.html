@@ -21,8 +21,9 @@
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            max-width: 800px;
             width: 90%;
+            position: relative;
         }
         
         .logo-sttu {
@@ -41,8 +42,8 @@
             justify-content: center;
             gap: 15px;
         }
-        /* IMPORTANTE: Adicionei IDs aos botões no HTML abaixo para controle via JS */
-        .button-group a, .button-group button {
+        
+        .button-group a {
             display: inline-block;
             padding: 15px 30px;
             font-size: 16px;
@@ -55,8 +56,9 @@
             border: none;
             cursor: pointer;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
         }
-        .button-group a:hover, .button-group button:hover {
+        .button-group a:hover {
             background-color: #2c3e50;
             transform: translateY(-2px);
         }
@@ -67,16 +69,18 @@
         }
         p { color: #7f8c8d; }
 
-        .btn-admin { background-color: #c0392b !important; }
-        .btn-admin:hover { background-color: #a93226 !important; }
-        
         .btn-relatorio { background-color: #8e44ad !important; }
         .btn-relatorio:hover { background-color: #732d91 !important; }
 
-        /* Botão Auditoria (Invisível por padrão) */
-        .btn-auditoria { background-color: #16a085 !important; display: none; } 
-        .btn-auditoria:hover { background-color: #1abc9c !important; }
+        .btn-estatisticas { background-color: #f39c12 !important; }
+        .btn-estatisticas:hover { background-color: #d35400 !important; }
 
+        .btn-aprovacao { background-color: #c0392b !important; }
+        .btn-aprovacao:hover { background-color: #a93226 !important; }
+
+        /* Classe para esconder botões por padrão */
+        .hidden { display: none !important; }
+        
         .user-info {
             position: absolute;
             top: 15px;
@@ -102,6 +106,20 @@
             font-size: 11px;
         }
         .btn-logout:hover { background: #c0392b; }
+
+        .badge-vis {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #f1c40f;
+            color: #333;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.2);
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -115,13 +133,18 @@
         <p id="msgBoasVindas">Selecione uma opção para continuar:</p>
         
         <div class="button-group" id="menu-botoes">
-            <a href="agentes.html" id="btnAgentes">👮 AGENTES</a> 
-            <a href="ocorrencias.html" id="btnOcorrencias">🚨 OCORRÊNCIAS</a>
-            <a href="observacoes.html" id="btnObservacoes">📝 OBSERVAÇÕES</a>
+            <a href="agentes.html" id="btnAgentes">👮 AGENTES <span class="badge-vis">👁️</span></a> 
+            <a href="ocorrencias.html" id="btnOcorrencias">🚨 OCORRÊNCIAS <span class="badge-vis">👁️</span></a>
+            <a href="observacoes.html" id="btnObservacoes">📝 OBSERVAÇÕES <span class="badge-vis">👁️</span></a>
             <a href="relatorio_geral.html" id="btnRelatorios" class="btn-relatorio">📑 RELATÓRIOS</a>
-            <a href="estatisticas.html" id="btnEstatisticas" style="background-color: #f39c12;">📊 ESTATÍSTICAS</a>
             
-            <a href="auditoria.html" id="btnAuditoria" class="btn-auditoria" style="display: none;">👁️ AUDITORIA</a>
+            <a href="estatisticas.html" id="btnEstatisticas" class="btn-estatisticas hidden">📊 ESTATÍSTICAS</a>
+            
+            <hr id="hrAdmin" style="width: 100%; border: 0; margin: 5px;" class="hidden">
+            
+            <a href="admin.html" id="btnAprovacao" class="hidden btn-aprovacao">⚙️ APROVAR CADASTROS</a>
+            <a href="gestao_usuarios.html" id="btnGestao" class="hidden">👥 PERMISSÕES</a>
+            <a href="auditoria.html" id="btnAuditoria" class="hidden">👁️ AUDITORIA</a>
         </div>
     </div>
 
@@ -160,18 +183,6 @@
             };
         }
 
-        function habilitarPainelAdmin() {
-            const menu = document.getElementById('menu-botoes');
-            if (!document.getElementById('btn-admin-link')) {
-                const btnAdmin = document.createElement('button');
-                btnAdmin.id = 'btn-admin-link';
-                btnAdmin.innerText = "⚙️ PAINEL GESTÃO";
-                btnAdmin.className = "btn-admin"; 
-                btnAdmin.onclick = () => window.location.href = "admin.html";
-                menu.appendChild(btnAdmin);
-            }
-        }
-
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 try {
@@ -181,68 +192,67 @@
                     if (docSnap.exists()) {
                         const dados = docSnap.data();
 
-                        // Bloqueia quem não está aprovado
-                        if (dados.cargo !== 'admin' && dados.status !== 'aprovado') {
-                            alert("🚫 ACESSO BLOQUEADO\n\nSeu cadastro aguarda aprovação do administrador.");
+                        if (dados.status !== 'aprovado' && dados.cargo !== 'admin') {
+                            alert("Cadastro pendente de aprovação.");
                             await signOut(auth);
                             window.location.href = "login.html";
                             return;
                         }
 
                         mostrarUsuarioLogado(user.email);
+                        const cargo = dados.cargo || 'agente';
+                        const nivel = dados.nivel_acesso || 'total';
 
-                        // --- LÓGICA DE BLOQUEIO DO CIOSP ---
-                        if (dados.cargo === 'ciosp') {
-                            // Esconde tudo, exceto Ocorrências
-                            document.getElementById('btnAgentes').style.display = 'none';
-                            document.getElementById('btnObservacoes').style.display = 'none';
-                            document.getElementById('btnRelatorios').style.display = 'none';
-                            document.getElementById('btnEstatisticas').style.display = 'none';
-                            
-                            // Ajusta mensagem
-                            document.querySelector('h1').innerText = "Painel CIOSP";
-                            document.getElementById('msgBoasVindas').innerText = "Acesso restrito a Ocorrências.";
-                        } 
-                        
-                        // --- LÓGICA DE ADMIN ---
-                        if (dados.cargo === 'admin') {
-                            habilitarPainelAdmin();
-                            const btnAuditoria = document.getElementById('btnAuditoria');
-                            if (btnAuditoria) btnAuditoria.style.display = 'inline-block'; 
+                        // 1. Lógica para ESTATÍSTICAS
+                        // Aparece APENAS para 'admin' e 'agente' (com permissão total)
+                        if (cargo === 'admin' || (cargo === 'agente' && nivel === 'total')) {
+                            document.getElementById('btnEstatisticas').classList.remove('hidden');
                         }
 
-                        // Timer de inatividade (Comum a todos menos Visualizador)
-                        if (dados.cargo !== 'visualizador') {
-                            let tempoInatividade;
-                            const LIMITE_TEMPO = 30 * 60 * 1000; 
+                        // 2. Lógica para ADMIN (Botões Especiais)
+                        if (cargo === 'admin') {
+                            document.getElementById('btnEstatisticas').classList.remove('hidden'); // Admin sempre vê estatística
+                            document.getElementById('hrAdmin').classList.remove('hidden');
+                            document.getElementById('btnAprovacao').classList.remove('hidden');
+                            document.getElementById('btnGestao').classList.remove('hidden');
+                            document.getElementById('btnAuditoria').classList.remove('hidden');
+                        }
 
+                        // 3. Lógica para VISUALIZADOR
+                        const isVisualizador = (cargo === 'visualizador' || nivel === 'leitura') && cargo !== 'admin';
+                        if (isVisualizador) {
+                            document.querySelectorAll('.badge-vis').forEach(el => el.style.display = 'inline-block');
+                            document.getElementById('msgBoasVindas').innerText = "Modo de Visualização (Leitura).";
+                        }
+
+                        // 4. Lógica para CIOSP
+                        if (cargo === 'ciosp') {
+                            document.getElementById('btnAgentes').classList.add('hidden');
+                            document.getElementById('btnObservacoes').classList.add('hidden');
+                            document.getElementById('btnRelatorios').classList.add('hidden');
+                            // Estatísticas já começa hidden, então CIOSP não vê
+                            document.querySelector('h1').innerText = "Painel CIOSP";
+                        }
+
+                        // Timer
+                        if (!isVisualizador) {
+                            let tempoInatividade;
                             const resetarTimer = () => {
                                 clearTimeout(tempoInatividade);
                                 tempoInatividade = setTimeout(() => {
-                                    alert("⚠️ Sessão encerrada por inatividade (30min).");
+                                    alert("Sessão encerrada.");
                                     signOut(auth).then(() => window.location.href = "login.html");
-                                }, LIMITE_TEMPO);
+                                }, 30 * 60 * 1000);
                             };
-
-                            window.onload = resetarTimer;
-                            document.onmousemove = resetarTimer;
-                            document.onkeypress = resetarTimer;
-                            document.onclick = resetarTimer;
-                            document.onscroll = resetarTimer;
-                            
-                            console.log("⏳ Timer de segurança ativo.");
-                        } else {
-                            console.log("👁️ Modo Visualizador: Timer DESATIVADO.");
+                            window.onload = resetarTimer; document.onmousemove = resetarTimer; document.onclick = resetarTimer;
                         }
 
                     } else {
-                        alert("Erro de cadastro. Contate o suporte.");
+                        alert("Usuário não encontrado.");
                         await signOut(auth);
                         window.location.href = "login.html";
                     }
-                } catch (error) {
-                    console.error("Erro:", error);
-                }
+                } catch (error) { console.error(error); }
             } else {
                 window.location.href = "login.html";
             }
