@@ -20,7 +20,6 @@
         .config-turno { background: #2c3e50; color: white; padding: 10px; border-radius: 5px 5px 0 0; display: flex; align-items: center; justify-content: space-between; margin-top: 15px; }
         .grid-equipamentos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; border: 2px solid #2c3e50; padding: 15px; border-radius: 0 0 5px 5px; margin-bottom: 5px; background: #fff; }
         
-        /* APROXIMAÇÃO DO TEXTO E INPUT */
         .item-conferencia { 
             display: flex; 
             align-items: center; 
@@ -33,6 +32,21 @@
         }
 
         .item-conferencia input { width: 45px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+
+        /* --- ESTILOS DE VALIDAÇÃO DOS ITENS --- */
+        .input-pendente {
+            border: 2px solid #e74c3c !important; /* Vermelho */
+            background-color: #fadbd8;
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .input-ok {
+            border: 2px solid #27ae60 !important; /* Verde */
+            background-color: #fff;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        /* -------------------------------------- */
 
         .grid-linhas { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; background: #ecf0f1; border-left: 2px solid #2c3e50; border-right: 2px solid #2c3e50; margin-bottom: 0; }
         .btn-linha { flex: 1; min-width: 100px; padding: 8px; border: 1px solid #bdc3c7; background-color: #fff; color: #7f8c8d; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; transition: all 0.2s; text-align: center; }
@@ -50,6 +64,9 @@
         .btn-group { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
         .btn { border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: background 0.3s; color: white; }
         .btn-registrar { background-color: #27ae60; }
+        /* Classe para botão desativado */
+        .btn:disabled { background-color: #95a5a6 !important; cursor: not-allowed; opacity: 0.7; }
+        
         .btn-entrega { background-color: #3498db; }
         
         .btn-baixa { background-color: #e67e22; font-size: 10px; padding: 4px 8px; white-space: nowrap; }
@@ -82,7 +99,7 @@
             padding: 10px;
             border-left: 2px solid #2c3e50;
             border-right: 2px solid #2c3e50;
-            border-bottom: 2px solid #2c3e50; /* Fecha a borda que vinha da grid-linhas */
+            border-bottom: 2px solid #2c3e50;
         }
         .titulo-operadora {
             font-size: 11px;
@@ -138,27 +155,26 @@
             </div>
 
             <div class="area-operadoras">
-                <span class="titulo-operadora">OPERADORAS:</span>
+                <span class="titulo-operadora">OPERADORAS (PREENCHIMENTO OBRIGATÓRIO):</span>
                 <div style="display: flex; gap: 10px;">
-                    <textarea id="texto-operadora" class="tentante-input" style="margin-top: 0; min-height: 50px;" placeholder="Relate a situação das operadoras..." autocomplete="off"></textarea>
-                    <button id="btn-registrar-operadora" class="btn" style="background-color: #34495e; width: auto; font-size: 11px; padding: 0 15px;">REGISTRAR</button>
+                    <textarea id="texto-operadora" class="tentante-input" style="margin-top: 0; min-height: 50px;" placeholder="Relate a situação das operadoras (Ex: QAP, Operante...)" autocomplete="off"></textarea>
                 </div>
             </div>
 
             <div class="grid-equipamentos" style="border-top: none; border-radius: 0 0 5px 5px;">
-                <div class="item-conferencia">CEL. ATENDIMENTO: <input type="number" id="qtd-cel-atend" value="1"></div>
-                <div class="item-conferencia">FONTE CELULAR: <input type="number" id="qtd-fonte-cel" value="1"></div>
-                <div class="item-conferencia">CABO CELULAR: <input type="number" id="qtd-cabo-cel" value="1"></div>
-                <div class="item-conferencia">CEL. WHATS INST.: <input type="number" id="qtd-zap" value="1"></div>
-                <div class="item-conferencia">RÁDIO MÓVEL: <input type="number" id="qtd-radio-movel" value="1"></div>
-                <div class="item-conferencia">IMPRESSORA: <input type="number" id="qtd-impressora" value="1"></div>
-                <div class="item-conferencia">CONTROLE AR: <input type="number" id="qtd-ar" value="1"></div>
-                <div class="item-conferencia">MALETA 4744: <input type="number" id="qtd-m4744" value="1"></div>
-                <div class="item-conferencia">MALETA 4746: <input type="number" id="qtd-m4746" value="1"></div>
-                <div class="item-conferencia">MALETA 4750: <input type="number" id="qtd-m4750" value="1"></div>
-                <div class="item-conferencia">MALETA 4751: <input type="number" id="qtd-m4751" value="1"></div>
-                <div class="item-conferencia">MALETA 4756: <input type="number" id="qtd-m4756" value="1"></div>
-                <div class="item-conferencia">RÁDIO FIXO: <input type="number" id="qtd-radio-fixo" value="1"></div>
+                <div class="item-conferencia">CEL. ATENDIMENTO: <input type="number" id="qtd-cel-atend" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">FONTE CELULAR: <input type="number" id="qtd-fonte-cel" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">CABO CELULAR: <input type="number" id="qtd-cabo-cel" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">CEL. WHATS INST.: <input type="number" id="qtd-zap" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">RÁDIO MÓVEL: <input type="number" id="qtd-radio-movel" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">IMPRESSORA: <input type="number" id="qtd-impressora" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">CONTROLE AR: <input type="number" id="qtd-ar" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">MALETA 4744: <input type="number" id="qtd-m4744" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">MALETA 4746: <input type="number" id="qtd-m4746" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">MALETA 4750: <input type="number" id="qtd-m4750" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">MALETA 4751: <input type="number" id="qtd-m4751" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">MALETA 4756: <input type="number" id="qtd-m4756" class="verificar-item input-pendente" value="0"></div>
+                <div class="item-conferencia">RÁDIO FIXO: <input type="number" id="qtd-radio-fixo" class="verificar-item input-pendente" value="0"></div>
             </div>
             <div class="btn-group"><button class="btn btn-registrar" id="btn-registrar-inicio">REGISTRAR INÍCIO DE TURNO</button></div>
             
@@ -378,7 +394,41 @@
             optData.value = agente;
             dataList.appendChild(optData);
         });
+
+        // 3. Reset Turno Selector on Page Load (Anti-duplicate measure)
+        document.getElementById('turno-select').value = "SELECIONE";
+        const btn = document.getElementById('btn-registrar-inicio');
+        btn.disabled = false;
+        btn.innerText = "REGISTRAR INÍCIO DE TURNO";
+        btn.style.backgroundColor = "#27ae60";
+
+        // --- NEW: Add event listeners to equipment inputs to handle verification state ---
+        document.querySelectorAll('.verificar-item').forEach(el => {
+            el.addEventListener('input', function() {
+                // Remove 'input-pendente' and add 'input-ok' when user interacts
+                this.classList.remove('input-pendente');
+                this.classList.add('input-ok');
+            });
+            // Also handle click/focus if needed, but input covers typing
+        });
     };
+
+    // ... (AUTH AND OTHER FUNCTIONS REMAIN UNCHANGED UNTIL btn-registrar-inicio) ...
+
+    // --- RESET FUNCTION ---
+    function resetarEquipamentos() {
+        const ids = [
+            'qtd-cel-atend', 'qtd-fonte-cel', 'qtd-cabo-cel', 'qtd-zap',
+            'qtd-radio-movel', 'qtd-impressora', 'qtd-ar', 'qtd-m4744',
+            'qtd-m4746', 'qtd-m4750', 'qtd-m4751', 'qtd-m4756', 'qtd-radio-fixo'
+        ];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            el.value = "0";
+            el.classList.remove('input-ok');
+            el.classList.add('input-pendente');
+        });
+    }
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -392,6 +442,58 @@
                     // --- CAPTURA O NOME DO USUÁRIO ---
                     nomeUsuarioLogado = dados.nome || "Usuário";
                     document.getElementById('nomeUsuarioDisplay').innerText = "OLÁ, " + nomeUsuarioLogado;
+
+                    // --- BLOQUEIO PARA VISUALIZADOR (COLE ISSO NO SCRIPT) ---
+                    if (dados.cargo === 'visualizador') {
+                        console.log("🔒 Modo Apenas Leitura Ativado");
+
+                        // 1. Injeta CSS para esconder botões de ação e travar inputs
+                        const styleBlock = document.createElement('style');
+                        styleBlock.innerHTML = `
+                            /* Esconde formulários de registro e botões de salvar/ação */
+                            #registroForm, .input-section, .btn-group, 
+                            .btn-salvar, .btn-registrar, .btn-encaminhar, .btn-concluir, 
+                            .btn-devolver, .btn-acao-tabela, .btn-baixa, .btn-baixa-falta,
+                            .area-operadoras button, .selecao-maleta {
+                                display: none !important;
+                            }
+                            
+                            /* Esconde a última coluna das tabelas (geralmente é a coluna AÇÃO) */
+                            table th:last-child, table td:last-child {
+                                display: none !important;
+                            }
+
+                            /* Deixa campos de input com cara de "bloqueado" */
+                            input, select, textarea {
+                                pointer-events: none !important;
+                                background-color: #eee !important;
+                                border: 1px solid #ccc !important;
+                            }
+
+                            /* Garante que botões de navegação e download continuem visíveis */
+                            .btn-nav, .btn-home, .btn-download, #btnSair, #btnCSV, #btnDownloadCSV {
+                                display: inline-block !important;
+                                pointer-events: auto !important;
+                            }
+                        `;
+                        document.head.appendChild(styleBlock);
+
+                        // 2. Desativa interações via JS (força bruta)
+                        setTimeout(() => {
+                            const inputs = document.querySelectorAll('input, select, textarea, button');
+                            inputs.forEach(el => {
+                                // Se NÃO for botão de sair, download ou navegação, desabilita
+                                if (!el.id.includes('Sair') && 
+                                    !el.classList.contains('btn-nav') && 
+                                    !el.classList.contains('btn-home') &&
+                                    !el.classList.contains('btn-download')) {
+                                    el.disabled = true;
+                                    el.onclick = null;
+                                }
+                            });
+                        }, 500); // Pequeno delay para garantir que a tela carregou
+                    }
+                    // --- FIM DO BLOQUEIO ---
 
                     // --- TEMPORIZADOR DE SEGURANÇA (30 MIN) ---
                     if (dados.cargo !== 'visualizador') {
@@ -620,29 +722,21 @@
         };
     });
 
-    document.getElementById('btn-registrar-inicio').onclick = async () => {
-        const turno = document.getElementById('turno-select').value;
-        const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
-        // REMOVIDO: const matAgente = ...
+    // --- NOVA FUNÇÃO: VERIFICAR STATUS DO TURNO AO MUDAR O SELECT ---
+    document.getElementById('turno-select').addEventListener('change', async function() {
+        const turno = this.value;
+        const btn = document.getElementById('btn-registrar-inicio');
 
-        // VERIFICAÇÃO 1: Campos básicos
-        if (turno === "SELECIONE" || !nomeAgente) {
-             return alert("Preencha Turno e Nome do Agente.");
+        if (turno === "SELECIONE") {
+            btn.disabled = false;
+            btn.innerText = "REGISTRAR INÍCIO DE TURNO";
+            btn.style.backgroundColor = "#27ae60"; // Volta pro verde
+            return;
         }
 
-        // VERIFICAÇÃO 2: Teste de Telefones
-        const btnLinhas = document.querySelectorAll('.btn-linha');
-        let todosTestados = true;
-        btnLinhas.forEach(btn => {
-            // Se NÃO tem 'ok' E NÃO tem 'nok', então não foi testado
-            if (!btn.classList.contains('ok') && !btn.classList.contains('nok')) {
-                todosTestados = false;
-            }
-        });
-
-        if (!todosTestados) {
-            return alert("⚠️ ATENÇÃO: É OBRIGATÓRIO testar todas as linhas telefônicas (marque Verde ou Vermelho) antes de iniciar o turno!");
-        }
+        // Feedback Visual de Carregamento
+        btn.disabled = true;
+        btn.innerText = "VERIFICANDO DISPONIBILIDADE...";
 
         const qVerificacao = query(
             collection(db, "observacoes_sttu"), 
@@ -650,18 +744,97 @@
             where("data_controle", "==", getDataHojeISO()), 
             where("turno_controle", "==", turno)
         );
+
         const snapshot = await getDocs(qVerificacao);
-        if (!snapshot.empty) return alert(`Turno ${turno} já registrado hoje!`);
+
+        if (!snapshot.empty) {
+            // SE JÁ EXISTE, TRAVA O BOTÃO
+            btn.innerText = `TURNO ${turno} JÁ REGISTRADO!`;
+            btn.style.backgroundColor = "#95a5a6"; // Cinza
+            btn.disabled = true;
+        } else {
+            // SE NÃO EXISTE, LIBERA
+            btn.innerText = "REGISTRAR INÍCIO DE TURNO";
+            btn.style.backgroundColor = "#27ae60"; // Verde
+            btn.disabled = false;
+        }
+    });
+
+    document.getElementById('btn-registrar-inicio').onclick = async () => {
+        const btn = document.getElementById('btn-registrar-inicio');
+        
+        // 1. TRAVA IMEDIATA
+        btn.disabled = true;
+
+        // 2. VALIDAÇÃO DE CAMPOS BÁSICOS
+        const turno = document.getElementById('turno-select').value;
+        const nomeAgente = document.getElementById('agente-turno-nome').value.trim().toUpperCase();
+
+        if (turno === "SELECIONE" || !nomeAgente) {
+             alert("Preencha Turno e Nome do Agente.");
+             btn.disabled = false; return;
+        }
+
+        // 3. VALIDAÇÃO DE OPERADORAS (NOVA)
+        const textoOperadora = document.getElementById('texto-operadora').value.trim();
+        if (!textoOperadora) {
+            alert("⚠️ É obrigatório preencher a situação das OPERADORAS.");
+            document.getElementById('texto-operadora').focus();
+            btn.disabled = false; return;
+        }
+
+        // 4. VALIDAÇÃO DE TELEFONES
+        const btnLinhas = document.querySelectorAll('.btn-linha');
+        let todosTestados = true;
+        btnLinhas.forEach(b => {
+            if (!b.classList.contains('ok') && !b.classList.contains('nok')) { todosTestados = false; }
+        });
+
+        if (!todosTestados) {
+            alert("⚠️ É OBRIGATÓRIO verificar todos os números de telefone (Marque Verde ou Vermelho).");
+            btn.disabled = false; return;
+        }
+
+        // 5. VALIDAÇÃO DE EQUIPAMENTOS (RIGOROSA)
+        const inputsEquip = document.querySelectorAll('.verificar-item');
+        let equipPendente = false;
+        inputsEquip.forEach(el => {
+            if (el.classList.contains('input-pendente')) {
+                equipPendente = true;
+            }
+        });
+
+        if (equipPendente) {
+            alert("⚠️ É OBRIGATÓRIO conferir todos os itens (Os campos em VERMELHO devem ser clicados/modificados).");
+            btn.disabled = false; return;
+        }
+
+        // 6. VERIFICAÇÃO FINAL NO BANCO (JUST IN CASE)
+        const qVerificacao = query(
+            collection(db, "observacoes_sttu"), 
+            where("tipo_registro", "==", "INICIO_TURNO"),
+            where("data_controle", "==", getDataHojeISO()), 
+            where("turno_controle", "==", turno)
+        );
+        const snapshot = await getDocs(qVerificacao);
+        
+        if (!snapshot.empty) {
+            alert(`ERRO: O turno ${turno} já foi registrado por outro usuário agora mesmo!`);
+            btn.innerText = `TURNO ${turno} JÁ REGISTRADO!`;
+            btn.style.backgroundColor = "#95a5a6";
+            return;
+        }
 
         let statusLinhas = [];
-        btnLinhas.forEach(btn => {
-            if (btn.classList.contains('ok')) statusLinhas.push(`${btn.getAttribute('data-num')}: OK`);
-            else if (btn.classList.contains('nok')) statusLinhas.push(`${btn.getAttribute('data-num')}: INOPERANTE`);
+        btnLinhas.forEach(b => {
+            if (b.classList.contains('ok')) statusLinhas.push(`${b.getAttribute('data-num')}: OK`);
+            else if (b.classList.contains('nok')) statusLinhas.push(`${b.getAttribute('data-num')}: INOPERANTE`);
         });
         const textoLinhas = statusLinhas.length > 0 ? ` | LINHAS: ${statusLinhas.join(', ')}` : "";
 
-        // REMOVIDO MATRICULA DA STRING DETALHES
-        const detalhes = `SERVIÇO INICIADO TURNO ${turno} - AGENTE: ${nomeAgente}${textoLinhas}. CONFERÊNCIA: ` +
+        const detalhes = `SERVIÇO INICIADO TURNO ${turno} - AGENTE: ${nomeAgente}${textoLinhas}. ` +
+            `OPERADORAS: ${textoOperadora.toUpperCase()}. ` + // ADICIONADO AQUI
+            `CONFERÊNCIA: ` +
             `CEL.ATEND:${document.getElementById('qtd-cel-atend').value}, ` +
             `FONTE:${document.getElementById('qtd-fonte-cel').value}, ` +
             `CABO:${document.getElementById('qtd-cabo-cel').value}, ` +
@@ -682,10 +855,14 @@
             turno_controle: turno
         });
         
-        // --- GATILHO DE AUDITORIA ---
         registrarLogAuditoria("INÍCIO DE TURNO", `Turno ${turno} iniciado por ${nomeAgente}`);
 
-        alert("Início registrado!");
+        alert("Início registrado com sucesso!");
+        btn.innerText = "REGISTRADO COM SUCESSO";
+        
+        // RESETAR TUDO PARA O PRÓXIMO
+        resetarEquipamentos();
+        document.getElementById('texto-operadora').value = "";
     };
 
     document.getElementById('btn-registrar-maleta').onclick = async () => {
@@ -829,19 +1006,19 @@
         }
     };
 
-    // --- NOVO CÓDIGO: BOTÃO REGISTRAR OPERADORA ---
+    // --- NOVO CÓDIGO: BOTÃO REGISTRAR OPERADORA (FUNCIONALIDADE INTEGRADA NO REGISTRO GERAL, MAS MANTIDA PARA AVULSO) ---
+    // Removi a necessidade do botão individual, mas mantive a lógica de validação no registro geral
+    /*
     document.getElementById('btn-registrar-operadora').onclick = () => {
         const textoOp = document.getElementById('texto-operadora').value.trim();
         if (textoOp) {
-            // Salva no banco com um prefixo claro
             salvarObservacao(`SITUAÇÃO OPERADORAS: ${textoOp}`);
-            
-            // Limpa o campo
             document.getElementById('texto-operadora').value = "";
         } else {
             alert("Digite a observação da operadora antes de registrar.");
         }
     };
+    */
 
     document.querySelectorAll('.btn-maleta').forEach(botao => {
         botao.onclick = () => {
