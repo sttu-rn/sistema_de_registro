@@ -44,38 +44,10 @@
         .btn-acao-tabela { width: 100%; margin: 2px 0; padding: 4px 0; font-size: 10px; text-align: center; }
 
         /* --- STATUS --- */
-        .status-concluida { 
-            background-color: #e8f5e9; 
-            color: #2e7d32; 
-            font-weight: bold; 
-            text-align: center; 
-            white-space: nowrap; 
-        }
-        .status-pendente { 
-            background-color: #ffebee; 
-            color: #c62828; 
-            font-weight: bold; 
-            text-align: center; 
-            white-space: nowrap; 
-        }
-        .status-encaminhada { 
-            background-color: #fff3e0; 
-            color: #e67e22; 
-            font-weight: bold; 
-            text-align: center;
-            font-size: 10px; 
-            white-space: nowrap; 
-            padding: 4px; 
-        }
-        .status-despacho { 
-            background-color: #fff3e0; 
-            color: #c0392b; 
-            font-weight: bold; 
-            text-align: center;
-            font-size: 10px; 
-            white-space: nowrap; 
-            padding: 4px; 
-         }
+        .status-concluida { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; text-align: center; white-space: nowrap; }
+        .status-pendente { background-color: #ffebee; color: #c62828; font-weight: bold; text-align: center; white-space: nowrap; }
+        .status-encaminhada { background-color: #fff3e0; color: #e67e22; font-weight: bold; text-align: center; font-size: 10px; white-space: nowrap; padding: 4px; }
+        .status-despacho { background-color: #fff3e0; color: #c0392b; font-weight: bold; text-align: center; font-size: 10px; white-space: nowrap; padding: 4px; }
         
         /* EXTRAS */
         .qtc-container { margin-top: 8px; display: none; }
@@ -124,7 +96,7 @@
     </div>
 </div>
 
-<div style="padding: 20px;">
+<div id="areaRegistro" style="padding: 20px;">
     <form id="registroForm" autocomplete="off">
         <div class="table-container">
             <table>
@@ -215,62 +187,62 @@
             <button type="submit" class="btn btn-salvar">💾 REGISTRAR OCORRÊNCIA</button>
         </div>
     </form>
+</div>
 
-    <div style="text-align: center; margin-top: 25px; gap: 12px; display: flex; justify-content: center;">
-        <button id="btnDownloadCSV" class="btn btn-download">📥 BAIXAR RELATÓRIO CSV</button>
-        <a href="index.html" class="btn btn-home">🏠 VOLTAR AO INÍCIO</a>
-        <a href="agentes.html" class="btn btn-home">AGENTES</a>
-        <a href="observacoes.html" class="btn btn-home">OBSERVAÇÕES</a>
-    </div>
+<div style="text-align: center; margin-top: 5px; gap: 12px; display: flex; justify-content: center; padding-bottom: 20px;">
+    <button id="btnDownloadCSV" class="btn btn-download">📥 BAIXAR RELATÓRIO CSV</button>
+    <a href="index.html" class="btn btn-home">🏠 VOLTAR AO INÍCIO</a>
+    <a href="agentes.html" class="btn btn-home">AGENTES</a>
+    <a href="observacoes.html" class="btn btn-home">OBSERVAÇÕES</a>
+</div>
 
-    <div class="section-title">⏳ OCORRÊNCIAS PENDENTES / EM ANDAMENTO</div>
-    <div class="table-container container-rolagem">
-        <table id="tabelaPendentes">
-            <thead>
-                <tr>
-                    <th class="data-header col-reg">Nº REG.</th>
-                    <th class="data-header">SOLICITANTE</th>
-                    <th class="data-header">CONTATO</th>
-                    <th class="data-header">OCORRÊNCIA</th>
-                    <th class="data-header">LOCAL</th>
-                    <th class="data-header">DETALHE</th>
-                    <th class="data-header">REGIÃO</th>
-                    <th class="data-header">EQUIPE(S)</th>
-                    <th class="data-header">H. ENVIO</th>
-                    <th class="data-header">SITUAÇÃO</th>
-                    <th class="data-header">H. FINAL</th>
-                    <th class="data-header">RESULTADO</th>
-                    <th class="data-header col-hist">HISTÓRICO</th>
-                    <th class="data-header">AÇÃO</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+<div class="section-title">⏳ OCORRÊNCIAS PENDENTES / EM ANDAMENTO</div>
+<div class="table-container container-rolagem">
+    <table id="tabelaPendentes">
+        <thead>
+            <tr>
+                <th class="data-header col-reg">Nº REG.</th>
+                <th class="data-header">SOLICITANTE</th>
+                <th class="data-header">CONTATO</th>
+                <th class="data-header">OCORRÊNCIA</th>
+                <th class="data-header">LOCAL</th>
+                <th class="data-header">DETALHE</th>
+                <th class="data-header">REGIÃO</th>
+                <th class="data-header">EQUIPE(S)</th>
+                <th class="data-header">H. ENVIO</th>
+                <th class="data-header">SITUAÇÃO</th>
+                <th class="data-header">H. FINAL</th>
+                <th class="data-header">RESULTADO</th>
+                <th class="data-header col-hist">HISTÓRICO</th>
+                <th class="data-header col-acao">AÇÃO</th> 
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
-    <div class="section-title">✅ HISTÓRICO DE OCORRÊNCIAS CONCLUÍDAS (HOJE)</div>
-    <div class="table-container container-rolagem">
-        <table id="relatorioTable">
-            <thead>
-                <tr>
-                    <th class="data-header col-reg">Nº REG.</th>
-                    <th class="data-header">SOLICITANTE</th>
-                    <th class="data-header">CONTATO</th>
-                    <th class="data-header">OCORRÊNCIA</th>
-                    <th class="data-header">LOCAL</th>
-                    <th class="data-header">DETALHE</th>
-                    <th class="data-header">REGIÃO</th>
-                    <th class="data-header">EQUIPE(S)</th>
-                    <th class="data-header">H. ENVIO</th>
-                    <th class="data-header">SITUAÇÃO</th>
-                    <th class="data-header">H. FINAL</th>
-                    <th class="data-header">RESULTADO</th>
-                    <th class="data-header col-hist">HISTÓRICO</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+<div class="section-title">✅ HISTÓRICO DE OCORRÊNCIAS CONCLUÍDAS (HOJE)</div>
+<div class="table-container container-rolagem">
+    <table id="relatorioTable">
+        <thead>
+            <tr>
+                <th class="data-header col-reg">Nº REG.</th>
+                <th class="data-header">SOLICITANTE</th>
+                <th class="data-header">CONTATO</th>
+                <th class="data-header">OCORRÊNCIA</th>
+                <th class="data-header">LOCAL</th>
+                <th class="data-header">DETALHE</th>
+                <th class="data-header">REGIÃO</th>
+                <th class="data-header">EQUIPE(S)</th>
+                <th class="data-header">H. ENVIO</th>
+                <th class="data-header">SITUAÇÃO</th>
+                <th class="data-header">H. FINAL</th>
+                <th class="data-header">RESULTADO</th>
+                <th class="data-header col-hist">HISTÓRICO</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 
 <div id="modalEncaminhar" class="modal-overlay">
@@ -346,6 +318,7 @@
     let veiculosOcupados = new Set();
     let nomeUsuarioLogado = "ANÔNIMO"; 
     let usuarioEhAdmin = false; 
+    let isVisualizador = false;
 
     // --- SEGURANÇA + TIMER DE 30 MIN ---
     onAuthStateChanged(auth, async (user) => {
@@ -365,57 +338,53 @@
                     
                     document.getElementById('nomeUsuarioDisplay').innerText = "Olá, " + nomeUsuarioLogado + (usuarioEhAdmin ? " (ADMIN)" : "");
 
-                    // --- BLOQUEIO PARA VISUALIZADOR (COLE ISSO NO SCRIPT) ---
-                    if (dados.cargo === 'visualizador') {
+                    // --- BLOQUEIO PARA VISUALIZADOR (ESTRATÉGIA NUCLEAR) ---
+                    if (dados.cargo === 'visualizador' || dados.nivel_acesso === 'leitura') {
+                        isVisualizador = true;
                         console.log("🔒 Modo Apenas Leitura Ativado");
 
-                        // 1. Injeta CSS para esconder botões de ação e travar inputs
+                        // 1. DESTRUIR ÁREA DE REGISTRO E MODAL
+                        const areaRegistro = document.getElementById('areaRegistro');
+                        if (areaRegistro) areaRegistro.remove();
+                        
+                        const modalEncaminhar = document.getElementById('modalEncaminhar');
+                        if (modalEncaminhar) modalEncaminhar.remove();
+
+                        // 2. INJETAR CSS PARA ESCONDER AÇÕES NA TABELA
                         const styleBlock = document.createElement('style');
                         styleBlock.innerHTML = `
-                            /* Esconde formulários de registro e botões de salvar/ação */
-                            #registroForm, .input-section, .btn-group, 
-                            .btn-salvar, .btn-registrar, .btn-encaminhar, .btn-concluir, 
-                            .btn-devolver, .btn-acao-tabela, .btn-baixa, .btn-baixa-falta,
-                            .area-operadoras button, .selecao-maleta {
+                            .col-acao, .btn-acao-tabela, .btn-encaminhar, .btn-concluir {
                                 display: none !important;
                             }
-                            
-                            /* Esconde a última coluna das tabelas (geralmente é a coluna AÇÃO) */
                             table th:last-child, table td:last-child {
                                 display: none !important;
-                            }
-
-                            /* Deixa campos de input com cara de "bloqueado" */
-                            input, select, textarea {
-                                pointer-events: none !important;
-                                background-color: #eee !important;
-                                border: 1px solid #ccc !important;
-                            }
-
-                            /* Garante que botões de navegação e download continuem visíveis */
-                            .btn-nav, .btn-home, .btn-download, #btnSair, #btnCSV, #btnDownloadCSV {
-                                display: inline-block !important;
-                                pointer-events: auto !important;
                             }
                         `;
                         document.head.appendChild(styleBlock);
 
-                        // 2. Desativa interações via JS (força bruta)
-                        setTimeout(() => {
-                            const inputs = document.querySelectorAll('input, select, textarea, button');
-                            inputs.forEach(el => {
-                                // Se NÃO for botão de sair, download ou navegação, desabilita
-                                if (!el.id.includes('Sair') && 
-                                    !el.classList.contains('btn-nav') && 
-                                    !el.classList.contains('btn-home') &&
-                                    !el.classList.contains('btn-download')) {
-                                    el.disabled = true;
-                                    el.onclick = null;
-                                }
-                            });
-                        }, 500); // Pequeno delay para garantir que a tela carregou
+                        // 3. DESATIVAR FUNÇÕES DE ESCRITA
+                        window.abrirModalEncaminhar = () => alert("Acesso Negado.");
+                        window.concluirOcorrencia = () => alert("Acesso Negado.");
+                        window.confirmarEncaminhamento = () => alert("Acesso Negado.");
+                    } else {
+                        isVisualizador = false;
                     }
                     // --- FIM DO BLOQUEIO ---
+
+                    // --- LÓGICA DO CIOSP (HIDE TABS) ---
+                    if (dados.cargo === 'ciosp') {
+                        // Ocultar botão CSV
+                        const btnCsv = document.getElementById('btnDownloadCSV');
+                        if(btnCsv) btnCsv.style.display = 'none';
+
+                        // Ocultar links para Agentes e Observações
+                        const linkAgentes = document.querySelector('a[href="agentes.html"]');
+                        if(linkAgentes) linkAgentes.style.display = 'none';
+
+                        const linkObservacoes = document.querySelector('a[href="observacoes.html"]');
+                        if(linkObservacoes) linkObservacoes.style.display = 'none';
+                    }
+                    // -----------------------------------
 
                     if (dados.cargo !== 'visualizador') {
                         let tempoInatividade;
@@ -448,11 +417,15 @@
     let equipesModal = [];
 
     async function buscarProximoNumero() {
+        if (isVisualizador) return; // Visualizador não precisa buscar número novo
         const contadorRef = doc(db, "config", "contador");
         const docSnap = await getDoc(contadorRef);
         let proximo = 1;
         if (docSnap.exists()) proximo = (docSnap.data().atual || 0) + 1;
-        document.getElementById('numRegistro').value = String(proximo).padStart(3, '0');
+        
+        const elNum = document.getElementById('numRegistro');
+        if (elNum) elNum.value = String(proximo).padStart(3, '0');
+        
         return proximo;
     }
 
@@ -482,6 +455,7 @@
 
     // --- FUNÇÃO MODIFICADA PARA PERMITIR 'PARA O DESPACHO' SEM EQUIPE/HORA ---
     window.verificarRegrasObrigatoriedade = function() {
+        if (isVisualizador) return;
         const ocorrencia = document.getElementById('ocorrencia').value;
         const situacao = document.getElementById('situacao').value;
         const inputHoraEnvio = document.getElementById('horaEnvio');
@@ -501,7 +475,6 @@
             divSub.style.display = "none";
         }
 
-        // --- ADICIONADO 'PARA O DESPACHO' NA EXCEÇÃO ---
         const isExcecao = (ocorrencia === "VEÍCULO ABANDONADO" || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO");
 
         if (isExcecao) {
@@ -518,6 +491,7 @@
 
     function popularEquipes(selectId, equipesDaOcorrenciaAtual = []) {
         const sel = document.getElementById(selectId);
+        if (!sel) return;
         sel.innerHTML = '<option value="">+ ADICIONAR...</option>';
         
         const adicionarOpcao = (valor) => {
@@ -536,6 +510,7 @@
 
     function renderizarEquipes(targetContainer, lista, removeCallback) {
         const container = document.getElementById(targetContainer);
+        if (!container) return;
         container.innerHTML = "";
         lista.forEach(eq => {
             const chip = document.createElement('div');
@@ -546,29 +521,36 @@
         });
     }
 
-    document.getElementById('equipeSelect').onchange = (e) => {
-        const val = e.target.value;
-        if (val && !equipesSelecionadas.includes(val)) {
-            equipesSelecionadas.push(val);
-            renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => {
-                equipesSelecionadas = equipesSelecionadas.filter(i => i !== r);
-                renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => equipesSelecionadas = equipesSelecionadas.filter(i => i !== r));
-            });
-        }
-        e.target.value = "";
-    };
+    // Event Listeners seguros
+    const elEquipeSelect = document.getElementById('equipeSelect');
+    if (elEquipeSelect) {
+        elEquipeSelect.onchange = (e) => {
+            const val = e.target.value;
+            if (val && !equipesSelecionadas.includes(val)) {
+                equipesSelecionadas.push(val);
+                renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => {
+                    equipesSelecionadas = equipesSelecionadas.filter(i => i !== r);
+                    renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => equipesSelecionadas = equipesSelecionadas.filter(i => i !== r));
+                });
+            }
+            e.target.value = "";
+        };
+    }
 
-    document.getElementById('editEquipeSelect').onchange = (e) => {
-        const val = e.target.value;
-        if (val && !equipesModal.includes(val)) {
-            equipesModal.push(val);
-            renderizarEquipes('editContainerEquipes', equipesModal, (r) => {
-                equipesModal = equipesModal.filter(i => i !== r);
-                renderizarEquipes('editContainerEquipes', equipesModal, (r) => equipesModal = equipesModal.filter(i => i !== r));
-            });
-        }
-        e.target.value = "";
-    };
+    const elEditEquipeSelect = document.getElementById('editEquipeSelect');
+    if (elEditEquipeSelect) {
+        elEditEquipeSelect.onchange = (e) => {
+            const val = e.target.value;
+            if (val && !equipesModal.includes(val)) {
+                equipesModal.push(val);
+                renderizarEquipes('editContainerEquipes', equipesModal, (r) => {
+                    equipesModal = equipesModal.filter(i => i !== r);
+                    renderizarEquipes('editContainerEquipes', equipesModal, (r) => equipesModal = equipesModal.filter(i => i !== r));
+                });
+            }
+            e.target.value = "";
+        };
+    }
 
     function getDataHojeISO() {
         const hoje = new Date();
@@ -666,8 +648,10 @@
             divWrapper.appendChild(lista);
             cellHist.appendChild(divWrapper);
 
-            if (d.situacao !== 'CONCLUÍDA' && d.situacao !== 'NÃO ATENDIDA') {
+            // Se for visualizador, NÃO CRIA A COLUNA DE AÇÃO
+            if (!isVisualizador && d.situacao !== 'CONCLUÍDA' && d.situacao !== 'NÃO ATENDIDA') {
                 const acCell = row.insertCell();
+                acCell.className = 'col-acao'; // Adiciona classe para facilitar
                 acCell.style.display = 'flex';
                 acCell.style.flexDirection = 'column'; 
                 acCell.style.gap = '4px';
@@ -676,13 +660,13 @@
                 const btnEnc = document.createElement('button');
                 btnEnc.className = 'btn btn-encaminhar btn-acao-tabela'; 
                 btnEnc.innerText = 'ENCAMINHAR';
-                btnEnc.onclick = () => abrirModalEncaminhar(id, d);
+                btnEnc.onclick = () => window.abrirModalEncaminhar(id, d);
                 acCell.appendChild(btnEnc);
 
                 const btnCon = document.createElement('button');
                 btnCon.className = 'btn btn-concluir btn-acao-tabela'; 
                 btnCon.innerText = 'CONCLUIR';
-                btnCon.onclick = () => concluirOcorrencia(id, d);
+                btnCon.onclick = () => window.concluirOcorrencia(id, d);
                 acCell.appendChild(btnCon);
             }
         });
@@ -691,6 +675,7 @@
     });
 
     window.abrirModalEncaminhar = (id, dados) => {
+        if (isVisualizador) return;
         document.getElementById('editId').value = id;
         document.getElementById('editSolicitante').value = dados.solicitante;
         document.getElementById('editContato').value = dados.contato;
@@ -714,6 +699,7 @@
     window.fecharModal = () => document.getElementById('modalEncaminhar').style.display = 'none';
 
     window.confirmarEncaminhamento = async () => {
+        if (isVisualizador) return;
         const id = document.getElementById('editId').value;
         const novaHora = getHoraAtual();
         const docRef = doc(db, "ocorrencias_sttu", id);
@@ -752,7 +738,8 @@
         fecharModal();
     };
 
-    async function concluirOcorrencia(id, dadosAntigos) {
+    window.concluirOcorrencia = async (id, dadosAntigos) => {
+        if (isVisualizador) return;
         let res = prompt("RESULTADO FINAL / MOTIVO QTC (OBRIGATÓRIO PARA CONCLUIR):", dadosAntigos.resultadoFinal || "");
         if (res === null) return;
         if (res.trim() === "") { alert("⚠️ ERRO: É OBRIGATÓRIO escrever o Resultado Final."); return; }
@@ -770,80 +757,84 @@
         alert("✅ Ocorrência concluída com sucesso!");
     }
 
-    document.getElementById('registroForm').onsubmit = async (e) => {
-        e.preventDefault();
-        
-        const solicitante = document.getElementById('solicitante').value.trim();
-        const contato = document.getElementById('contato').value.trim();
-        let ocorrencia = document.getElementById('ocorrencia').value;
-        const local = document.getElementById('local').value.trim();
-        const detalhamento = document.getElementById('detalhamento').value.trim();
-        const zona = document.getElementById('zona').value;
-        let horaEnvio = document.getElementById('horaEnvio').value;
-        const situacao = document.getElementById('situacao').value;
-        const resultadoFinal = document.getElementById('resultadoFinal').value.trim();
-        let horaFinalValor = document.getElementById('horaFinal').value;
-        
-        const divSub = document.getElementById('subtipoContainer');
-        if (divSub.style.display === 'block') {
-            const subtipo = document.getElementById('subtipoSelect').value;
-            if (subtipo) ocorrencia = `${ocorrencia} (${subtipo})`;
-        }
+    const elForm = document.getElementById('registroForm');
+    if (elForm) {
+        elForm.onsubmit = async (e) => {
+            if (isVisualizador) { e.preventDefault(); return; }
+            e.preventDefault();
+            
+            const solicitante = document.getElementById('solicitante').value.trim();
+            const contato = document.getElementById('contato').value.trim();
+            let ocorrencia = document.getElementById('ocorrencia').value;
+            const local = document.getElementById('local').value.trim();
+            const detalhamento = document.getElementById('detalhamento').value.trim();
+            const zona = document.getElementById('zona').value;
+            let horaEnvio = document.getElementById('horaEnvio').value;
+            const situacao = document.getElementById('situacao').value;
+            const resultadoFinal = document.getElementById('resultadoFinal').value.trim();
+            let horaFinalValor = document.getElementById('horaFinal').value;
+            
+            const divSub = document.getElementById('subtipoContainer');
+            if (divSub.style.display === 'block') {
+                const subtipo = document.getElementById('subtipoSelect').value;
+                if (subtipo) ocorrencia = `${ocorrencia} (${subtipo})`;
+            }
 
-        // --- ALTERADO AQUI: Adicionado 'PARA O DESPACHO' como exceção ---
-        const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO");
+            const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO");
 
-        if (!solicitante || !contato || !ocorrencia || !local || !detalhamento || !zona || !situacao) {
-            alert("⚠️ Preencha os campos básicos obrigatórios!"); return;
-        }
+            if (!solicitante || !contato || !ocorrencia || !local || !detalhamento || !zona || !situacao) {
+                alert("⚠️ Preencha os campos básicos obrigatórios!"); return;
+            }
 
-        if (!isExcecao) {
-            if (!horaEnvio) { horaEnvio = getHoraAtual(); }
-            if (equipesSelecionadas.length === 0) { alert("⚠️ Selecione pelo menos uma EQUIPE!"); return; }
-        }
+            if (!isExcecao) {
+                if (!horaEnvio) { horaEnvio = getHoraAtual(); }
+                if (equipesSelecionadas.length === 0) { alert("⚠️ Selecione pelo menos uma EQUIPE!"); return; }
+            }
 
-        if (situacao === 'CONCLUÍDA') {
-            if (!resultadoFinal) { alert("⚠️ Para CONCLUÍDA, preencha o RESULTADO FINAL!"); return; }
-            if (!horaFinalValor) { horaFinalValor = getHoraAtual(); }
-        }
+            if (situacao === 'CONCLUÍDA') {
+                if (!resultadoFinal) { alert("⚠️ Para CONCLUÍDA, preencha o RESULTADO FINAL!"); return; }
+                if (!horaFinalValor) { horaFinalValor = getHoraAtual(); }
+            }
 
-        const numAtual = document.getElementById('numRegistro').value; 
-        
-        const dados = {
-            numRegistro: numAtual,
-            solicitante: solicitante.toUpperCase(),
-            contato: contato.toUpperCase(),
-            ocorrencia: ocorrencia,
-            local: local.toUpperCase(),
-            detalhamento: detalhamento.toUpperCase(),
-            zona: zona,
-            equipe: equipesSelecionadas.join(", "),
-            horaEnvio: horaEnvio || "--:--",
-            situacao: situacao,
-            horaFinal: horaFinalValor,
-            resultadoFinal: resultadoFinal.toUpperCase(),
-            timestamp: serverTimestamp(),
-            data_filtro: getDataHojeISO(), 
-            historicoLogs: [`[${horaEnvio}] Criado por ${nomeUsuarioLogado}`] 
+            const numAtual = document.getElementById('numRegistro').value; 
+            
+            const dados = {
+                numRegistro: numAtual,
+                solicitante: solicitante.toUpperCase(),
+                contato: contato.toUpperCase(),
+                ocorrencia: ocorrencia,
+                local: local.toUpperCase(),
+                detalhamento: detalhamento.toUpperCase(),
+                zona: zona,
+                equipe: equipesSelecionadas.join(", "),
+                horaEnvio: horaEnvio || "--:--",
+                situacao: situacao,
+                horaFinal: horaFinalValor,
+                resultadoFinal: resultadoFinal.toUpperCase(),
+                timestamp: serverTimestamp(),
+                data_filtro: getDataHojeISO(), 
+                historicoLogs: [`[${horaEnvio}] Criado por ${nomeUsuarioLogado}`] 
+            };
+
+            await addDoc(collection(db, "ocorrencias_sttu"), dados);
+            
+            registrarLogAuditoria("CRIAR OCORRÊNCIA", `Registro nº ${numAtual} criado por ${nomeUsuarioLogado}. Tipo: ${ocorrencia} em ${local}`);
+
+            const contadorRef = doc(db, "config", "contador");
+            await setDoc(contadorRef, { atual: parseInt(numAtual) }, { merge: true });
+
+            document.getElementById('registroForm').reset();
+            equipesSelecionadas = [];
+            renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => equipesSelecionadas = []);
+            
+            popularEquipes('equipeSelect');
+            window.verificarRegrasObrigatoriedade();
+            buscarProximoNumero();
         };
-
-        await addDoc(collection(db, "ocorrencias_sttu"), dados);
-        
-        registrarLogAuditoria("CRIAR OCORRÊNCIA", `Registro nº ${numAtual} criado por ${nomeUsuarioLogado}. Tipo: ${ocorrencia} em ${local}`);
-
-        const contadorRef = doc(db, "config", "contador");
-        await setDoc(contadorRef, { atual: parseInt(numAtual) }, { merge: true });
-
-        document.getElementById('registroForm').reset();
-        equipesSelecionadas = [];
-        renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => equipesSelecionadas = []);
-        
-        popularEquipes('equipeSelect');
-        window.verificarRegrasObrigatoriedade();
-        buscarProximoNumero();
-    };
+    }
 
     async function registrarLogAuditoria(acao, detalhes) {
+        if (isVisualizador) return;
         try {
             await addDoc(collection(db, "logs_auditoria"), {
                 usuario: nomeUsuarioLogado || "DESCONHECIDO",
@@ -856,7 +847,9 @@
         }
     }
 
-    buscarProximoNumero();
+    if (!isVisualizador) {
+        buscarProximoNumero();
+    }
     popularEquipes('equipeSelect');
     popularEquipes('editEquipeSelect'); 
     
@@ -884,6 +877,8 @@
 
     window.fecharModal = fecharModal;
     window.confirmarEncaminhamento = confirmarEncaminhamento;
+    window.abrirModalEncaminhar = abrirModalEncaminhar;
+    window.concluirOcorrencia = concluirOcorrencia;
 </script>
 </body>
 </html>
