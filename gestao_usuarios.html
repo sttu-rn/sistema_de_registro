@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Usuários - Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { border-bottom: 2px solid #2c3e50; padding-bottom: 10px; color: #2c3e50; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        
+        select { padding: 5px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; width: 100%; }
+        .salvo { color: green; display: none; font-size: 12px; font-weight: bold; margin-left: 5px; }
+        
+        .btn-voltar { text-decoration: none; background: #7f8c8d; color: white; padding: 8px 15px; border-radius: 4px; font-weight: bold; }
+        .btn-voltar:hover { background: #616a6b; }
+        
+        /* Cores Select */
+        .opt-total { color: #27ae60; }
+        .opt-leitura { color: #c0392b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="btn-voltar">⬅ Voltar</a>
+    <h2 style="margin-top: 15px;">🛡️ Gerenciar Permissões de Acesso</h2>
+    <p>Defina o nível de poder de cada usuário no sistema.</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Usuário</th>
+                <th>Cargo (Cadastro)</th>
+                <th>Permissão do Sistema</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="listaUsuarios">
+            <tr><td colspan="4" style="text-align:center">Verificando permissões...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCjiEzdahcQqKS9V1Py4nAIx15Zqr9nIIo",
+        authDomain: "sttu-registros.firebaseapp.com",
+        projectId: "sttu-registros",
+        storageBucket: "sttu-registros.firebasestorage.app",
+        messagingSenderId: "785219239564",
+        appId: "1:785219239564:web:4b8175a8d7ccceba06c5a9",
+        measurementId: "G-C7PSE7YFRG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // 1. VERIFICAÇÃO RIGOROSA DE ADMIN
+            const docRef = doc(db, "usuarios", user.uid);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists() || docSnap.data().cargo !== 'admin') {
+                alert("⛔ ACESSO NEGADO: Você não tem permissão para gerenciar usuários.");
+                window.location.href = "index.html";
+                return;
+            }
+
+            // 2. Carrega lista
+            carregarUsuarios();
+        } else {
+            window.location.href = "login.html";
+        }
+    });
+
+    async function carregarUsuarios() {
+        const tbody = document.getElementById('listaUsuarios');
+        const querySnapshot = await getDocs(collection(db, "usuarios"));
+        
+        tbody.innerHTML = "";
+
+        querySnapshot.forEach((docUser) => {
+            const dados = docUser.data();
+            const id = docUser.id;
+            
+            // Ignora o próprio admin para evitar se trancar
+            if (dados.cargo === 'admin') return;
+
+            const nivelAtual = dados.nivel_acesso || 'total';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <b>${dados.nome || "---"}</b><br>
+                    <small style="color:#666">${dados.email}</small>
+                </td>
+                <td>${dados.cargo ? dados.cargo.toUpperCase() : "---"}</td>
+                <td>
+                    <select id="sel_${id}" onchange="salvarPermissao('${id}')">
+                        <option value="total" class="opt-total" ${nivelAtual === 'total' ? 'selected' : ''}>✅ TOTAL (Edita/Salva)</option>
+                        <option value="leitura" class="opt-leitura" ${nivelAtual === 'leitura' ? 'selected' : ''}>👁️ APENAS LEITURA</option>
+                    </select>
+                </td>
+                <td><span id="msg_${id}" class="salvo">Salvo!</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        // Torna a função global
+        window.salvarPermissao = async (id) => {
+            const novoNivel = document.getElementById(`sel_${id}`).value;
+            const msg = document.getElementById(`msg_${id}`);
+            
+            try {
+                await updateDoc(doc(db, "usuarios", id), { nivel_acesso: novoNivel });
+                msg.style.display = "inline";
+                setTimeout(() => msg.style.display = "none", 2000);
+            } catch (e) {
+                alert("Erro ao salvar: " + e.message);
+            }
+        };
+    }
+</script>
+</body>
+</html>
