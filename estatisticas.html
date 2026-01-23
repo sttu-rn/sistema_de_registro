@@ -242,7 +242,21 @@
             try {
                 const docRef = doc(db, "usuarios", user.uid);
                 const docSnap = await getDoc(docRef);
-                if (docSnap.exists() && docSnap.data().cargo !== 'visualizador') {
+                
+                if (docSnap.exists()) {
+                    const dados = docSnap.data();
+
+                    // --- TRAVA DE SEGURANÇA: VISUALIZADOR ---
+                    const isVisualizador = (dados.cargo === 'visualizador' || dados.nivel_acesso === 'leitura') && dados.cargo !== 'admin';
+
+                    if (isVisualizador) {
+                        alert("⛔ ACESSO NEGADO: Você não tem permissão para ver estatísticas.");
+                        window.location.href = "index.html"; // Chuta de volta
+                        return;
+                    }
+                    // ----------------------------------------
+
+                    // Se não for visualizador, configura o timer
                     let tempoInatividade;
                     const resetarTimer = () => {
                         clearTimeout(tempoInatividade);
@@ -252,9 +266,17 @@
                         }, 30 * 60 * 1000);
                     };
                     window.onload = resetarTimer; document.onmousemove = resetarTimer; document.onclick = resetarTimer;
+                    
+                    // Carrega os dados somente se permitido
+                    carregarDadosDoBanco();
+
+                } else {
+                    alert("Erro de permissão.");
+                    window.location.href = "login.html";
                 }
-                carregarDadosDoBanco();
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error(e); 
+            }
         } else {
             window.location.href = "login.html";
         }
