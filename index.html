@@ -135,9 +135,10 @@
         <div class="button-group" id="menu-botoes">
             <a href="agentes.html" id="btnAgentes">👮 AGENTES <span class="badge-vis">👁️</span></a> 
             <a href="ocorrencias.html" id="btnOcorrencias">🚨 OCORRÊNCIAS <span class="badge-vis">👁️</span></a>
-            <a href="observacoes.html" id="btnObservacoes">📝 OBSERVAÇÕES <span class="badge-vis">👁️</span></a>
-            <a href="relatorio_geral.html" id="btnRelatorios" class="btn-relatorio">📑 RELATÓRIOS</a>
             
+            <a href="observacoes.html" id="btnObservacoes">📝 OBSERVAÇÕES <span class="badge-vis">👁️</span></a>
+            
+            <a href="relatorio_geral.html" id="btnRelatorios" class="btn-relatorio hidden">📑 RELATÓRIOS</a>
             <a href="estatisticas.html" id="btnEstatisticas" class="btn-estatisticas hidden">📊 ESTATÍSTICAS</a>
             
             <hr id="hrAdmin" style="width: 100%; border: 0; margin: 5px;" class="hidden">
@@ -203,11 +204,13 @@
                         const cargo = dados.cargo || 'agente';
                         const nivel = dados.nivel_acesso || 'total';
 
-                        // 1. Lógica para ADMIN (Vê Estatísticas e Ferramentas de Gestão)
-                        // AQUI ESTÁ A MUDANÇA: SÓ O ADMIN ENTRA AQUI
+                        // 1. Lógica para ADMIN (Libera TUDO)
                         if (cargo === 'admin') {
-                            document.getElementById('btnEstatisticas').classList.remove('hidden'); // Só Admin vê estatísticas
+                            // Libera Relatórios e Estatísticas
+                            document.getElementById('btnRelatorios').classList.remove('hidden');
+                            document.getElementById('btnEstatisticas').classList.remove('hidden');
                             
+                            // Libera botões de gestão
                             document.getElementById('hrAdmin').classList.remove('hidden');
                             document.getElementById('btnAprovacao').classList.remove('hidden');
                             document.getElementById('btnGestao').classList.remove('hidden');
@@ -219,14 +222,17 @@
                         if (isVisualizador) {
                             document.querySelectorAll('.badge-vis').forEach(el => el.style.display = 'inline-block');
                             document.getElementById('msgBoasVindas').innerText = "Modo de Visualização (Leitura).";
+                            
+                            // Visualizador não vê Observações nem Relatórios
+                            document.getElementById('btnObservacoes').classList.add('hidden');
+                            // Relatórios já está hidden por padrão
                         }
 
                         // 3. Lógica para CIOSP
                         if (cargo === 'ciosp') {
                             document.getElementById('btnAgentes').classList.add('hidden');
                             document.getElementById('btnObservacoes').classList.add('hidden');
-                            document.getElementById('btnRelatorios').classList.add('hidden');
-                            // Estatísticas já começa hidden e não foi ativado, então continua oculto
+                            // Relatórios já está hidden por padrão
                             document.querySelector('h1').innerText = "Painel CIOSP";
                         }
 
