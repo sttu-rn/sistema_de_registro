@@ -129,7 +129,7 @@
             <div class="area-operadoras">
                 <span class="titulo-operadora">OPERADORAS (PREENCHIMENTO OBRIGATÓRIO):</span>
                 <div style="display: flex; gap: 10px;">
-                    <textarea id="texto-operadora" class="tentante-input" style="margin-top: 0; min-height: 50px;" placeholder="TIM/OI/VIVO/CLARO" autocomplete="off"></textarea>
+                    <textarea id="texto-operadora" class="tentante-input" style="margin-top: 0; min-height: 50px;" placeholder="Relate a situação das operadoras (Ex: QAP, Operante...)" autocomplete="off"></textarea>
                 </div>
             </div>
 
@@ -292,7 +292,7 @@
         <a href="index.html" class="btn-nav">PÁGINA INICIAL</a>
         <a href="agentes.html" class="btn-nav">AGENTES</a>
         <a href="ocorrencias.html" class="btn-nav">OCORRÊNCIAS</a>
-        <a href="relatorio_geral.html" class="btn-nav" style="background-color: #8e44ad;">RELATÓRIOS</a>
+        <a href="relatorio_geral.html" id="btnNavRelatorios" class="btn-nav" style="background-color: #8e44ad;">RELATÓRIOS</a>
     </div>
 
     <div id="modalDevolucao" class="modal-overlay">
@@ -441,6 +441,13 @@
                         window.abrirModalFalta = () => alert("Acesso Negado: Modo Visualizador.");
                     }
                     // ----------------------------------------------
+
+                    // --- NOVA LÓGICA: OCULTAR RELATÓRIOS SE NÃO FOR ADMIN ---
+                    if (dados.cargo !== 'admin') {
+                        const btnRel = document.getElementById('btnNavRelatorios');
+                        if (btnRel) btnRel.style.display = 'none';
+                    }
+                    // -------------------------------------------------------
 
                     if (dados.cargo !== 'visualizador') {
                         let tempoInatividade;
@@ -925,5 +932,4 @@
 </script>
 </body>
 </html>
-
 
