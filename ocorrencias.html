@@ -191,9 +191,13 @@
 
 <div style="text-align: center; margin-top: 5px; gap: 12px; display: flex; justify-content: center; padding-bottom: 20px;">
     <button id="btnDownloadCSV" class="btn btn-download">📥 BAIXAR RELATÓRIO CSV</button>
+    
     <a href="index.html" class="btn btn-home">🏠 VOLTAR AO INÍCIO</a>
-    <a href="agentes.html" class="btn btn-home">AGENTES</a>
-    <a href="observacoes.html" class="btn btn-home">OBSERVAÇÕES</a>
+    
+    <a href="agentes.html" id="btnNavAgentes" class="btn btn-home">AGENTES</a>
+    <a href="observacoes.html" id="btnNavObservacoes" class="btn btn-home">OBSERVAÇÕES</a>
+    
+    <a href="relatorio_geral.html" id="btnNavRelatorios" class="btn btn-home" style="background-color: #8e44ad;">Relatório PDF</a>
 </div>
 
 <div class="section-title">⏳ OCORRÊNCIAS PENDENTES / EM ANDAMENTO</div>
@@ -338,6 +342,12 @@
                     
                     document.getElementById('nomeUsuarioDisplay').innerText = "Olá, " + nomeUsuarioLogado + (usuarioEhAdmin ? " (ADMIN)" : "");
 
+                    // --- REGRA GERAL: SÓ ADMIN BAIXA CSV ---
+                    if (dados.cargo !== 'admin') {
+                        const btnCsv = document.getElementById('btnDownloadCSV');
+                        if (btnCsv) btnCsv.style.display = 'none';
+                    }
+
                     // --- BLOQUEIO PARA VISUALIZADOR (ESTRATÉGIA NUCLEAR) ---
                     if (dados.cargo === 'visualizador' || dados.nivel_acesso === 'leitura') {
                         isVisualizador = true;
@@ -362,7 +372,21 @@
                         `;
                         document.head.appendChild(styleBlock);
 
-                        // 3. DESATIVAR FUNÇÕES DE ESCRITA
+                        // 3. OCULTAR BOTÕES DE NAVEGAÇÃO PROIBIDOS (AJUSTADO: AGENTES VISÍVEL)
+                        const btnCsv = document.getElementById('btnDownloadCSV');
+                        if (btnCsv) btnCsv.style.display = 'none';
+
+                        // O botão de AGENTES não é mais ocultado aqui para o Visualizador.
+                        // const btnAgentes = document.getElementById('btnNavAgentes');
+                        // if (btnAgentes) btnAgentes.style.display = 'none'; 
+
+                        const btnObs = document.getElementById('btnNavObservacoes');
+                        if (btnObs) btnObs.style.display = 'none';
+                        
+                        const btnRel = document.getElementById('btnNavRelatorios');
+                        if (btnRel) btnRel.style.display = 'none';
+
+                        // 4. DESATIVAR FUNÇÕES DE ESCRITA
                         window.abrirModalEncaminhar = () => alert("Acesso Negado.");
                         window.concluirOcorrencia = () => alert("Acesso Negado.");
                         window.confirmarEncaminhamento = () => alert("Acesso Negado.");
@@ -373,18 +397,28 @@
 
                     // --- LÓGICA DO CIOSP (HIDE TABS) ---
                     if (dados.cargo === 'ciosp') {
-                        // Ocultar botão CSV
+                        // Ocultar links para Agentes e Observações (MANTIDO O BLOQUEIO PARA CIOSP)
+                        const linkAgentes = document.getElementById('btnNavAgentes');
+                        if(linkAgentes) linkAgentes.style.display = 'none';
+
+                        const linkObservacoes = document.getElementById('btnNavObservacoes');
+                        if(linkObservacoes) linkObservacoes.style.display = 'none';
+                        
+                         const linkRel = document.getElementById('btnNavRelatorios');
+                        if(linkRel) linkRel.style.display = 'none';
+                    }
+                    // -----------------------------------
+
+                    // --- LÓGICA DE AGENTE ---
+                    if (dados.cargo === 'agente') {
+                        // Ocultar botão CSV (Redundante com a regra geral, mas seguro)
                         const btnCsv = document.getElementById('btnDownloadCSV');
                         if(btnCsv) btnCsv.style.display = 'none';
 
-                        // Ocultar links para Agentes e Observações
-                        const linkAgentes = document.querySelector('a[href="agentes.html"]');
-                        if(linkAgentes) linkAgentes.style.display = 'none';
-
-                        const linkObservacoes = document.querySelector('a[href="observacoes.html"]');
-                        if(linkObservacoes) linkObservacoes.style.display = 'none';
+                        // Ocultar botão Relatório PDF (NOVO)
+                        const btnRel = document.getElementById('btnNavRelatorios');
+                        if(btnRel) btnRel.style.display = 'none';
                     }
-                    // -----------------------------------
 
                     if (dados.cargo !== 'visualizador') {
                         let tempoInatividade;
