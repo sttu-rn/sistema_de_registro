@@ -203,34 +203,30 @@
                         const cargo = dados.cargo || 'agente';
                         const nivel = dados.nivel_acesso || 'total';
 
-                        // 1. Lógica para ESTATÍSTICAS
-                        // Aparece APENAS para 'admin' e 'agente' (com permissão total)
-                        if (cargo === 'admin' || (cargo === 'agente' && nivel === 'total')) {
-                            document.getElementById('btnEstatisticas').classList.remove('hidden');
-                        }
-
-                        // 2. Lógica para ADMIN (Botões Especiais)
+                        // 1. Lógica para ADMIN (Vê Estatísticas e Ferramentas de Gestão)
+                        // AQUI ESTÁ A MUDANÇA: SÓ O ADMIN ENTRA AQUI
                         if (cargo === 'admin') {
-                            document.getElementById('btnEstatisticas').classList.remove('hidden'); // Admin sempre vê estatística
+                            document.getElementById('btnEstatisticas').classList.remove('hidden'); // Só Admin vê estatísticas
+                            
                             document.getElementById('hrAdmin').classList.remove('hidden');
                             document.getElementById('btnAprovacao').classList.remove('hidden');
                             document.getElementById('btnGestao').classList.remove('hidden');
                             document.getElementById('btnAuditoria').classList.remove('hidden');
                         }
 
-                        // 3. Lógica para VISUALIZADOR
+                        // 2. Lógica para VISUALIZADOR
                         const isVisualizador = (cargo === 'visualizador' || nivel === 'leitura') && cargo !== 'admin';
                         if (isVisualizador) {
                             document.querySelectorAll('.badge-vis').forEach(el => el.style.display = 'inline-block');
                             document.getElementById('msgBoasVindas').innerText = "Modo de Visualização (Leitura).";
                         }
 
-                        // 4. Lógica para CIOSP
+                        // 3. Lógica para CIOSP
                         if (cargo === 'ciosp') {
                             document.getElementById('btnAgentes').classList.add('hidden');
                             document.getElementById('btnObservacoes').classList.add('hidden');
                             document.getElementById('btnRelatorios').classList.add('hidden');
-                            // Estatísticas já começa hidden, então CIOSP não vê
+                            // Estatísticas já começa hidden e não foi ativado, então continua oculto
                             document.querySelector('h1').innerText = "Painel CIOSP";
                         }
 
