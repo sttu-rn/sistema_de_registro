@@ -170,6 +170,11 @@
                 <div class="item-conferencia">CERTIFICADO: <input type="number" id="qtd-certificado" value="2"></div>
                 <div class="item-conferencia">TC: <input type="number" id="qtd-tc" value="2"></div>
                 <div class="item-conferencia">MANUAL: <input type="number" id="qtd-manual" value="2"></div>
+                
+                <div style="grid-column: 1 / -1; margin-top: 10px;">
+                    <label style="font-size: 11px; font-weight: bold; color: #555;">ENTREGUE PARA (OBRIGATÓRIO):</label>
+                    <input type="text" id="entregue-para" class="outras-obs" placeholder="NOME DO AGENTE QUE RECEBEU..." style="margin-top: 2px; border-left: 4px solid #dc3545;" autocomplete="off">
+                </div>
                 <div style="grid-column: 1 / -1;"><input type="text" id="obs-extras" class="outras-obs" placeholder="Outras observações..." autocomplete="off"></div>
             </div>
             <div class="btn-group"><button class="btn btn-entrega" id="btn-registrar-maleta">REGISTRAR ENTREGA DE MALETA</button></div>
@@ -279,7 +284,7 @@
             <div class="config-turno" style="background-color: #16a085;"><strong>EQUIPE COMPLEMENTAR:</strong></div>
             <div style="border: 2px solid #16a085; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <input type="text" id="comp-nome" placeholder="NOME" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
+                    <input type="text" id="comp-nome" placeholder="NOME DO AGENTE..." style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
                     <input type="text" id="comp-funcao" placeholder="FUNÇÃO..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
                 </div>
                 <div class="btn-group"><button class="btn" id="btn-registrar-complementar" style="background-color: #16a085;">REGISTRAR EQUIPE</button></div>
@@ -790,6 +795,16 @@
         if (!nomeAgente) { alert("Preencha o Nome do Agente no topo primeiro."); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
 
         const maleta = document.getElementById('maleta-selecionada').value;
+        
+        // --- NOVA VALIDAÇÃO OBRIGATÓRIA ---
+        const entreguePara = document.getElementById('entregue-para').value.trim().toUpperCase();
+        if (!entreguePara) {
+            alert("⚠️ CAMPO OBRIGATÓRIO: Informe para quem a maleta/item foi entregue.");
+            document.getElementById('entregue-para').focus();
+            return;
+        }
+        // ---------------------------------
+
         const obs = document.getElementById('obs-extras').value.trim();
 
         if (maleta) {
@@ -826,6 +841,7 @@
 
         const detalhes = `ENTREGA ${maleta ? 'DA MALETA '+maleta : 'DE EQUIPAMENTOS'}. ` +
             `RETIRADO POR: ${nomeAgente}. ` + 
+            `ENTREGUE PARA: ${entreguePara}. ` + 
             `ITENS: ETIL:${qtdEtil}, PITEIRA:${qtdPiteira}, IMP:${qtdImp}, CARR:${qtdCar}, BOB:${qtdBob}, ` +
             `BOAT:${qtdBoat}, CERT:${qtdCert}, TC:${qtdTc}, MAN:${qtdMan} ${obs ? '| OBS: '+obs : ''}`;
         
@@ -837,6 +853,7 @@
         document.querySelectorAll('.btn-maleta').forEach(b => b.classList.remove('selecionada'));
         document.getElementById('maleta-selecionada').value = "";
         document.getElementById('obs-extras').value = "";
+        document.getElementById('entregue-para').value = ""; // Limpa o campo
     };
 
     document.getElementById('btn-registrar-tentante').onclick = () => {
