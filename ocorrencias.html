@@ -342,10 +342,13 @@
                     
                     document.getElementById('nomeUsuarioDisplay').innerText = "Olá, " + nomeUsuarioLogado + (usuarioEhAdmin ? " (ADMIN)" : "");
 
-                    // --- REGRA GERAL: SÓ ADMIN BAIXA CSV ---
+                    // --- REGRA GERAL: SÓ ADMIN BAIXA CSV E VÊ PDF ---
                     if (dados.cargo !== 'admin') {
                         const btnCsv = document.getElementById('btnDownloadCSV');
                         if (btnCsv) btnCsv.style.display = 'none';
+
+                        const btnRel = document.getElementById('btnNavRelatorios');
+                        if (btnRel) btnRel.style.display = 'none';
                     }
 
                     // --- BLOQUEIO PARA VISUALIZADOR (ESTRATÉGIA NUCLEAR) ---
@@ -372,19 +375,11 @@
                         `;
                         document.head.appendChild(styleBlock);
 
-                        // 3. OCULTAR BOTÕES DE NAVEGAÇÃO PROIBIDOS (AJUSTADO: AGENTES VISÍVEL)
-                        const btnCsv = document.getElementById('btnDownloadCSV');
-                        if (btnCsv) btnCsv.style.display = 'none';
-
-                        // O botão de AGENTES não é mais ocultado aqui para o Visualizador.
-                        // const btnAgentes = document.getElementById('btnNavAgentes');
-                        // if (btnAgentes) btnAgentes.style.display = 'none'; 
-
+                        // 3. OCULTAR BOTÕES DE NAVEGAÇÃO PROIBIDOS
                         const btnObs = document.getElementById('btnNavObservacoes');
                         if (btnObs) btnObs.style.display = 'none';
                         
-                        const btnRel = document.getElementById('btnNavRelatorios');
-                        if (btnRel) btnRel.style.display = 'none';
+                        // Botões de Relatório já foram ocultos pela regra "só admin" acima
 
                         // 4. DESATIVAR FUNÇÕES DE ESCRITA
                         window.abrirModalEncaminhar = () => alert("Acesso Negado.");
@@ -408,17 +403,6 @@
                         if(linkRel) linkRel.style.display = 'none';
                     }
                     // -----------------------------------
-
-                    // --- LÓGICA DE AGENTE ---
-                    if (dados.cargo === 'agente') {
-                        // Ocultar botão CSV (Redundante com a regra geral, mas seguro)
-                        const btnCsv = document.getElementById('btnDownloadCSV');
-                        if(btnCsv) btnCsv.style.display = 'none';
-
-                        // Ocultar botão Relatório PDF (NOVO)
-                        const btnRel = document.getElementById('btnNavRelatorios');
-                        if(btnRel) btnRel.style.display = 'none';
-                    }
 
                     if (dados.cargo !== 'visualizador') {
                         let tempoInatividade;
@@ -531,8 +515,10 @@
         const adicionarOpcao = (valor) => {
             const opt = new Option(valor, valor);
             if (veiculosOcupados.has(valor) && !equipesDaOcorrenciaAtual.includes(valor)) {
-                opt.disabled = true;
-                opt.text += " (EM USO)";
+                // opt.disabled = true;  <-- LINHA REMOVIDA PARA PERMITIR SELEÇÃO
+                opt.text += " (⚠️ EM USO)"; // Alerta visual
+                opt.style.color = "#c0392b"; // Cor vermelha para chamar atenção
+                opt.style.fontWeight = "bold";
             }
             sel.add(opt);
         };
@@ -560,6 +546,16 @@
     if (elEquipeSelect) {
         elEquipeSelect.onchange = (e) => {
             const val = e.target.value;
+
+            // --- VERIFICAÇÃO DE USO ---
+            if (veiculosOcupados.has(val)) {
+                if(!confirm(`⚠️ ATENÇÃO:\n\nA equipe ${val} já está em atendimento em outra ocorrência.\n\nDeseja mesmo enviá-la para este local?`)) {
+                    e.target.value = "";
+                    return; // Cancela a adição
+                }
+            }
+            // --------------------------
+
             if (val && !equipesSelecionadas.includes(val)) {
                 equipesSelecionadas.push(val);
                 renderizarEquipes('containerEquipes', equipesSelecionadas, (r) => {
@@ -575,6 +571,16 @@
     if (elEditEquipeSelect) {
         elEditEquipeSelect.onchange = (e) => {
             const val = e.target.value;
+
+            // --- VERIFICAÇÃO DE USO (MODAL) ---
+            if (veiculosOcupados.has(val) && !equipesModal.includes(val)) { // Evita alerta se já estiver nesta ocorrência
+                 if(!confirm(`⚠️ ATENÇÃO:\n\nA equipe ${val} já está em atendimento em outra ocorrência.\n\nDeseja mesmo enviá-la para este local?`)) {
+                    e.target.value = "";
+                    return;
+                }
+            }
+            // ----------------------------------
+
             if (val && !equipesModal.includes(val)) {
                 equipesModal.push(val);
                 renderizarEquipes('editContainerEquipes', equipesModal, (r) => {
