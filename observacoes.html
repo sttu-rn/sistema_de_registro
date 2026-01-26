@@ -129,7 +129,7 @@
             <div class="area-operadoras">
                 <span class="titulo-operadora">OPERADORAS (PREENCHIMENTO OBRIGATÓRIO):</span>
                 <div style="display: flex; gap: 10px;">
-                    <textarea id="texto-operadora" class="tentante-input" style="margin-top: 0; min-height: 50px;" placeholder="TIM / OI / VIVO / CLARO" autocomplete="off"></textarea>
+                    <textarea id="texto-operadora" class="tentante-input" style="margin-top: 0; min-height: 50px;" placeholder="Relate a situação das operadoras (Ex: QAP, Operante...)" autocomplete="off"></textarea>
                 </div>
             </div>
 
@@ -175,6 +175,7 @@
                     <label style="font-size: 11px; font-weight: bold; color: #555;">ENTREGUE PARA (OBRIGATÓRIO):</label>
                     <input type="text" id="entregue-para" class="outras-obs" placeholder="NOME DO AGENTE QUE RECEBEU..." style="margin-top: 2px; border-left: 4px solid #dc3545;" autocomplete="off">
                 </div>
+
                 <div style="grid-column: 1 / -1;"><input type="text" id="obs-extras" class="outras-obs" placeholder="Outras observações..." autocomplete="off"></div>
             </div>
             <div class="btn-group"><button class="btn btn-entrega" id="btn-registrar-maleta">REGISTRAR ENTREGA DE MALETA</button></div>
@@ -284,7 +285,7 @@
             <div class="config-turno" style="background-color: #16a085;"><strong>EQUIPE COMPLEMENTAR:</strong></div>
             <div style="border: 2px solid #16a085; padding: 15px; border-radius: 0 0 5px 5px; background: #fff; margin-bottom: 20px;">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <input type="text" id="comp-nome" placeholder="NOME" style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
+                    <input type="text" id="comp-nome" placeholder="NOME DO AGENTE..." style="flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
                     <input type="text" id="comp-funcao" placeholder="FUNÇÃO..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase;" autocomplete="off">
                 </div>
                 <div class="btn-group"><button class="btn" id="btn-registrar-complementar" style="background-color: #16a085;">REGISTRAR EQUIPE</button></div>
