@@ -471,7 +471,7 @@
         });
     });
 
-    // --- FUNÇÃO MODIFICADA PARA PERMITIR 'PARA O DESPACHO' SEM EQUIPE/HORA ---
+    // --- FUNÇÃO MODIFICADA: CONCLUÍDA NÃO EXIGE CAMPOS ---
     window.verificarRegrasObrigatoriedade = function() {
         if (isVisualizador) return;
         const ocorrencia = document.getElementById('ocorrencia').value;
@@ -493,7 +493,8 @@
             divSub.style.display = "none";
         }
 
-        const isExcecao = (ocorrencia === "VEÍCULO ABANDONADO" || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO");
+        // --- ADICIONADO 'CONCLUÍDA' NA LISTA DE EXCEÇÕES ---
+        const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO" || situacao === "CONCLUÍDA");
 
         if (isExcecao) {
             inputHoraEnvio.required = false;
@@ -515,10 +516,8 @@
         const adicionarOpcao = (valor) => {
             const opt = new Option(valor, valor);
             if (veiculosOcupados.has(valor) && !equipesDaOcorrenciaAtual.includes(valor)) {
-                // opt.disabled = true;  <-- LINHA REMOVIDA PARA PERMITIR SELEÇÃO
-                opt.text += " (⚠️ EM USO)"; // Alerta visual
-                opt.style.color = "#c0392b"; // Cor vermelha para chamar atenção
-                opt.style.fontWeight = "bold";
+                // opt.disabled = true; // REMOVIDO PARA PERMITIR VISUALIZAR EM USO
+                opt.text += " (EM USO)";
             }
             sel.add(opt);
         };
@@ -820,7 +819,7 @@
                 if (subtipo) ocorrencia = `${ocorrencia} (${subtipo})`;
             }
 
-            const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO");
+            const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO" || situacao === "CONCLUÍDA");
 
             if (!solicitante || !contato || !ocorrencia || !local || !detalhamento || !zona || !situacao) {
                 alert("⚠️ Preencha os campos básicos obrigatórios!"); return;
