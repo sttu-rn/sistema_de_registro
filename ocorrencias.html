@@ -138,7 +138,6 @@
                                 <option value="PANE SEMAFÓRICA">PANE SEMAFÓRICA</option>
                                 <option value="VEÍCULO ABANDONADO">VEÍCULO ABANDONADO</option>
                                 <option value="APOIO AO AGENTE">APOIO AO AGENTE</option>
-                                <option value="OBSTÁCULO NA VIA">OBSTÁCULO NA VIA</option>
                                 <option value="OUTROS">OUTROS</option>
                             </select>
                             <div id="subtipoContainer" class="subtipo-container">
@@ -269,7 +268,6 @@
                 <option value="PANE SEMAFÓRICA">PANE SEMAFÓRICA</option>
                 <option value="VEÍCULO ABANDONADO">VEÍCULO ABANDONADO</option>
                 <option value="APOIO AO AGENTE">APOIO AO AGENTE</option>
-                <option value="OBSTÁCULO NA VIA">OBSTÁCULO NA VIA</option>
                 <option value="OUTROS">OUTROS</option>
             </select>
         </div>
@@ -377,7 +375,11 @@
                         `;
                         document.head.appendChild(styleBlock);
 
-                        // 3. OCULTAR BOTÕES DE NAVEGAÇÃO PROIBIDOS
+                        // 3. OCULTAR BOTÕES DE NAVEGAÇÃO PROIBIDOS (AJUSTADO: AGENTES VISÍVEL)
+                        // O botão de AGENTES não é mais ocultado aqui para o Visualizador.
+                        // const btnAgentes = document.getElementById('btnNavAgentes');
+                        // if (btnAgentes) btnAgentes.style.display = 'none'; 
+
                         const btnObs = document.getElementById('btnNavObservacoes');
                         if (btnObs) btnObs.style.display = 'none';
                         
@@ -394,6 +396,10 @@
 
                     // --- LÓGICA DO CIOSP (HIDE TABS) ---
                     if (dados.cargo === 'ciosp') {
+                        // Ocultar botão CSV
+                        const btnCsv = document.getElementById('btnDownloadCSV');
+                        if(btnCsv) btnCsv.style.display = 'none';
+
                         // Ocultar links para Agentes e Observações (MANTIDO O BLOQUEIO PARA CIOSP)
                         const linkAgentes = document.getElementById('btnNavAgentes');
                         if(linkAgentes) linkAgentes.style.display = 'none';
@@ -405,6 +411,17 @@
                         if(linkRel) linkRel.style.display = 'none';
                     }
                     // -----------------------------------
+
+                    // --- LÓGICA DE AGENTE ---
+                    if (dados.cargo === 'agente') {
+                        // Ocultar botão CSV (Redundante com a regra geral, mas seguro)
+                        const btnCsv = document.getElementById('btnDownloadCSV');
+                        if(btnCsv) btnCsv.style.display = 'none';
+
+                        // Ocultar botão Relatório PDF (NOVO)
+                        const btnRel = document.getElementById('btnNavRelatorios');
+                        if(btnRel) btnRel.style.display = 'none';
+                    }
 
                     if (dados.cargo !== 'visualizador') {
                         let tempoInatividade;
@@ -473,7 +490,7 @@
         });
     });
 
-    // --- FUNÇÃO MODIFICADA: CONCLUÍDA NÃO EXIGE CAMPOS ---
+    // --- FUNÇÃO MODIFICADA PARA PERMITIR 'PARA O DESPACHO' SEM EQUIPE/HORA ---
     window.verificarRegrasObrigatoriedade = function() {
         if (isVisualizador) return;
         const ocorrencia = document.getElementById('ocorrencia').value;
@@ -496,7 +513,7 @@
         }
 
         // --- ADICIONADO 'CONCLUÍDA' NA LISTA DE EXCEÇÕES ---
-        const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO" || situacao === "CONCLUÍDA");
+        const isExcecao = (ocorrencia === "VEÍCULO ABANDONADO" || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO" || situacao === "CONCLUÍDA");
 
         if (isExcecao) {
             inputHoraEnvio.required = false;
@@ -821,14 +838,21 @@
                 if (subtipo) ocorrencia = `${ocorrencia} (${subtipo})`;
             }
 
+            // --- AQUI ESTÁ A ALTERAÇÃO ---
+            // Adicionado 'CONCLUÍDA' para não obrigar hora e equipe
             const isExcecao = (ocorrencia.includes("VEÍCULO ABANDONADO") || situacao === "NÃO ATENDIDA" || situacao === "PARA O DESPACHO" || situacao === "CONCLUÍDA");
 
             if (!solicitante || !contato || !ocorrencia || !local || !detalhamento || !zona || !situacao) {
                 alert("⚠️ Preencha os campos básicos obrigatórios!"); return;
             }
 
+            // REGRA DE OURO: Se o horário não foi preenchido, usa a hora atual (Para TODOS os casos)
+            if (!horaEnvio) {
+                horaEnvio = getHoraAtual();
+            }
+
             if (!isExcecao) {
-                if (!horaEnvio) { horaEnvio = getHoraAtual(); }
+                // Validação de equipe apenas se NÃO for exceção
                 if (equipesSelecionadas.length === 0) { alert("⚠️ Selecione pelo menos uma EQUIPE!"); return; }
             }
 
