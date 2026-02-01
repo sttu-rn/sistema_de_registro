@@ -926,7 +926,7 @@
         const nome = document.getElementById('comp-nome').value.trim().toUpperCase();
         const funcao = document.getElementById('comp-funcao').value.trim().toUpperCase();
         if (nome && funcao) {
-            const textoFinal = `EQUIPE COMPLEMENTAR: AGENTE ${nome} - FUNÇÃO: ${funcao}`;
+            const textoFinal = `EQUIPE COMPLEMENTAR: NOME ${nome} - FUNÇÃO: ${funcao}`;
             salvarObservacao(textoFinal);
             document.getElementById('comp-nome').value = "";
             document.getElementById('comp-funcao').value = "";
@@ -950,6 +950,7 @@
 </script>
 </body>
 </html>
+
 
 
 
